@@ -2,20 +2,23 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFonts } from '@use-expo/font';
 import Home from './containers/home/home';
+import Splash from './containers/splash/splash'
 import Background from './component/background/background';
 
 
 
 export default function App() {
-  let [fontsLoaded] = useFonts({
+  const [fontsLoaded] = useFonts({
     'OpenSansHebrew': require('./assets/fonts/OpenSansHebrew-Regular.ttf'),
   });
+
+  const isInitialized = () => fontsLoaded;
 
   return (
     <View style={styles.container} >
       <Background>
-        {fontsLoaded &&
-          <Home />
+        {isInitialized &&
+          <Splash />
         }
       </Background>
     </View>
