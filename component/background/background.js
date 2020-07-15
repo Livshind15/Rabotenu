@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { StyleSheet, ImageBackground } from 'react-native';
+import background from './background.png'
 
 export default function Background({ children }) {
     return (
-        <ImageBackground style={styles.backgroundImage} source={require('./background.png')}>
+        <ImageBackground  style={styles.backgroundImage} source={background}>
             {children}
         </ImageBackground>
     );
@@ -17,7 +18,7 @@ const styles = StyleSheet.create({
         height: '110%',
         justifyContent: "center",
         alignItems: "center",
-        resizeMode:  'stretch',
+        
         opacity: 1
     }
     

@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { StyleSheet, Dimensions, Image, View } from 'react-native';
 import { Spinner } from 'nachos-ui';
+import Background from '../../component/background/background';
 import image from './splash.logo.png';
 
 
 
 export default function Splash() {
     return (
+        <Background>
         <View style={styles.container}>
             <View style={styles.imageContainer}>
                 <Image
@@ -21,6 +23,7 @@ export default function Splash() {
                 </View>
             </View>
         </View>
+        </Background>
     );
 }
 const styles = StyleSheet.create({
