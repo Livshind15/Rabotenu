@@ -14,9 +14,10 @@ const styles = StyleSheet.create({
     backgroundImage:{
         flex: 1,
         width: '100%',
-        height: '100%',
+        height: '110%',
         justifyContent: "center",
         alignItems: "center",
+        resizeMode:  'stretch',
         opacity: 1
     }
     

@@ -17,9 +17,7 @@ export default function App() {
   return (
     <View style={styles.container} >
       <Background>
-        {isInitialized &&
-          <Splash />
-        }
+        {!isInitialized ? <Splash /> : <Home/>}
       </Background>
     </View>
   );
