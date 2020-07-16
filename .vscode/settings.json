@@ -1,5 +1,12 @@
 {
     "cSpell.words": [
         "חיפוש"
-    ]
+    ],
+    "files.watcherExclude": {
+        "**/node_modules/*/**": true
+    },
+    "search.exclude": {
+        "**/bower_components": false,
+        "**/node_modules": true
+    }
 }
