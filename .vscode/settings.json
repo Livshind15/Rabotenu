@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
-        "חיפוש"
+        "חיפוש",
+        "מראה"
     ],
     "files.watcherExclude": {
         "**/node_modules/*/**": true
