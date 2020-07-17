@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View, TextInput, Platform } from 'react-native';
 
-export default function Input() {
+export default function Input({options}) {
     return (
         <View style={styles.MainContainer}>
             <TextInput
@@ -12,7 +12,7 @@ export default function Input() {
                 underlineColorAndroid={'#FFFFFF00'}
                 autoCapitalize="none"
                 autoCorrect={false}
-                style={styles.TextInputStyleClass} />
+                style={[styles.TextInputStyleClass,options||[]]} />
         </View>
     );
 }
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
             fontSize: 20,
             textAlign: 'right',
             height: 50,
-            paddingHorizontal: 40,
+            paddingHorizontal: 20,
             direction: 'rtl',
             borderRadius: 50,
             backgroundColor: "#FFFFFF",
