@@ -1,24 +1,16 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity,Text } from 'react-native';
 
-import Tabs from '../../component/tabs/tabs';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
-import TabButton from '../../component/tabButton/tabButton';
 import Background from '../../component/background/background';
 
 
-export default function Explore(props) {
-  const [tab, setTab] = React.useState(0)
+
+export default function Acronym(props) {
 
   return (
     <Background>
-      <View style={styles.tabs}>
-        <Tabs selectedIndex={tab} onSelect={setTab}>
-          <TabButton>חיפוש מראה מקום</TabButton>
-          <TabButton>תצוגת עץ</TabButton>
-        </Tabs>
-      </View>
       <View style={styles.page}>
         <View style={styles.input}>
           <Input />
@@ -57,14 +49,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderBottomColor: '#11AFC2',
     borderBottomWidth: 1,
-  },
-  tabs: {
-    height: 60,
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    zIndex: 5,
   },
   input: {
     flex: 0.45,

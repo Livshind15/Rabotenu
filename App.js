@@ -7,11 +7,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ApplicationProvider } from '@ui-kitten/components';
 
-
 import Home from './containers/home/home';
 import Splash from './containers/splash/splash';
-import Explore from './containers/explore/explore';
 import Logo from './component/logo/logo';
+import MainNavigator from './containers/mainNavigator/mainNavigator';
+import { RabotenuProvider, RabotenuContext } from './contexts/applicationContext';
+
 const Stack = createStackNavigator();
 
 
@@ -32,25 +33,28 @@ export default function App() {
     setDelay(true)
   }, 1000);
 
-
+ 
   return (
     <ApplicationProvider {...eva} theme={eva.light}>
       <NavigationContainer>
-        {isInitialized ? <Routes /> : <Splash />}
+        <RabotenuProvider>
+          {isInitialized ? <Routes /> : <Splash />}
+        </RabotenuProvider>
       </NavigationContainer>
     </ApplicationProvider>
-
   );
 }
 
 const Routes = () => {
+  const {title} = React.useContext(RabotenuContext);
   return (
-    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE' }}>
-      <Stack.Screen name="Home" options={{ headerShown: false }} component={Home} />
-      <Stack.Screen name="Explore" options={{ ...screenOptions, title: 'עיון' }} component={Explore} />
-      <Stack.Screen name="Search" component={Home} />
-      <Stack.Screen name="Acronym" component={Home} />
-    </Stack.Navigator>
+    <>
+      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE' }}>
+        <Stack.Screen name="Home" options={{ headerShown: false, title }} component={Home} />
+        <Stack.Screen name="Main" options={{ ...screenOptions, title }} component={MainNavigator} />
+      </Stack.Navigator>
+
+    </>
   )
 }
 

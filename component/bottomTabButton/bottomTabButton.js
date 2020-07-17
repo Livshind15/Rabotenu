@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import Logo from '../../assets/explore.svg';
 
 
-export default function BottomTabButton({ isSelected, onPress, children }) {
+export default function BottomTabButton({ isSelected, onPress, children, Icon }) {
 
   return (
     <TouchableOpacity style={styles.tab} underlayColor="#ffffff00" onPress={onPress}>
       <View style={[styles.tabLabel, (isSelected ? styles.active : {})]}>
-        <Logo></Logo>
+        <Icon fill={isSelected ? '#EEEEED' : "#504F4F"} width={25} height={25}></Icon>
         <Text style={[styles.text, (isSelected ? styles.activeText : {})]}>{children}</Text>
       </View>
     </TouchableOpacity>
@@ -38,6 +37,7 @@ const styles = StyleSheet.create({
   tabLabel: {
     width: '100%',
     height: '100%',
+    padding:5,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F2F2F2',
