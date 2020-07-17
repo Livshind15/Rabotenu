@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { StyleSheet, View,Text, TouchableOpacity } from 'react-native';
 
-export default function TabButton({ text, isSelected,onPress }) {
+export default function TabButton({ isSelected,onPress,children}) {
 
     return (
-        <TouchableOpacity  style={styles.tab}  underlayColor="#ffffff00" onPress={onPress}>
-            <View style={[styles.tabLabel, (isSelected ? styles.active : {})]}>
-            <Text style={styles.text}>{text}</Text>
-            </View>
-            <View style={[styles.triangle, (isSelected ? styles.activeTriangle : {})]}></View>
-        </TouchableOpacity>
+            <TouchableOpacity  style={styles.tab}  underlayColor="#ffffff00" onPress={onPress}>
+                <View style={[styles.tabLabel, (isSelected ? styles.active : {})]}>
+                <Text style={styles.text}>{children}</Text>
+                </View>
+                <View style={[styles.triangle, (isSelected ? styles.activeTriangle : {})]}></View>
+            </TouchableOpacity>
     );
 }
 
