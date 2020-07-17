@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 
-export default function ClickButton({ optionsButton, optionsText, outline }) {
+export default function ClickButton({ optionsButton, optionsText, outline,children }) {
     const styles = StyleSheet.create({
         container: {
             width: "100%",
@@ -36,7 +36,7 @@ export default function ClickButton({ optionsButton, optionsText, outline }) {
             <TouchableOpacity
                 style={[styles.button, optionsButton || []]}
                 underlayColor="#ffffff00" >
-                <Text style={[styles.text, optionsText || []]}>חיפוש</Text>
+                <Text style={[styles.text, optionsText || []]}>{children}</Text>
             </TouchableOpacity>
         </View>
     );

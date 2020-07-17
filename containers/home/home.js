@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text,StatusBar } from 'react-native';
 import ButtonList from '../../component/buttonList/buttonList';
 import Background from '../../component/background/background';
 import { RabotenuContext } from '../../contexts/applicationContext';
 
 export default function Home({ navigation }) {
+    StatusBar.setBarStyle('dark-content', true);
+
     const { setTitle } = React.useContext(RabotenuContext);
 
     return (

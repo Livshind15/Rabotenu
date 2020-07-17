@@ -21,11 +21,11 @@ export default function Explore(props) {
       </View>
       <View style={styles.page}>
         <View style={styles.input}>
-          <Input />
+          <Input  placeholder={ "חיפוש חופשי"} />
         </View>
         <View style={styles.button}>
           <View style={styles.buttonWrapper}>
-            <ClickButton />
+            <ClickButton >חיפוש</ClickButton>
           </View>
           <TouchableOpacity
             underlayColor="#ffffff00" >

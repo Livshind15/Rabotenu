@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Dimensions, Image, View } from 'react-native';
+import { StyleSheet, StatusBar, Image, View } from 'react-native';
 import { Spinner } from 'nachos-ui';
 import Background from '../../component/background/background';
 import image from './splash.logo.png';
@@ -7,6 +7,8 @@ import image from './splash.logo.png';
 
 
 export default function Splash() {
+    StatusBar.setBarStyle('dark-content', true);
+
     return (
         <Background>
         <View style={styles.container}>

@@ -53,7 +53,6 @@ const Routes = () => {
         <Stack.Screen name="Home" options={{ headerShown: false, title }} component={Home} />
         <Stack.Screen name="Main" options={{ ...screenOptions, title }} component={MainNavigator} />
       </Stack.Navigator>
-
     </>
   )
 }

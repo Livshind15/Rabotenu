@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { StyleSheet, View, TextInput, Platform } from 'react-native';
 
-export default function Input({options}) {
+export default function Input({options,placeholder}) {
     return (
         <View style={styles.MainContainer}>
             <TextInput
-                placeholder="חיפוש חופשי"
+                placeholder= {placeholder}
                 placeholderTextColor='#CBCBCB'
                 underlineColorAndroid='transparent'
                 selectionColor={'#CBCBCB'}
