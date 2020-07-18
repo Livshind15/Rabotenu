@@ -1,40 +1,85 @@
 import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+
+
 
 import Tabs from '../../component/tabs/tabs';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import TabButton from '../../component/tabButton/tabButton';
 import Background from '../../component/background/background';
+import ExploreResultView from './exploreResultView';
+import ExploreTreeView from './exploreTreeView'
+import ExploreAddReplace from './exploreAddReplace';
+import result from './result.mock';
+import { delay } from '../../utils/helpers';
+
+
+
+const Stack = createStackNavigator();
+
+const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 
 export default function Explore(props) {
-  const [tab, setTab] = React.useState(0)
 
   return (
+    <Navigator initialRouteName='SearchExplore' tabBar={props => <TopTabBar {...props} />}>
+      <Screen name='SearchExplore' component={SearchExploreRoutes} />
+      <Screen name='Tree' component={ExploreTreeView} />
+    </Navigator>
+
+  );
+}
+
+const TopTabBar = ({ navigation, state }) => (
+  <View style={styles.tabs}>
+    <Tabs selectedIndex={state.index} onSelect={index => navigation.navigate(state.routeNames[index])}>
+      <TabButton>חיפוש מראה מקום</TabButton>
+      <TabButton>תצוגת עץ</TabButton>
+    </Tabs>
+  </View>
+);
+
+const SearchExploreRoutes = () => (
+  <Stack.Navigator initialRouteName="Main" >
+    <Stack.Screen name="ResultView" options={{ headerShown: false }} component={ExploreResultView} />
+    <Stack.Screen name="Main" options={{ headerShown: false }} component={ExploreMain} />
+    <Stack.Screen name="AddReplace" options={{ headerShown: false }} component={ExploreAddReplace} />
+  </Stack.Navigator>
+)
+
+const ExploreMain = ({ navigation }) => {
+  const [input, setInput] = React.useState('');
+  const [isLoading, setLoading] = React.useState(false)
+  return (
     <Background>
-      <View style={styles.tabs}>
-        <Tabs selectedIndex={tab} onSelect={setTab}>
-          <TabButton>חיפוש מראה מקום</TabButton>
-          <TabButton>תצוגת עץ</TabButton>
-        </Tabs>
-      </View>
       <View style={styles.page}>
         <View style={styles.input}>
-          <Input  placeholder={ "חיפוש חופשי"} />
+          <Input isLoading={isLoading} value={input} onChange={setInput} placeholder={"חיפוש חופשי"} />
         </View>
         <View style={styles.button}>
           <View style={styles.buttonWrapper}>
-            <ClickButton >חיפוש</ClickButton>
+            <ClickButton optionsButton={{ paddingVertical: 6 }} onPress={async () => {
+              if (!isLoading) {
+                setLoading(true)
+                await delay(2500);
+                setLoading(false)
+                navigation.push('ResultView', { result: result, searchInput: input });
+              }
+            }}>חיפוש</ClickButton>
           </View>
           <TouchableOpacity
-            underlayColor="#ffffff00" >
+            underlayColor="#ffffff00"
+            onPress={() => !isLoading && navigation.push('AddReplace')}>
             <Text style={styles.clickText}>החלפות והוספות</Text>
           </TouchableOpacity>
         </View>
       </View>
     </Background>
-  );
+  )
 }
 
 
