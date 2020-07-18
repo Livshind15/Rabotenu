@@ -16,7 +16,7 @@ const Tab = createBottomTabNavigator();
 
 
 export default function MainNavigator({route}) {
-    // StatusBar.setBarStyle('light-content', true);
+ 
     return (
         <Tab.Navigator initialRouteName={route.params.screen} tabBar={props => <BottomTabBar {...props} />}>
             <Tab.Screen name="Acronym" component={Acronym} />
