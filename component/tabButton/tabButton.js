@@ -6,7 +6,7 @@ export default function TabButton({ isSelected,onPress,children}) {
     return (
             <TouchableOpacity  style={styles.tab}  underlayColor="#ffffff00" onPress={onPress}>
                 <View style={[styles.tabLabel, (isSelected ? styles.active : {})]}>
-                <Text style={styles.text}>{children}</Text>
+                <Text style={[styles.text, (isSelected ? styles.activeText : {})]}>{children}</Text>
                 </View>
                 <View style={[styles.triangle, (isSelected ? styles.activeTriangle : {})]}></View>
             </TouchableOpacity>
@@ -44,8 +44,13 @@ const styles = StyleSheet.create({
           {rotate: '180deg'}
         ]
     },
-    text:{
+    activeText:{
         color: '#fff',
+        fontFamily: "OpenSansHebrewBold",
+
+    },
+    text:{
+        color: '#A3A5A4',
         fontFamily: "OpenSansHebrew",
         textAlign: 'center',
         fontSize: 20,
