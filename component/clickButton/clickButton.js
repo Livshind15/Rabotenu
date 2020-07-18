@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 
-export default function ClickButton({ optionsButton, optionsText, outline,children }) {
+export default function ClickButton({ optionsButton, optionsText, outline,children,onPress=()=>{} }) {
     const styles = StyleSheet.create({
         container: {
             width: "100%",
@@ -12,7 +12,8 @@ export default function ClickButton({ optionsButton, optionsText, outline,childr
             ...{
                 width: '100%',
                 paddingVertical: 5,
-                borderRadius: 100
+                borderRadius: 100,
+                justifyContent:'center',
             }, ...(outline ? {
                 borderColor:'#00AABE',
                 borderWidth:1
@@ -35,7 +36,9 @@ export default function ClickButton({ optionsButton, optionsText, outline,childr
         <View style={styles.container}>
             <TouchableOpacity
                 style={[styles.button, optionsButton || []]}
-                underlayColor="#ffffff00" >
+                underlayColor="#ffffff00" 
+                onPress={onPress}
+            >
                 <Text style={[styles.text, optionsText || []]}>{children}</Text>
             </TouchableOpacity>
         </View>
