@@ -6,6 +6,7 @@ import { useFonts } from '@use-expo/font';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ApplicationProvider } from '@ui-kitten/components';
+import { myTheme } from './custom-theme';
 
 import Home from './containers/home/home';
 import Splash from './containers/splash/splash';
@@ -35,7 +36,7 @@ export default function App() {
 
  
   return (
-    <ApplicationProvider {...eva} theme={eva.light}>
+    <ApplicationProvider {...eva} theme={{...eva.light,...myTheme}}>
       <NavigationContainer>
         <RabotenuProvider>
           {isInitialized ? <Routes /> : <Splash />}
