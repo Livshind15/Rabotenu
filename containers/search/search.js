@@ -1,38 +1,56 @@
 import * as React from 'react';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
+
 
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import Background from '../../component/background/background';
+import SearchResultView from './searchResultView';
+import { delay } from '../../utils/helpers';
+
+const Stack = createStackNavigator();
 
 
-
-export default function Search(props) {
-
+export default function Search() {
   return (
-    <Background>
-      <View style={styles.page}>
-        <View style={styles.container}>
-          <View style={styles.textWrapper}>
-            <Text style={styles.text}>הקלד את המילה החיפוש שתרצה לאתר</Text>
-          </View>
-          <View style={styles.input}>
-            <Input placeholder={'חפש'} />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <ClickButton outline={true} >חיפוש</ClickButton>
-          </View>
-          <TouchableOpacity
-            underlayColor="#ffffff00" >
-            <Text style={styles.clickText}>אפשרויות חיפוש מתקדמות</Text>
-          </TouchableOpacity>
-        </View>
+    <Stack.Navigator initialRouteName="MainSearch" >
+      <Stack.Screen name="MainSearch" options={{ headerShown: false }} component={SearchMain} />
+      <Stack.Screen name="SearchResultView" options={{ headerShown: false }} component={SearchResultView} />
 
-      </View>
-
-
-    </Background>
+    </Stack.Navigator>
   );
+}
+
+const SearchMain = ({ navigation }) => {
+  const [input, setInput] = React.useState('');
+  const [isLoading, setLoading] = React.useState(false)
+  return (<Background>
+    <View style={styles.page}>
+      <View style={styles.container}>
+        <View style={styles.textWrapper}>
+          <Text style={styles.text}>הקלד את המילה החיפוש שתרצה לאתר</Text>
+        </View>
+        <View style={styles.input}>
+          <Input isLoading={isLoading} value={input} onChange={setInput} placeholder={'חפש'} />
+        </View>
+        <View style={styles.buttonWrapper}>
+          <ClickButton  onPress={async () => {
+              if (!isLoading) {
+                setLoading(true)
+                await delay(2500);
+                setLoading(false)
+                navigation.push('SearchResultView', { searchInput: input });
+              }
+              }} outline={true} >חיפוש</ClickButton>
+        </View>
+        <TouchableOpacity
+          underlayColor="#ffffff00" >
+          <Text style={styles.clickText}>אפשרויות חיפוש מתקדמות</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Background>)
 }
 
 
