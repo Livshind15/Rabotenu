@@ -1,13 +1,11 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet,ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import Icon from "react-native-vector-icons/Entypo";
 import OctIcons from "react-native-vector-icons/Octicons";
 
 
 import Background from '../../component/background/background';
 import Accordian from '../../component/accordian/accordian';
-import { ScrollView } from 'react-native-gesture-handler';
-
 import treeMock from './tree.mock';
 
 
@@ -19,7 +17,7 @@ const ExploreTreeView = ({ navigation }) => {
         <Background>
             <View style={styles.page}>
                 <ScrollView style={styles.scroll}>
-                    {treeMock.map((val, index) => <Accordian key={index} index={index} header={val.title} icon={<Icon name={'folder'} size={22} color={'#515151'} />}>
+                    {treeMock.map((val, index) => <Accordian key={index} index={index} header={val.title} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
                         <View style={styles.innerScroll}>
                             {val.options.map((result, index) => <TouchableOpacity  underlayColor="#ffffff00" key={index} style={styles.resultContainer}>
                                 <Text style={styles.resultText}>{result.title}</Text>

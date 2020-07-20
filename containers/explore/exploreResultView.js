@@ -1,14 +1,13 @@
 import * as React from 'react';
-import { StyleSheet, View, StatusBar, Text, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity, Platform } from 'react-native';
 import { CheckBox } from '@ui-kitten/components';
 
 import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
-import { ScrollView } from 'react-native-gesture-handler';
 
-export default function ExploreResultView({route }) {
-  const { result , searchInput} = route.params;
+export default function ExploreResultView({ route }) {
+  const { result, searchInput } = route.params;
   const [input, setInput] = React.useState(searchInput);
   const [exploreResult, setExploreResult] = React.useState(attachKeyToArray(result, 'isCheck', false));
 
@@ -22,7 +21,7 @@ export default function ExploreResultView({route }) {
   }
 
   const isResultSelect = () => exploreResult.some(result => result.isCheck)
-  
+
   const countResultSelect = () => exploreResult.filter(result => result.isCheck).length
 
   return (
@@ -42,22 +41,23 @@ export default function ExploreResultView({route }) {
         </View>
         <View style={styles.resultWrapper}>
           <ScrollView>
-            {exploreResult.map((result, index) => <View key={index} style={styles.result}>
-              <View style={styles.checkBoxWrapper}>
-                <CheckBox
-                  checked={result.isCheck}
-                  onChange={() => { setResultCheck(result.key) }}>
-                </CheckBox>
-              </View>
-              <View style={styles.resultTitleWrapper}>
-                <TouchableOpacity
-                  underlayColor="#ffffff00"
-                  onPress={() => { setResultCheck(result.key) }}>
+            {exploreResult.map((result, index) =>
+              <TouchableOpacity
+                style={styles.result}
+                key={index}
+                underlayColor="#ffffff00"
+                onPress={() => { setResultCheck(result.key) }}>
+                <View style={styles.checkBoxWrapper}>
+                  <CheckBox
+                    checked={result.isCheck}
+                    onChange={() => { setResultCheck(result.key) }}>
+                  </CheckBox>
+                </View>
+                <View style={styles.resultTitleWrapper}>
                   <Text style={styles.resultTitle}>{result.title}</Text>
-                </TouchableOpacity>
-              </View>
-
-            </View>)}
+                </View>
+              </TouchableOpacity>
+            )}
           </ScrollView>
         </View>
         <View style={styles.selectContainer}>
@@ -66,8 +66,7 @@ export default function ExploreResultView({route }) {
             style={[styles.selectButton, isResultSelect() ? {} : styles.selectButtonDisable]}
             underlayColor="#ffffff00" >
             <Text style={[styles.selectButtonText, isResultSelect() ? {} : styles.selectButtonDisableText]} >
-
-              {isResultSelect() ?  `פתח ספרים נבחרים (${countResultSelect()})`:`פתח ספרים נבחרים`}
+              {isResultSelect() ? `פתח ספרים נבחרים (${countResultSelect()})` : `פתח ספרים נבחרים`}
             </Text>
           </TouchableOpacity>
         </View>
@@ -183,7 +182,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#878A8A'
   },
-
   inputWrapper: {
     flex: 0.82,
     height: '100%',
