@@ -4,7 +4,7 @@ import { View, TouchableOpacity, Text, StyleSheet, LayoutAnimation, Platform, UI
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 
-export default function Accordian({ children, header, icon, index }) {
+export default function Accordian({ children, header, customStyles = { container: {} }, additionalComponent, index }) {
     const [expanded, setExpanded] = React.useState(false);
     const accordian = React.useRef(null);
 
@@ -22,9 +22,9 @@ export default function Accordian({ children, header, icon, index }) {
 
     return (
         <View>
-            <TouchableOpacity underlayColor="#ffffff00" ref={accordian} style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}]} onPress={() => toggleExpand()}>
-                <View style={styles.icon}>
-                    {icon}
+            <TouchableOpacity underlayColor="#ffffff00" ref={accordian} style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}, customStyles.container || {}]} onPress={() => toggleExpand()}>
+                <View style={styles.additionalComponent}>
+                    {additionalComponent}
                 </View>
                 <View style={styles.toggleAndText}>
                     <Text style={[styles.title, styles.font, expanded ? styles.titleBold : {}]}>{header}</Text>
@@ -60,8 +60,10 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         flexDirection: 'row'
     },
-    icon: {
-        flex: 1
+    additionalComponent: {
+        flex: 1,
+        height: '100%',
+        justifyContent: 'center',
     },
     row: {
         flexDirection: 'row',
