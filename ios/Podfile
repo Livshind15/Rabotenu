@@ -45,4 +45,6 @@ target 'MyReactNative5' do
   use_native_modules!
   pod 'react-native-safe-area-context', :path => '../node_modules/react-native-safe-area-context'
 
+  pod 'RNFileViewer', :path => '../node_modules/react-native-file-viewer'
+
 end
