@@ -3,7 +3,7 @@
   "displayName": "Rabotenu",
   "expo": {
     "name": "Rabotenu",
-    "slug": "expo-template-bare",
+    "slug": "rabotenu",
     "version": "1.0.0",
     "platforms": [
       "ios",
@@ -13,6 +13,7 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "icon": "./assets/icon.png",
     "packagerOpts": {
       "config": "metro.config.js",
       "sourceExts": [
@@ -23,8 +24,30 @@
         "svg"
       ]
     },
+    "splash": {
+      "image": "./assets/background.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#FFFFFF"
+ 
+ 
+    },
+    "ios": {
+      "splash": {
+        "image": "./assets/background.png",
+        "resizeMode": "cover"
+      },
+      "bundleIdentifier": "org.markup.exp"
+    },
     "android": {
-      "package": "rabotenu.livshin.com"
+	      "package": "rabotenu.livshin.com",
+      "splash": {
+        "mdpi": "./assets/background.png",
+        "hdpi": "./assets/background.png",
+        "xhdpi": "./assets/background.png",
+        "xxhdpi": "./assets/background.png",
+        "xxxhdpi": "./assets/background.png",
+        "resizeMode": "cover"
+      }
     }
   }
 }
