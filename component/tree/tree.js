@@ -23,17 +23,13 @@ const Tree = ({ results, deep = 0 }) => (
                     </View>
                 </View>
             }>
-                <>
-                    {result.tree && <View style={styles.innerScroll}>
-                        {<Tree results={result.tree} deep={deep + 1} />}
-                    </View>}
-                    <View style={styles.innerScroll}>
+                <View >
+                    {result.tree && <Tree results={result.tree} deep={deep + 1} />}              
                         {((result.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
                             <Text style={styles.resultText}>{book.title}</Text>
                             <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
                         </TouchableOpacity>)}
-                    </View>
-                </>
+                </View>
 
             </Accordian>
         ))}
@@ -58,8 +54,13 @@ const styles = StyleSheet.create({
     },
     innerScroll: {
         flex: 1,
-        width: '100%'
+        width: '100%',
     },
+    innerTree:{
+        flex: 1,
+        width: '100%',
+        backgroundColor:'yellow'
+        },
     resultContainer: {
         height: 40,
         paddingLeft: 25,
