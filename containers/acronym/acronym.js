@@ -1,16 +1,32 @@
 import * as React from 'react';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import Background from '../../component/background/background';
+import AcronymModal from './acronym.model';
+import AcronymResult from './acronymResult';
 
-
+const Stack = createStackNavigator();
 
 export default function Acronym(props) {
 
   return (
+    <Stack.Navigator initialRouteName="Main" >
+    <Stack.Screen name="Acronym" options={{ headerShown: false }} component={AcronymMain} />
+    <Stack.Screen name="AcronymResult" options={{ headerShown: false }} component={AcronymResult} />
+  </Stack.Navigator>
+)
+  
+}
+
+const AcronymMain = ({ navigation }) => {
+  const [showModal, setShowModal] = React.useState(false)
+  return (
+
     <Background>
+      <AcronymModal visible={showModal} setVisible={setShowModal} />
       <View style={styles.page}>
         <View style={styles.container}>
           <View style={styles.textWrapper}>
@@ -21,10 +37,12 @@ export default function Acronym(props) {
           </View>
           <View style={styles.buttonsWrapper}>
             <View style={styles.buttonWrapper}>
-              <ClickButton outline={true}>הגדרות</ClickButton>
+              <ClickButton onPress={() => setShowModal(true)} outline={true}>הגדרות</ClickButton>
             </View>
             <View style={styles.buttonWrapper}>
-              <ClickButton outline={false} optionsButton={{ paddingVertical: 6 }} >חיפוש</ClickButton>
+              <ClickButton onPress={async () => {
+                navigation.push('AcronymResult');
+              }} outline={false} optionsButton={{ paddingVertical: 6 }} >חיפוש</ClickButton>
             </View>
           </View>
           <TouchableOpacity
@@ -58,15 +76,15 @@ const styles = StyleSheet.create({
     fontFamily: "OpenSansHebrewBold",
     textAlign: 'center',
     fontSize: 20,
-    color:'#ECECEC'
+    color: '#ECECEC'
   },
   addButton: {
     width: '95%',
     height: '80%',
     paddingVertical: 5,
     borderRadius: 2,
-    justifyContent:'center',
-    alignItems:'center',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#00AABE',
   },
   textWrapper: {
