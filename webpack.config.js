@@ -8,7 +8,9 @@ module.exports = async function (env, argv) {
         },
         resolve: {
             alias: {
-                'react-native-svg': 'react-native-svg-web'
+                    'react-native': 'react-native-web',
+                    'react-native-svg': 'react-native-svg-web',
+                    'react-native-webview': 'react-native-web-webview',
             }
         }
     }, argv);
@@ -50,6 +52,14 @@ module.exports = async function (env, argv) {
             return rule;
         }
     });
-
+    config.module.rules.push({
+        test: /postMock.html$/,
+        use: {
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]',
+          },
+        },
+      })
     return config;
 };
