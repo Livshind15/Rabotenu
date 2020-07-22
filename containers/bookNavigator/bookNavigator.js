@@ -10,10 +10,9 @@ const BookNavigator = ({ navigation }) => {
     return (<Background>
         <View style={styles.header}>
             <HeaderButton>רשימת ספרים</HeaderButton>
-            <HeaderButton>רשימת ספרים</HeaderButton>
-            <HeaderButton>רשימת ספרים</HeaderButton>
-            <HeaderButton>רשימת ספרים</HeaderButton>
-
+            <HeaderButton>הגדרות תצוגה</HeaderButton>
+            <HeaderButton>תפריטי קשר</HeaderButton>
+            <HeaderButton>העתקה</HeaderButton>
         </View>
         <View style={styles.page}>
 
@@ -36,14 +35,17 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor:'#CBD4D3',
+        borderLeftWidth:2,
+        borderLeftColor:'#F0F0F0'
     },
 
     text: {
-        color: '#A3A5A4',
+        color: '#727575',
         fontFamily: "OpenSansHebrew",
         textAlign: 'center',
-        fontSize: 20,
+        fontSize: 18,
     },
     tabLabel: {
         width: '100%',
@@ -53,12 +55,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#CBD4D3'
     },
     header: {
-        flex: 0.125,
+       height:50,
         flexDirection: 'row-reverse',
         width: '100%'
     },
     page: {
-        backgroundColor: 'red',
         flex: 1,
         width: '100%',
         justifyContent: 'center',
