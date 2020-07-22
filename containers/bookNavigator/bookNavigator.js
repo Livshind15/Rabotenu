@@ -1,29 +1,38 @@
 import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Background from '../../component/background/background';
-
-const Stack = createStackNavigator();
-
+import Tabs from '../../component/tabs/tabs'
+import BookView from '../bookView/bookView'
+const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 const BookNavigator = ({ navigation }) => {
-    return (<Background>
-        <View style={styles.header}>
-            <HeaderButton>רשימת ספרים</HeaderButton>
-            <HeaderButton>הגדרות תצוגה</HeaderButton>
-            <HeaderButton>תפריטי קשר</HeaderButton>
-            <HeaderButton>העתקה</HeaderButton>
-        </View>
-        <View style={styles.page}>
-
-        </View>
-    </Background>)
+    return (
+        <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
+            <Screen name='Copy' component={View} />
+            <Screen name='Menu' component={View} />
+            <Screen name='Display' component={View} />
+            <Screen name='BookList' component={View} />
+            <Screen name='View' component={BookView} />
+        </Navigator>
+    )
 }
 
-const HeaderButton = ({children}) => (
-    <TouchableOpacity style={styles.tab} underlayColor="#ffffff00">
-        <View style={[styles.tabLabel]}>
-            <Text style={[styles.text]}>{children}</Text>
+const TopTabBar = ({ navigation, state }) => (
+    <View style={styles.tabs}>
+        <Tabs selectedIndex={state.index} onSelect={index => navigation.navigate(state.routeNames[index])}>
+            <HeaderButton>העתקה</HeaderButton>
+            <HeaderButton>תפריטי קשר</HeaderButton>
+            <HeaderButton>הגדרות תצוגה</HeaderButton>
+            <HeaderButton>רשימת ספרים</HeaderButton>
+        </Tabs>
+    </View>
+);
+
+const HeaderButton = ({ children, isSelected, onPress }) => (
+    <TouchableOpacity onPress={onPress} style={styles.tab} underlayColor="#ffffff00">
+        <View style={[styles.tabLabel, isSelected ? styles.tabLabelSelect : {}]}>
+            <Text style={[styles.text, isSelected ? styles.textSelect : {}]}>{children}</Text>
         </View>
     </TouchableOpacity>
 
@@ -36,16 +45,21 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor:'#CBD4D3',
-        borderLeftWidth:2,
-        borderLeftColor:'#F0F0F0'
+        backgroundColor: '#CBD4D3',
+        borderWidth: 1,
+        borderColor: '#F0F0F0'
     },
-
+    tabLabelSelect: {
+        backgroundColor: '#504F4F'
+    },
+    textSelect: {
+        color: '#A8AEAD',
+    },
     text: {
         color: '#727575',
         fontFamily: "OpenSansHebrew",
         textAlign: 'center',
-        fontSize: 18,
+        fontSize: 16,
     },
     tabLabel: {
         width: '100%',
@@ -54,9 +68,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#CBD4D3'
     },
-    header: {
-       height:50,
-        flexDirection: 'row-reverse',
+    tabs: {
+        height: 50,
         width: '100%'
     },
     page: {

@@ -6,7 +6,7 @@ import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 
-export default function ExploreResultView({ route }) {
+export default function ExploreResultView({ route,navigation }) {
   const { result, searchInput } = route.params;
   const [input, setInput] = React.useState(searchInput);
   const [exploreResult, setExploreResult] = React.useState(attachKeyToArray(result, 'isCheck', false));
@@ -64,7 +64,9 @@ export default function ExploreResultView({ route }) {
           <TouchableOpacity
             disabled={!isResultSelect()}
             style={[styles.selectButton, isResultSelect() ? {} : styles.selectButtonDisable]}
-            underlayColor="#ffffff00" >
+            underlayColor="#ffffff00" 
+            onPress={()=>{navigation.push('Result')}
+            }>
             <Text style={[styles.selectButtonText, isResultSelect() ? {} : styles.selectButtonDisableText]} >
               {isResultSelect() ? `פתח ספרים נבחרים (${countResultSelect()})` : `פתח ספרים נבחרים`}
             </Text>

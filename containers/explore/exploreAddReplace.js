@@ -58,7 +58,7 @@ const InputArea = ({ title, withPlus = false }) => (
         <Text style={styles.inputTitle}>{title}</Text>
         <View style={styles.inputAndButton}>
             <View style={styles.input}>
-                <Input options={{ height: 32 }} placeholder={""} />
+                <Input onChange={()=>{}} options={{ height: 32 }} placeholder={""} />
             </View>
             {withPlus && <View style={styles.plusButton}>
             <TouchableOpacity

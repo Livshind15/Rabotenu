@@ -33,7 +33,7 @@ const AcronymMain = ({ navigation }) => {
             <Text style={styles.text}>הקלד ראשי תיבות שתרצה לאתר</Text>
           </View>
           <View style={styles.input}>
-            <Input placeholder={'חפש'} />
+            <Input onChange={()=>{}} placeholder={'חפש'} />
           </View>
           <View style={styles.buttonsWrapper}>
             <View style={styles.buttonWrapper}>

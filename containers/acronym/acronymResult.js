@@ -1,10 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View, ScrollView, Text, TouchableOpacity, Platform } from 'react-native';
-import { CheckBox } from '@ui-kitten/components';
 
 import Background from '../../component/background/background';
-import Input from '../../component/input/input'
-import ClickButton from '../../component/clickButton/clickButton';
 import results from './acronymResult.mock';
 
 export default function AcronymResult({ }) {

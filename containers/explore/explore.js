@@ -15,7 +15,7 @@ import ExploreTreeView from './exploreTreeView'
 import ExploreAddReplace from './exploreAddReplace';
 import result from './result.mock';
 import { delay } from '../../utils/helpers';
-
+import BookNavigator from '../bookNavigator/bookNavigator'
 
 
 const Stack = createStackNavigator();
@@ -26,13 +26,19 @@ const { Navigator, Screen } = createMaterialTopTabNavigator();
 export default function Explore(props) {
 
   return (
-    <Navigator initialRouteName='SearchExplore' tabBar={props => <TopTabBar {...props} />}>
-      <Screen name='SearchExplore' component={SearchExploreRoutes} />
-      <Screen name='Tree' component={ExploreTreeView} />
-    </Navigator>
-
+    <Stack.Navigator initialRouteName="ExplorePages" >
+      <Stack.Screen name="ExplorePages" options={{ headerShown: false }} component={ExplorePages} />
+      <Stack.Screen name="Result" options={{ headerShown: false }} component={BookNavigator} />
+    </Stack.Navigator>
   );
 }
+
+const ExplorePages = () => (
+  <Navigator initialRouteName='SearchExplore' tabBar={props => <TopTabBar {...props} />}>
+    <Screen name='SearchExplore' component={SearchExploreRoutes} />
+    <Screen name='Tree' component={ExploreTreeView} />
+  </Navigator>
+)
 
 const TopTabBar = ({ navigation, state }) => (
   <View style={styles.tabs}>
