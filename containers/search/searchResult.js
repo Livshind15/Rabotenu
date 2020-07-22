@@ -32,25 +32,25 @@ const SearchResult = ({ navigation }) => {
                 <ScrollView style={styles.scroll}>
                     {results.map((result, index) => (
                         <View key={index}>
-                        <TouchableOpacity underlayColor="#ffffff00" style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}]} >
-                            <View style={styles.additionalComponent}>
-                                <View style={styles.endContainer}>
-                                    <View style={styles.showButtonWrapper}>
-                                        <TouchableOpacity
-                                            underlayColor="#ffffff00" >
-                                            <Text style={styles.showButtonText}>צפייה</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={styles.countResultWrapper}>
-                                        <Text style={styles.countText}>{result.len}</Text>
+                            <TouchableOpacity underlayColor="#ffffff00" style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}]} >
+                                <View style={styles.additionalComponent}>
+                                    <View style={styles.endContainer}>
+                                        <View style={styles.showButtonWrapper}>
+                                            <TouchableOpacity
+                                                underlayColor="#ffffff00" >
+                                                <Text style={styles.showButtonText}>צפייה</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={styles.countResultWrapper}>
+                                            <Text style={styles.countText}>{result.len}</Text>
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
-                            <View style={styles.toggleAndText}>
-                                <Text style={[styles.title, styles.font]}>{result.title}</Text>
-                            </View>
+                                <View style={styles.toggleAndText}>
+                                    <Text style={[styles.title, styles.font]}>{result.title}</Text>
+                                </View>
 
-                        </TouchableOpacity>
+                            </TouchableOpacity>
                         </View>
                     ))}
 
