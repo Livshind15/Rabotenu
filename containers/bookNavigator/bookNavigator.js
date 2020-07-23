@@ -4,6 +4,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import Background from '../../component/background/background';
 import Tabs from '../../component/tabs/tabs'
 import BookView from '../bookView/bookView'
+import BookList from '../bookList/bookList';
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 const BookNavigator = ({ navigation }) => {
@@ -12,7 +13,7 @@ const BookNavigator = ({ navigation }) => {
             <Screen name='Copy' component={View} />
             <Screen name='Menu' component={View} />
             <Screen name='Display' component={View} />
-            <Screen name='BookList' component={View} />
+            <Screen name='BookList' component={BookList} />
             <Screen name='View' component={BookView} />
         </Navigator>
     )
