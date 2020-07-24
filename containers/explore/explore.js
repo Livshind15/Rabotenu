@@ -1,9 +1,11 @@
 import * as React from 'react';
+import { useAsync } from "react-async";
+
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-
+import axios from "axios";
 
 import Tabs from '../../component/tabs/tabs';
 import Input from '../../component/input/input'
@@ -13,14 +15,20 @@ import Background from '../../component/background/background';
 import ExploreResultView from './exploreResultView';
 import ExploreTreeView from './exploreTreeView'
 import ExploreAddReplace from './exploreAddReplace';
-import result from './result.mock';
-import { delay } from '../../utils/helpers';
 import BookNavigator from '../bookNavigator/bookNavigator'
+import config from "../../config/config";
 
 
 const Stack = createStackNavigator();
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
+
+export const getBooksByByBookName = async (bookName) => {
+    const { data } = await axios.get(`${config.serverUrl}/mapping/books/book/${bookName}`);
+    return (data || []).map((book,index) => {
+      return {...book,key:index}
+    });
+}
 
 
 export default function Explore(props) {
@@ -59,7 +67,8 @@ const SearchExploreRoutes = () => (
 
 const ExploreMain = ({ navigation }) => {
   const [input, setInput] = React.useState('');
-  const [isLoading, setLoading] = React.useState(false)
+  const [isLoading, setLoading] = React.useState(false);
+
   return (
     <Background>
       <View style={styles.page}>
@@ -71,7 +80,7 @@ const ExploreMain = ({ navigation }) => {
             <ClickButton optionsButton={{ paddingVertical: 6 }} onPress={async () => {
               if (!isLoading) {
                 setLoading(true)
-                await delay(2500);
+                const result = await getBooksByByBookName(input);
                 setLoading(false)
                 navigation.push('ResultView', { result: result, searchInput: input });
               }

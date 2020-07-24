@@ -5,11 +5,18 @@ import { CheckBox } from '@ui-kitten/components';
 import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
+import {getBooksByByBookName} from './explore'
 
-export default function ExploreResultView({ route,navigation }) {
-  const { result, searchInput } = route.params;
+export default function ExploreResultView({ route, navigation }) {
+  const { searchInput } = route.params;
+  const [result , setResult] = React.useState(route.params.result);
   const [input, setInput] = React.useState(searchInput);
+  const [isLoading, setLoading] = React.useState(false);
   const [exploreResult, setExploreResult] = React.useState(attachKeyToArray(result, 'isCheck', false));
+
+  React.useEffect(() => {
+    setExploreResult(attachKeyToArray(result, 'isCheck', false))
+  }, [result])
 
   const setResultCheck = (index) => {
     setExploreResult(exploreResult.map(result => {
@@ -29,10 +36,17 @@ export default function ExploreResultView({ route,navigation }) {
       <View style={styles.page}>
         <View style={styles.input}>
           <View style={styles.buttonWrapper}>
-            <ClickButton outline={true} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
+            <ClickButton outline={true} optionsButton={{ paddingVertical: 8 }} onPress={async () => {
+              if (!isLoading) {
+                setLoading(true)
+                const result = await getBooksByByBookName(input);
+                setResult(result)
+                setLoading(false)
+              }
+            }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
           </View>
           <View style={styles.inputWrapper}>
-            <Input value={input} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+            <Input value={input} isLoading={isLoading} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
           </View>
         </View>
         <View style={styles.resultCountWrapper}>
@@ -54,7 +68,7 @@ export default function ExploreResultView({ route,navigation }) {
                   </CheckBox>
                 </View>
                 <View style={styles.resultTitleWrapper}>
-                  <Text style={styles.resultTitle}>{result.title}</Text>
+                  <Text style={styles.resultTitle}>{`${result.groupName}, ${result.bookName}`}</Text>
                 </View>
               </TouchableOpacity>
             )}
@@ -64,8 +78,8 @@ export default function ExploreResultView({ route,navigation }) {
           <TouchableOpacity
             disabled={!isResultSelect()}
             style={[styles.selectButton, isResultSelect() ? {} : styles.selectButtonDisable]}
-            underlayColor="#ffffff00" 
-            onPress={()=>{navigation.push('Result')}
+            underlayColor="#ffffff00"
+            onPress={() => { navigation.push('Result') }
             }>
             <Text style={[styles.selectButtonText, isResultSelect() ? {} : styles.selectButtonDisableText]} >
               {isResultSelect() ? `פתח ספרים נבחרים (${countResultSelect()})` : `פתח ספרים נבחרים`}

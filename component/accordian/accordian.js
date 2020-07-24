@@ -22,7 +22,7 @@ export default function Accordian({ children, header, customStyles = { container
 
     return (
         <View>
-            <TouchableOpacity underlayColor="#ffffff00" ref={accordian} style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}, customStyles.container || {}]} onPress={() => toggleExpand()}>
+            <TouchableOpacity  underlayColor="#ffffff00" ref={accordian} style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}, customStyles.container || {}]} onPress={() => toggleExpand()}>
                 <View style={styles.additionalComponent}>
                     {additionalComponent}
                 </View>
@@ -36,7 +36,7 @@ export default function Accordian({ children, header, customStyles = { container
             {
                 expanded &&
                 <View style={styles.child}>
-                    {children}
+                    {children }
                 </View>
             }
 
