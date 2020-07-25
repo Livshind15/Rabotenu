@@ -3,7 +3,7 @@ import Background from '../../component/background/background';
 import { WebView } from 'react-native-webview';
 import { View, Platform, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
 
-export default function BookView({booksIds}) {
+export default function BookView({ booksIds }) {
   console.log(booksIds);
   return (
     <Background>
@@ -46,23 +46,23 @@ const styles = StyleSheet.create({
     fontFamily: "OpenSansHebrew",
     textAlign: 'right',
     fontSize: 21,
-    paddingBottom:10
+    paddingBottom: 10
   },
-  pasok:{
+  pasok: {
     color: '#455253',
     fontFamily: "OpenSansHebrewBold",
     textAlign: 'right',
     fontSize: 22,
   },
-  pasokContent:{
+  pasokContent: {
     color: '#455253',
     fontFamily: "OpenSansHebrew",
     textAlign: 'right',
     fontSize: 21,
   },
-  pasokContainer: { 
-    textAlign: 'right', 
-    direction:'rtl'
-    
+  pasokContainer: {
+    textAlign: 'right',
+    direction: 'rtl'
+
   }
 });

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, StatusBar } from 'react-native';
+import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Tabs from '../../component/tabs/tabs';
@@ -15,8 +15,8 @@ import { RabotenuContext } from '../../contexts/applicationContext';
 const Tab = createBottomTabNavigator();
 
 
-export default function MainNavigator({route}) {
- 
+export default function MainNavigator({ route }) {
+
     return (
         <Tab.Navigator initialRouteName={route.params.screen} tabBar={props => <BottomTabBar {...props} />}>
             <Tab.Screen name="Acronym" component={Acronym} />
@@ -37,7 +37,7 @@ const BottomTabBar = ({ navigation, state }) => {
     }
 
     return (
-        <View style={{height:60}}>
+        <View style={{ height: 60 }}>
             <Tabs selectedIndex={state.index} onSelect={index => {
                 setTitle(getTitle(state.routeNames[index]))
                 navigation.navigate(state.routeNames[index])

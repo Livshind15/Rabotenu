@@ -1,18 +1,12 @@
 import * as React from 'react';
-import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
-import Icon from "react-native-vector-icons/Entypo";
-import OctIcons from "react-native-vector-icons/Octicons";
+import { StyleSheet, ScrollView, View } from 'react-native';
 
 
 import Background from '../../component/background/background';
-import Accordian from '../../component/accordian/accordian';
-import treeMock from './tree.mock';
 import ExploreTree from '../../component/exploreTree/exploreTree';
 
 
 const ExploreTreeView = ({ navigation }) => {
-
-
     return (
         <Background>
             <View style={styles.page}>
@@ -20,7 +14,6 @@ const ExploreTreeView = ({ navigation }) => {
                     <ExploreTree />
                 </ScrollView>
             </View>
-
         </Background>
     )
 }

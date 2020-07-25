@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, StatusBar, Text, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import ClickButton from '../../component/clickButton/clickButton';
 import Input from '../../component/input/input'
 import Icon from "react-native-vector-icons/Entypo";

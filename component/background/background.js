@@ -10,15 +10,13 @@ export default function Background({ children }) {
     );
 }
 
-
 const styles = StyleSheet.create({
     backgroundImage:{
         flex: 1,
         width: '100%',
-        height: '110%',
+        height: '100%',
         justifyContent: "center",
         alignItems: "center",
-        
         opacity: 1
     }
     

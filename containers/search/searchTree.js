@@ -1,13 +1,11 @@
 import * as React from 'react';
-import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
-import Icon from "react-native-vector-icons/Entypo";
+import { StyleSheet, ScrollView, View, Text } from 'react-native';
 
 
 
 import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
-import Accordian from '../../component/accordian/accordian';
 import Tree from '../../component/tree/tree';
 import result from './searchTree.mock';
 
@@ -33,7 +31,6 @@ const SearchTree = ({ navigation }) => {
                     <Tree results={result}/>
                 </ScrollView>
             </View>
-
         </Background>
     )
 }

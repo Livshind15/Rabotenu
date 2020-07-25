@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Background from '../../component/background/background';
 import Tabs from '../../component/tabs/tabs'
 import BookView from '../bookView/bookView'
 import BookList from '../bookList/bookList';
@@ -74,14 +73,7 @@ const styles = StyleSheet.create({
     tabs: {
         height: 50,
         width: '100%'
-    },
-    page: {
-        flex: 1,
-        width: '100%',
-        justifyContent: 'center',
-        alignContent: 'center',
-        alignItems: 'center'
-    },
+    }
 });
 
 export default BookNavigator;

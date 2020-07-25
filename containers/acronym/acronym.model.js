@@ -4,19 +4,17 @@ import { StyleSheet, View, TouchableOpacity, Platform, Text } from 'react-native
 import Icon from "react-native-vector-icons/AntDesign";
 import Modal from 'modal-enhanced-react-native-web';
 import ClickButton from '../../component/clickButton/clickButton';
-import { Radio, RadioGroup } from '@ui-kitten/components';
+import { Radio } from '@ui-kitten/components';
 import MobileModal from 'react-native-modal'
 import optionsList from './acronym.model.mock';
 
 
 export default function AcronymModal({ visible, setVisible }) {
-
     return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent setVisible={setVisible} options={optionsList} /></Modal> :
         <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent setVisible={setVisible} options={optionsList} /></MobileModal>
-
 }
 
-const ModelContent = ({ options,setVisible }) => {
+const ModelContent = ({ options, setVisible }) => {
     const [selectedOptions, setSelectedOptions] = React.useState(0);
     return (
         <View style={styles.container}>
@@ -81,7 +79,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 20,
         height: 265,
-        width:380,
+        width: 380,
         backgroundColor: '#F9F9F9'
     },
     backdrop: {

@@ -20,7 +20,7 @@ export default function Input({ options, placeholder, value, onChange, isLoading
                     style={[styles.TextInputStyleClass, options || []]} />
             </View>
             {isLoading && <View style={styles.spinnerContainer}>
-                <Spinner></Spinner>
+                <Spinner/>
             </View>}
 
         </View>

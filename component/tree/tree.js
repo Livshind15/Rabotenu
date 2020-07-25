@@ -1,8 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
-
-
-
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import OctIcons from "react-native-vector-icons/Octicons";
 import Accordian from '../../component/accordian/accordian';
 
@@ -24,11 +21,11 @@ const Tree = ({ results, deep = 0 }) => (
                 </View>
             }>
                 <View >
-                    {result.tree && <Tree results={result.tree} deep={deep + 1} />}              
-                        {((result.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
-                            <Text style={styles.resultText}>{book.title}</Text>
-                            <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
-                        </TouchableOpacity>)}
+                    {result.tree && <Tree results={result.tree} deep={deep + 1} />}
+                    {((result.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
+                        <Text style={styles.resultText}>{book.title}</Text>
+                        <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
+                    </TouchableOpacity>)}
                 </View>
 
             </Accordian>
@@ -43,8 +40,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         height: '100%'
-
-
     },
     resultText: {
         fontSize: 16,
@@ -52,15 +47,6 @@ const styles = StyleSheet.create({
         fontFamily: "OpenSansHebrew",
         color: '#8D8C8C',
     },
-    innerScroll: {
-        flex: 1,
-        width: '100%',
-    },
-    innerTree:{
-        flex: 1,
-        width: '100%',
-        backgroundColor:'yellow'
-        },
     resultContainer: {
         height: 40,
         paddingLeft: 25,
@@ -86,7 +72,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         height: '100%'
-
     },
     showButtonText: {
         fontFamily: "OpenSansHebrew",

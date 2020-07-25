@@ -1,9 +1,7 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { Toggle } from '@ui-kitten/components';
-import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Background from '../../component/background/background';
 import Tabs from '../../component/tabs/tabs';
 import TabButton from '../../component/tabButton/tabButton';
 import SearchTree from './searchTree';
@@ -17,7 +15,6 @@ const SearchResultView = ({ navigation }) => {
     const [allResourceToggle, setResourceToggle] = React.useState(true);
 
     return (
-
         <View style={styles.page}>
             <View style={styles.header}>
                 <Toggle checked={allResourceToggle} onChange={setResourceToggle} />
@@ -29,10 +26,7 @@ const SearchResultView = ({ navigation }) => {
                     <Screen name='SearchExplore' component={SearchResult} />
                 </Navigator>
             </View>
-
         </View>
-
-
     )
 }
 

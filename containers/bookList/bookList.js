@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import BookListTree from '../../component/bookListTree/bookListTree';
 import result from './bookList.mock';
 
 import Background from '../../component/background/background';
 
 const BookList = ({ }) => {
-
     return (
         <Background>
             <View style={styles.page}>
@@ -14,12 +13,9 @@ const BookList = ({ }) => {
                     <BookListTree results={result}/>
                 </ScrollView>
             </View>
-
         </Background>
     )
 }
-
-
 
 const styles = StyleSheet.create({
    

@@ -13,8 +13,6 @@ const getGroups = async () => {
     return data || [];
 }
 
-
-
 const ExploreTree = ({ groups = [], deep = 0 }) => {
     if (groups.length) {
         return (groups || []).map((group, index) => <Accordian customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={group.groupName} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
@@ -30,7 +28,7 @@ const ExploreTree = ({ groups = [], deep = 0 }) => {
     else {
         const { data, error, isPending } = useAsync({ promiseFn: getGroups })
 
-        return !isPending && (data||[]).map((group, index) => <Accordian key={index} index={index} customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} header={group.groupName} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
+        return !isPending && (data || []).map((group, index) => <Accordian key={index} index={index} customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} header={group.groupName} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
             {group.subGroups.length || group.books.length ? <View style={styles.innerScroll}>
                 {group.subGroups.length ? <ExploreTree groups={group.subGroups} deep={deep + 1} /> : <></>}
                 {group.books.length ? ((group.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} onPress={() => console.log(`open book => ${book.bookId}`)} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
@@ -64,28 +62,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderColor: '#E4E4E4'
     },
-    page: {
-        flex: 1,
-        width: '100%',
-        justifyContent: 'flex-start',
-        paddingTop: 4,
-        alignContent: 'center'
-    },
     innerScroll: {
         flex: 1,
         width: '100%',
-    },
-    innerTree: {
-        flex: 1,
-        width: '100%',
-        backgroundColor: 'yellow'
-    },
-    endContainer: {
-        width: 100,
-        flexDirection: 'row-reverse',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100%'
     }
 })
 

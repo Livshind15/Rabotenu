@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 
-
 export default function BottomTabButton({ isSelected, onPress, children, Icon }) {
 
   return (

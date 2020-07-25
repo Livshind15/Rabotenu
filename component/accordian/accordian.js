@@ -1,8 +1,7 @@
 
-import React, { Children } from 'react';
+import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, LayoutAnimation, Platform, UIManager } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
 
 export default function Accordian({ children, header, customStyles = { container: {} }, additionalComponent, index }) {
     const [expanded, setExpanded] = React.useState(false);
@@ -19,10 +18,9 @@ export default function Accordian({ children, header, customStyles = { container
         setExpanded(!expanded)
     }
 
-
     return (
         <View>
-            <TouchableOpacity  underlayColor="#ffffff00" ref={accordian} style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}, customStyles.container || {}]} onPress={() => toggleExpand()}>
+            <TouchableOpacity underlayColor="#ffffff00" ref={accordian} style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}, customStyles.container || {}]} onPress={() => toggleExpand()}>
                 <View style={styles.additionalComponent}>
                     {additionalComponent}
                 </View>
@@ -30,16 +28,14 @@ export default function Accordian({ children, header, customStyles = { container
                     <Text style={[styles.title, styles.font, expanded ? styles.titleBold : {}]}>{header}</Text>
                     <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />
                 </View>
-
             </TouchableOpacity>
             <View style={styles.parentHr} />
             {
                 expanded &&
                 <View style={styles.child}>
-                    {children }
+                    {children}
                 </View>
             }
-
         </View>
     );
 }

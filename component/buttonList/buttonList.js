@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
+
 import Button from '../button/button';
 
 export default function ButtonList({ optionsList }) {
-
     return (
-
         <View style={styles.container}>
             {optionsList.map((option, index) => {
                 const position = (index === 0) ? 'top' : (optionsList.length - 1 === index) ? 'bottom' : 'middle';
@@ -15,7 +14,6 @@ export default function ButtonList({ optionsList }) {
     );
 }
 
-
 const styles = StyleSheet.create({
     container: {
         display: "flex",
@@ -24,5 +22,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     }
-
 });

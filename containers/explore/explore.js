@@ -1,11 +1,8 @@
 import * as React from 'react';
-import { useAsync } from "react-async";
-
+import axios from "axios";
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-
-import axios from "axios";
 
 import Tabs from '../../component/tabs/tabs';
 import Input from '../../component/input/input'
@@ -30,9 +27,7 @@ export const getBooksByByBookName = async (bookName) => {
     });
 }
 
-
 export default function Explore(props) {
-
   return (
     <Stack.Navigator initialRouteName="ExplorePages" >
       <Stack.Screen name="ExplorePages" options={{ headerShown: false }} component={ExplorePages} />
@@ -68,7 +63,6 @@ const SearchExploreRoutes = () => (
 const ExploreMain = ({ navigation }) => {
   const [input, setInput] = React.useState('');
   const [isLoading, setLoading] = React.useState(false);
-
   return (
     <Background>
       <View style={styles.page}>
@@ -99,13 +93,6 @@ const ExploreMain = ({ navigation }) => {
 
 
 const styles = StyleSheet.create({
-  bottomTab: {
-    position: 'absolute',
-    bottom: 0,
-    height: 60,
-    width: '100%',
-    display: 'flex',
-  },
   buttonWrapper: {
     width: 95
   },

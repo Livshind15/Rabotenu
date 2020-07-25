@@ -6,7 +6,6 @@ import { RabotenuContext } from '../../contexts/applicationContext';
 
 export default function Home({ navigation }) {
     StatusBar.setBarStyle('dark-content', true);
-
     const { setTitle } = React.useContext(RabotenuContext);
 
     return (

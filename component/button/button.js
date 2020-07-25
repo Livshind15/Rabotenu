@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Button({ text, onPres, position }) {
-
     return (
         <View style={styles.container}>
             <TouchableOpacity

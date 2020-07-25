@@ -10,21 +10,18 @@ import AcronymResult from './acronymResult';
 
 const Stack = createStackNavigator();
 
-export default function Acronym(props) {
-
+export default function Acronym() {
   return (
     <Stack.Navigator initialRouteName="Main" >
-    <Stack.Screen name="Acronym" options={{ headerShown: false }} component={AcronymMain} />
-    <Stack.Screen name="AcronymResult" options={{ headerShown: false }} component={AcronymResult} />
-  </Stack.Navigator>
-)
-  
+      <Stack.Screen name="Acronym" options={{ headerShown: false }} component={AcronymMain} />
+      <Stack.Screen name="AcronymResult" options={{ headerShown: false }} component={AcronymResult} />
+    </Stack.Navigator>
+  )
 }
 
 const AcronymMain = ({ navigation }) => {
   const [showModal, setShowModal] = React.useState(false)
   return (
-
     <Background>
       <AcronymModal visible={showModal} setVisible={setShowModal} />
       <View style={styles.page}>
@@ -33,7 +30,7 @@ const AcronymMain = ({ navigation }) => {
             <Text style={styles.text}>הקלד ראשי תיבות שתרצה לאתר</Text>
           </View>
           <View style={styles.input}>
-            <Input onChange={()=>{}} placeholder={'חפש'} />
+            <Input onChange={() => { }} placeholder={'חפש'} />
           </View>
           <View style={styles.buttonsWrapper}>
             <View style={styles.buttonWrapper}>
@@ -50,7 +47,6 @@ const AcronymMain = ({ navigation }) => {
             <Text style={styles.clickText}>אפשרויות חיפוש מתקדמות</Text>
           </TouchableOpacity>
         </View>
-
       </View>
       <View style={styles.addButtonContainer}>
         <TouchableOpacity

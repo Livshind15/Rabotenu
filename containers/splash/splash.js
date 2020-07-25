@@ -8,7 +8,6 @@ import image from './splash.logo.png';
 
 export default function Splash() {
     StatusBar.setBarStyle('dark-content', true);
-
     return (
         <Background>
             <View style={styles.container}>
@@ -40,8 +39,6 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: 'center',
         alignItems: "center",
-
-
     },
     imageContainer: {
         justifyContent: 'center',

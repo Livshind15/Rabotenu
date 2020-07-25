@@ -17,7 +17,6 @@ export default function Search() {
     <Stack.Navigator initialRouteName="MainSearch" >
       <Stack.Screen name="MainSearch" options={{ headerShown: false }} component={SearchMain} />
       <Stack.Screen name="SearchResultView" options={{ headerShown: false }} component={SearchResultView} />
-
     </Stack.Navigator>
   );
 }
@@ -35,14 +34,14 @@ const SearchMain = ({ navigation }) => {
           <Input isLoading={isLoading} value={input} onChange={setInput} placeholder={'חפש'} />
         </View>
         <View style={styles.buttonWrapper}>
-          <ClickButton  onPress={async () => {
-              if (!isLoading) {
-                setLoading(true)
-                await delay(2500);
-                setLoading(false)
-                navigation.push('SearchResultView', { searchInput: input });
-              }
-              }} outline={true} >חיפוש</ClickButton>
+          <ClickButton onPress={async () => {
+            if (!isLoading) {
+              setLoading(true)
+              await delay(2500);
+              setLoading(false)
+              navigation.push('SearchResultView', { searchInput: input });
+            }
+          }} outline={true} >חיפוש</ClickButton>
         </View>
         <TouchableOpacity
           underlayColor="#ffffff00" >

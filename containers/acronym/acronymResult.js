@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, ScrollView, Text, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, View, ScrollView, Text } from 'react-native';
 
 import Background from '../../component/background/background';
 import results from './acronymResult.mock';
@@ -26,8 +26,6 @@ export default function AcronymResult({ }) {
         </Background>
     );
 }
-
-
 
 const styles = StyleSheet.create({
     headerText: {
