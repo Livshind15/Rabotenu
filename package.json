@@ -46,6 +46,7 @@
     "react-async": "^10.0.1",
     "react-dom": "16.11.0",
     "react-hot-loader": "^4.11.0",
+    "react-id-generator": "^3.0.1",
     "react-native": "0.62.2",
     "react-native-animated-loader": "0.0.8",
     "react-native-file-viewer": "^2.1.1",

@@ -4,8 +4,6 @@ import { Spinner } from '@ui-kitten/components';
 import Background from '../../component/background/background';
 import image from './splash.logo.png';
 
-
-
 export default function Splash() {
     StatusBar.setBarStyle('dark-content', true);
     return (

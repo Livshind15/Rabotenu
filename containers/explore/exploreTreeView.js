@@ -11,7 +11,7 @@ const ExploreTreeView = ({ navigation }) => {
         <Background>
             <View style={styles.page}>
                 <ScrollView style={styles.scroll}>
-                    <ExploreTree />
+                    <ExploreTree navigation={navigation}/>
                 </ScrollView>
             </View>
         </Background>
