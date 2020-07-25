@@ -7,14 +7,16 @@ import BookView from '../bookView/bookView'
 import BookList from '../bookList/bookList';
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-const BookNavigator = ({ navigation }) => {
+const BookNavigator = ({ navigation,route }) => {
+    const { selectedBooks } = route.params;
+    console.log(selectedBooks);
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
             <Screen name='Copy' component={View} />
             <Screen name='Menu' component={View} />
             <Screen name='Display' component={View} />
             <Screen name='BookList' component={BookList} />
-            <Screen name='View' component={BookView} />
+            <Screen name='View' component={props=> <BookView {...props} booksIds = {(selectedBooks||[]).map(book => book.bookId)} />} />
         </Navigator>
     )
 }

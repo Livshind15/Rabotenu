@@ -3,7 +3,8 @@ import Background from '../../component/background/background';
 import { WebView } from 'react-native-webview';
 import { View, Platform, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
 
-export default function BookView() {
+export default function BookView({booksIds}) {
+  console.log(booksIds);
   return (
     <Background>
       <ScrollView style={styles.view}>

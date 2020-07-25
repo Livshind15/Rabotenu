@@ -31,6 +31,8 @@ export default function ExploreResultView({ route, navigation }) {
 
   const countResultSelect = () => exploreResult.filter(result => result.isCheck).length
 
+  const selectedBooks = ()  => exploreResult.filter(result => result.isCheck);
+
   return (
     <Background>
       <View style={styles.page}>
@@ -79,7 +81,7 @@ export default function ExploreResultView({ route, navigation }) {
             disabled={!isResultSelect()}
             style={[styles.selectButton, isResultSelect() ? {} : styles.selectButtonDisable]}
             underlayColor="#ffffff00"
-            onPress={() => { navigation.push('Result') }
+            onPress={() => { navigation.push('Result',{ selectedBooks: selectedBooks() }) }
             }>
             <Text style={[styles.selectButtonText, isResultSelect() ? {} : styles.selectButtonDisableText]} >
               {isResultSelect() ? `פתח ספרים נבחרים (${countResultSelect()})` : `פתח ספרים נבחרים`}
