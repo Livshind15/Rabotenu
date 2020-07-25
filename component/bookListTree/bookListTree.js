@@ -8,17 +8,13 @@ import Feather from 'react-native-vector-icons/Feather';
 const BookListTree = ({ results, deep = 0 }) => (
     <>
         {results.map((result, index) => (
-            <Accordian customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.title} additionalComponent={
-                <View style={styles.endContainer}>
+            <Accordian customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.text} additionalComponent={
+                result.isBook ?  <View style={styles.endContainer}>
                     <Feather color={'#0384AE'} size={30} name={'info'}></Feather>
-                </View>
+                </View>: <></>
             }>
                 <View >
                     {result.tree && <BookListTree results={result.tree} deep={deep + 1} />}
-                    {((result.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
-                        <Text style={styles.resultText}>{book.title}</Text>
-                        <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
-                    </TouchableOpacity>)}
                 </View>
 
             </Accordian>

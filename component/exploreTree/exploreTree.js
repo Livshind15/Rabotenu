@@ -18,7 +18,7 @@ const ExploreTree = ({ navigation, groups = [], deep = 0 }) => {
         return (groups || []).map((group, index) => <Accordian customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={group.groupName} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
             {group.subGroups.length || group.books.length ? <View style={styles.innerScroll}>
                 {group.subGroups.length ? <ExploreTree navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
-                {group.books.length ? ((group.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} onPress={() => console.log(`open book => ${book.bookId}`)} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
+                {group.books.length ? ((group.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} onPress={() => { navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] }) }} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
                     <Text style={styles.resultText}>{book.bookName}</Text>
                     <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
                 </TouchableOpacity>) : <></>}

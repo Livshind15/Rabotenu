@@ -3,8 +3,8 @@ import axios from "axios";
 import Background from '../../component/background/background';
 import { useAsync } from "react-async";
 import { Spinner } from '@ui-kitten/components';
-
-import nextId from "react-id-generator";import { View, Platform, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
+import { v4 as uuidv4 } from 'react-native-uuid';
+import { View, Platform, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
 import config from "../../config/config";
 
 
@@ -34,7 +34,7 @@ export default function BookView({ booksId }) {
     setPage(page + 1)
   }, [])
   const onScroll = ({ nativeEvent }) => {
-    let paddingToBottom = 1000;
+    let paddingToBottom = 2500;
     paddingToBottom += nativeEvent.layoutMeasurement.height;
     if (nativeEvent.contentOffset.y >= nativeEvent.contentSize.height - paddingToBottom) {
       if (!isPending && !reachToEnd) {
@@ -50,19 +50,18 @@ export default function BookView({ booksId }) {
 
       if (item.bookName !== bookName) {
         bookName = item.bookName;
-        elements.push(<Text key={nextId()} style={styles.book}>{item.bookName}</Text>)
+        elements.push(<Text key={uuidv4()} style={styles.book}>{item.bookName}</Text>)
       }
       if (item.section !== section) {
         section = item.section;
-        elements.push(<Text key={nextId()} style={styles.parsa}>{item.section}</Text>)
-
+        elements.push(<Text key={uuidv4()} style={styles.parsa}>{item.section}</Text>)
       }
       if (item.chapter !== chapter) {
         chapter = item.chapter;
-        elements.push(<Text key={nextId()} style={styles.chapter}>{item.chapter}</Text>)
+        elements.push(<Text key={uuidv4()} style={styles.chapter}>{item.chapter}</Text>)
       }
       elements.push(
-        <Text key={nextId()} style={styles.pasokContainer}>
+        <Text key={uuidv4()} style={styles.pasokContainer}>
           {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
           <Text style={styles.pasokContent}>{item.content}</Text>
         </Text>
@@ -70,9 +69,9 @@ export default function BookView({ booksId }) {
       )
       return elements
     }, [])
-    if (  isPending||!booksElement.length) {
+    if (!reachToEnd) {
       booksElement.push(
-        <View key={nextId()} style={styles.spinnerContainer}>
+        <View key={uuidv4()} style={styles.spinnerContainer}>
           <Spinner color="#00ACC0" />
         </View>
       )
@@ -83,7 +82,7 @@ export default function BookView({ booksId }) {
 
   return (
     <Background>
-      <ScrollView onScroll={onScroll} style={styles.view}>
+      <ScrollView   scrollEventThrottle={16} onScroll={onScroll} style={styles.view}>
         {bookContentRender()}
       </ScrollView>
     </Background>

@@ -4,17 +4,33 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import Tabs from '../../component/tabs/tabs'
 import BookView from '../bookView/bookView'
 import BookList from '../bookList/bookList';
+import { useAsync } from "react-async";
+import axios from "axios";
+import config from "../../config/config";
+
 const { Navigator, Screen } = createMaterialTopTabNavigator();
+
+const getBookTree = async ({ booksIds }) => {
+    const data = await Promise.all(booksIds.map(bookId => {
+        return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
+    }))
+    return data || [];
+}
+
 
 const BookNavigator = ({ navigation, route }) => {
     const { selectedBooks } = route.params;
+    const booksIds = (selectedBooks || []).map(book => book.bookId)
+    const treeBooksResponse = useAsync({ promiseFn: getBookTree, booksIds })
+    const bookView = () => <BookView booksId={booksIds[0]} />
+    const bookList = () => <BookList tree={treeBooksResponse.data || {}} isPending={treeBooksResponse.isPending} />
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
             <Screen name='Copy' component={View} />
             <Screen name='Menu' component={View} />
             <Screen name='Display' component={View} />
-            <Screen name='BookList' component={BookList} />
-            <Screen name='View' component={props => <BookView {...props} booksId={(selectedBooks || []).map(book => book.bookId)[0]} />} />
+            <Screen name='BookList' component={bookList} />
+            <Screen name='View' component={bookView} />
         </Navigator>
     )
 }
