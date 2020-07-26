@@ -7,6 +7,7 @@ import BookList from '../bookList/bookList';
 import { useAsync } from "react-async";
 import axios from "axios";
 import config from "../../config/config";
+import BookDisplay from '../bookDisplay/bookDisplay';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
@@ -18,17 +19,57 @@ const getBookTree = async ({ booksIds }) => {
 }
 
 
+const getBookContent = async ([bookId, index]) => {
+    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?gteIndex=${index * 500}&lteIndex=${(index * 500) + 500}`);
+    return data || [];
+
+}
+
 const BookNavigator = ({ navigation, route }) => {
     const { selectedBooks } = route.params;
     const booksIds = (selectedBooks || []).map(book => book.bookId)
+    const [textSize, setTextSide] = React.useState(0.15);
+    const [grammar, setGrammar] = React.useState(false);
+    const [exegesis, setExegesis] = React.useState(true);
+    const [flavors, setFlavors] = React.useState(true);
+    const [bookContent, setBookContent] = React.useState([]);
+    const [reachToEnd, setReachToEnd] = React.useState(false);
+    const [page, setPage] = React.useState(0);
+    const onBookContentResolved = (data) => {
+        if (!data.length) {
+            setReachToEnd(true);
+        }
+        setBookContent([...bookContent, ...data])
+    }
+    const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
+    React.useEffect(() => {
+        run(booksIds[0], page);
+        setPage(page + 1)
+    }, [])
+    const onScroll = ({ nativeEvent }) => {
+        let paddingToBottom = 2500;
+        paddingToBottom += nativeEvent.layoutMeasurement.height;
+        if (nativeEvent.contentOffset.y >= nativeEvent.contentSize.height - paddingToBottom) {
+            if (!isPending && !reachToEnd) {
+                run(booksId, page);
+                setPage(page + 1)
+            }
+        }
+    }
     const treeBooksResponse = useAsync({ promiseFn: getBookTree, booksIds })
-    const bookView = () => <BookView booksId={booksIds[0]} />
+    const bookView = () => <BookView textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} reachToEnd={reachToEnd} onScroll={onScroll} />
     const bookList = () => <BookList tree={treeBooksResponse.data || {}} isPending={treeBooksResponse.isPending} />
+    const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
+        setTextSide(textSize);
+        setGrammar(grammar);
+        setExegesis(exegesis);
+        setFlavors(flavors);
+    }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
             <Screen name='Copy' component={View} />
             <Screen name='Menu' component={View} />
-            <Screen name='Display' component={View} />
+            <Screen name='Display' component={bookDisplay} />
             <Screen name='BookList' component={bookList} />
             <Screen name='View' component={bookView} />
         </Navigator>

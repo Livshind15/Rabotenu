@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
   resultTitleWrapper: {
     justifyContent: 'center',
     flex: 1,
-
   },
   resultTitle: {
     fontFamily: "OpenSansHebrew",
