@@ -8,6 +8,8 @@ import ClickButton from '../../component/clickButton/clickButton';
 import Background from '../../component/background/background';
 import SearchResultView from './searchResultView';
 import { delay } from '../../utils/helpers';
+import SearchOptionsModel from '../../component/searchOptions/searchOptions';
+import SearchTypeModel from '../../component/searchType/searchType';
 
 const Stack = createStackNavigator();
 
@@ -21,10 +23,24 @@ export default function Search() {
   );
 }
 
+const options = [
+  {title:'חיפוש מדוייק',description:"חיפוש מדוייק של מילות החיפוש ללא מרחקים"},
+  {title:'חיפוש קל',description:"מרחק של עד 3 מילים בין מילות חיפוש"},
+  {title:'חפש תוצאות קרובות',description:"חפש עם קידומות לכל המילים,כתיב חסר למילים בכתיב מלא, מרחק של עד 30 מילים בין מילה למילה"},
+  {title:'חיפוש תוצאות דומות',description:"חפש חיפוש עמום עד 20 אחוז, דלג על מילים עד 40 אחוז"},
+  {title:'חיפוש טבלאי',description:"פתח את החיפוש הטבלאי"},
+
+]
+
+
 const SearchMain = ({ navigation }) => {
   const [input, setInput] = React.useState('');
-  const [isLoading, setLoading] = React.useState(false)
+  const [isLoading, setLoading] = React.useState(false);
+  const [showOptionsSearch,setShowOptionsSearch] = React.useState(false);
+  const [showSearchType,setShowSearchType] = React.useState(false);
   return (<Background>
+  <SearchOptionsModel openSearchType={()=>setShowSearchType(true)} visible={showOptionsSearch} setVisible={setShowOptionsSearch} ></SearchOptionsModel>
+  <SearchTypeModel setVisible={setShowSearchType} options={options} visible={showSearchType}></SearchTypeModel>
     <View style={styles.page}>
       <View style={styles.container}>
         <View style={styles.textWrapper}>
@@ -44,7 +60,9 @@ const SearchMain = ({ navigation }) => {
           }} outline={true} >חיפוש</ClickButton>
         </View>
         <TouchableOpacity
-          underlayColor="#ffffff00" >
+          underlayColor="#ffffff00" 
+          onPress={()=>setShowOptionsSearch(true)}
+          >
           <Text style={styles.clickText}>אפשרויות חיפוש מתקדמות</Text>
         </TouchableOpacity>
       </View>
