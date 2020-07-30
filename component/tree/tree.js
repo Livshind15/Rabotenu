@@ -7,7 +7,7 @@ import Accordian from '../../component/accordian/accordian';
 const Tree = ({ results, deep = 0 }) => (
     <>
         {results.map((result, index) => (
-            <Accordian customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.title} additionalComponent={
+            <Accordian customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.groupName} additionalComponent={
                 <View style={styles.endContainer}>
                     <View style={styles.showButtonWrapper}>
                         <TouchableOpacity
@@ -16,15 +16,31 @@ const Tree = ({ results, deep = 0 }) => (
                         </TouchableOpacity>
                     </View>
                     <View style={styles.countResultWrapper}>
-                        <Text style={styles.countText}>{result.len}</Text>
+                        <Text style={styles.countText}>{result.doc_count}</Text>
                     </View>
                 </View>
             }>
                 <View >
-                    {result.tree && <Tree results={result.tree} deep={deep + 1} />}
+                    {result.subGroups && <Tree results={result.subGroups} deep={deep + 1} />}
                     {((result.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
-                        <Text style={styles.resultText}>{book.title}</Text>
-                        <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
+                        <View style={styles.bookContainer}>
+                            <View style={styles.bookName}>
+                                <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
+                                <Text style={styles.resultText}>{book.bookName}</Text>
+                            </View>
+                            <View style={styles.endContainer}>
+                                <View style={styles.showButtonWrapper}>
+                                    <TouchableOpacity
+                                        underlayColor="#ffffff00" >
+                                        <Text style={styles.showButtonText}>צפייה</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.countResultWrapper}>
+                                    <Text style={styles.countText}>{book.doc_count}</Text>
+                                </View>
+                            </View>
+                        </View>
+
                     </TouchableOpacity>)}
                 </View>
 
@@ -34,6 +50,17 @@ const Tree = ({ results, deep = 0 }) => (
 )
 
 const styles = StyleSheet.create({
+    bookName: {
+        flex: 1,
+        flexDirection: 'row-reverse'
+    },
+    bookContainer: {
+        flexDirection: 'row-reverse',
+        width: '100%',
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
     countResultWrapper: {
         backgroundColor: '#E4E4E4',
         flex: 1,
@@ -49,11 +76,7 @@ const styles = StyleSheet.create({
     },
     resultContainer: {
         height: 40,
-        paddingLeft: 25,
         borderBottomWidth: 1,
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
         borderColor: '#E4E4E4'
     },
     countText: {

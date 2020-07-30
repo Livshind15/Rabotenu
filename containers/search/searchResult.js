@@ -4,20 +4,25 @@ import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-nati
 import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
-import results from './searchResult.mock';
 
-const SearchResult = ({ navigation }) => {
-    const [input, setInput] = React.useState('');
+const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
+    const [searchInput, setInput] = React.useState(input);
+    const [isLoading, setLoading] = React.useState(false);
 
     return (
         <Background>
             <View style={styles.page}>
                 <View style={styles.input}>
                     <View style={styles.buttonWrapper}>
-                        <ClickButton outline={true} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
+                        <ClickButton outline={true} onPress={async () => {
+                            onInput(searchInput)
+                            setLoading(true)
+                            await onSearch(searchInput)
+                            setLoading(false)
+                        }} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
                     </View>
                     <View style={styles.inputWrapper}>
-                        <Input value={input} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+                        <Input isLoading={isLoading} value={searchInput} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
                     </View>
                 </View>
                 <View style={styles.resultCountWrapper}>
@@ -25,7 +30,7 @@ const SearchResult = ({ navigation }) => {
                     <Text style={styles.titleResult}>תוצאות</Text>
                 </View>
                 <ScrollView style={styles.scroll}>
-                    {results.map((result, index) => (
+                    {(result || []).map((book, index) => (
                         <View key={index}>
                             <TouchableOpacity underlayColor="#ffffff00" style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}]} >
                                 <View style={styles.additionalComponent}>
@@ -37,12 +42,12 @@ const SearchResult = ({ navigation }) => {
                                             </TouchableOpacity>
                                         </View>
                                         <View style={styles.countResultWrapper}>
-                                            <Text style={styles.countText}>{result.len}</Text>
+                                            <Text style={styles.countText}>{book.doc_count}</Text>
                                         </View>
                                     </View>
                                 </View>
                                 <View style={styles.toggleAndText}>
-                                    <Text style={[styles.title, styles.font]}>{result.title}</Text>
+                                    <Text style={[styles.title, styles.font]}>{`${book.groupName}, ${book.bookName}`}</Text>
                                 </View>
 
                             </TouchableOpacity>

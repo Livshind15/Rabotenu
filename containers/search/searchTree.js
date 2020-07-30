@@ -7,20 +7,71 @@ import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import Tree from '../../component/tree/tree';
-import result from './searchTree.mock';
+import results from './searchTree.mock';
+import config from "../../config/config";
+import { useAsync } from "react-async";
+import axios from "axios";
+import { Spinner } from '@ui-kitten/components';
+import _ from 'lodash';
 
-const SearchTree = ({ navigation }) => {
-    const [input, setInput] = React.useState('');
+import ErrorModel from '../../component/modalError/modalError';
 
+const getGroups = async ({ bookResult }) => {
+    const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
+    return attachResultToGroups(data, _.keyBy(bookResult, 'bookId')).groups || [];
+}
+
+const attachResultToGroups = (groups, bookResult) => {
+    let count = 0;
+    for (const group of groups) {
+        group.books = group.books.reduce((books, book) => {
+            if (bookResult[book.bookId]) {
+                books.push({ ...book, doc_count: bookResult[book.bookId].doc_count });
+                count = count + bookResult[book.bookId].doc_count;
+            }
+            return books
+        }, [])
+        group.doc_count = group.books.reduce((docsCount, book) => {
+            return docsCount + book.doc_count
+        }, 0)
+        if (group.subGroups.length) {
+            const result = attachResultToGroups(group.subGroups, bookResult);
+            if(!!result.count){
+                group.subGroups = result.groups;
+                group.doc_count += result.count
+            }
+            group.subGroups = [];
+        }
+    }
+    return { groups, count };
+}
+
+const SearchTree = ({ navigation, input, onSearch, onInput, result }) => {
+    const [searchInput, setInput] = React.useState(input);
+    const [isLoading, setLoading] = React.useState(false);
+    const { data, error, isPending } = useAsync({ promiseFn: getGroups, bookResult: result })
+    const [showErrorModel, setShowErrorModel] = React.useState(false);
+    console.log(data);
+    React.useEffect(() => {
+        if (error) {
+            setShowErrorModel(true);
+        }
+    }, [error]);
     return (
         <Background>
+            <ErrorModel errorMsg={"שגיאה בבקשה מהשרת של תצוגת עץ"} errorTitle={'שגיאה'} visible={showErrorModel} setVisible={setShowErrorModel} />
             <View style={styles.page}>
                 <View style={styles.input}>
                     <View style={styles.buttonWrapper}>
-                        <ClickButton outline={true} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
+                        <ClickButton onPress={async () => {
+                            onInput(searchInput)
+                            setLoading(true)
+                            await onSearch(searchInput)
+                            setLoading(false)
+                        }} outline={true} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
                     </View>
                     <View style={styles.inputWrapper}>
-                        <Input value={input} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+                        <Input value={searchInput} isLoading={isLoading} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
                     </View>
                 </View>
                 <View style={styles.resultCountWrapper}>
@@ -28,7 +79,9 @@ const SearchTree = ({ navigation }) => {
                     <Text style={styles.titleResult}>תוצאות</Text>
                 </View>
                 <ScrollView style={styles.scroll}>
-                    <Tree results={result}/>
+                    {!isPending && data && data.length ? <Tree results={data} /> : <View style={styles.spinnerContainer}>
+                        <Spinner />
+                    </View>}
                 </ScrollView>
             </View>
         </Background>
@@ -44,6 +97,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         height: '100%'
 
+    },
+    spinnerContainer: {
+        flex: 1,
+        width: "100%",
+        justifyContent: 'center',
+        alignItems: "center"
     },
     countResultWrapper: {
         backgroundColor: '#E4E4E4',
@@ -61,8 +120,8 @@ const styles = StyleSheet.create({
     resultCountWrapper: {
         height: 40,
         width: '100%',
-        paddingLeft:24,
-        paddingRight:15,
+        paddingLeft: 24,
+        paddingRight: 15,
         backgroundColor: '#CBD4D3',
         shadowColor: "#000",
         borderTopWidth: 1.5,

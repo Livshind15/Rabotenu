@@ -4,17 +4,15 @@ import { StyleSheet, View, TouchableOpacity, Platform, Text } from 'react-native
 import Icon from "react-native-vector-icons/AntDesign";
 import Modal from 'modal-enhanced-react-native-web';
 import MobileModal from 'react-native-modal'
-import ClickButton from '../clickButton/clickButton';
-import ButtonList from '../buttonList/buttonList';
 import Button from '../button/button';
 
 
-export default function SearchOptionsModel({ visible, setVisible, openSearchType }) {
-    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><SearchOptions openSearchType={openSearchType} setVisible={setVisible} /></Modal> :
-        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><SearchOptions openSearchType={openSearchType} setVisible={setVisible} /></MobileModal>
+export default function SearchOptionsModel({ visible, setVisible, openSearchType,onResources }) {
+    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><SearchOptions onResources={onResources} openSearchType={openSearchType} setVisible={setVisible} /></Modal> :
+        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><SearchOptions onResources={onResources} openSearchType={openSearchType} setVisible={setVisible} /></MobileModal>
 }
 
-const SearchOptions = ({ setVisible, openSearchType }) => {
+const SearchOptions = ({ setVisible, openSearchType,onResources }) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -28,10 +26,13 @@ const SearchOptions = ({ setVisible, openSearchType }) => {
                     setVisible(false)
                     openSearchType();
                 }} customStyle={{ button: { padding: 25 }, text: { fontSize: 30 } }} position={'top'} text={'סוג חיפוש לבחירה'} />
-                <Button customStyle={{ button: { padding: 25, backgroundColor: '#239EA1' }, text: { fontSize: 30 } }} position={'bottom'} text={'בחר מאגרים לחיפוש'} />
+                <Button onPres={() => {
+                    setVisible(false)
+                    onResources();
+                }}  customStyle={{ button: { padding: 25, backgroundColor: '#239EA1' }, text: { fontSize: 30 } }} position={'bottom'} text={'בחר מאגרים לחיפוש'} />
 
             </View>
-
+            
         </View>)
 }
 
