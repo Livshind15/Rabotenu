@@ -4,9 +4,6 @@ import OctIcons from "react-native-vector-icons/Octicons";
 import Icon from "react-native-vector-icons/Entypo";
 import Accordian from '../accordian/accordian';
 
-
-
-
 const ExploreTree = ({ navigation, groups = [], deep = 0 }) => {
     return (groups || []).map((group, index) => <Accordian customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={group.groupName} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
         {group.subGroups.length || group.books.length ? <View style={styles.innerScroll}>

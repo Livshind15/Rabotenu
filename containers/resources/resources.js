@@ -5,6 +5,8 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import Tabs from '../../component/tabs/tabs';
 import TabButton from '../../component/tabButton/tabButton';
 import ResourcesSearch from './searchResource';
+import ResourcesTreeView from './resourcesTree';
+import ResourcesGroups from './resourcesGroups';
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
@@ -39,9 +41,9 @@ const Resources = ({ navigation }) => {
             </View>
             <View style={styles.body}>
                 <Navigator initialRouteName='SearchResource' tabBar={props => <TopTabBar {...props} />}>
-                    <Screen name='TreeResource' component={View} />
+                    <Screen name='groupResource' component={ResourcesGroups} />
                     <Screen name='SearchResource' component={resourcesSearch} />
-                    <Screen name='groupResource' component={View} />
+                    <Screen name='TreeResource' component={ResourcesTreeView} />
 
                 </Navigator>
             </View>

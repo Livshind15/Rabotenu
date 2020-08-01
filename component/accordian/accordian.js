@@ -3,8 +3,8 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, LayoutAnimation, Platform, UIManager } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-export default function Accordian({ children, header,initExpanded = false, customStyles = { container: {} }, additionalComponent, index }) {
-    const [expanded, setExpanded] = React.useState(initExpanded );
+export default function Accordian({ children, header, initExpanded = false, endToggle = false, customStyles = { container: {} }, additionalComponent, index }) {
+    const [expanded, setExpanded] = React.useState(initExpanded);
     const accordian = React.useRef(null);
 
     React.useEffect(() => {
@@ -21,13 +21,18 @@ export default function Accordian({ children, header,initExpanded = false, custo
     return (
         <View>
             <TouchableOpacity underlayColor="#ffffff00" ref={accordian} style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}, customStyles.container || {}]} onPress={() => toggleExpand()}>
-              {additionalComponent&&  <View style={styles.additionalComponent}>
+                { !endToggle && additionalComponent && <View style={styles.additionalComponent}>
                     {additionalComponent}
                 </View>}
+                {endToggle && <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />}
                 <View style={styles.toggleAndText}>
+                    
                     <Text style={[styles.title, styles.font, expanded ? styles.titleBold : {}]}>{header}</Text>
-                    <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />
+                    {!endToggle && <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />}
                 </View>
+                    {additionalComponent && endToggle && <View style={styles.additionalComponentStart}>
+                        {additionalComponent}
+                    </View>} 
             </TouchableOpacity>
             <View style={styles.parentHr} />
             {
@@ -53,12 +58,17 @@ const styles = StyleSheet.create({
     toggleAndText: {
         flex: 1,
         alignItems: 'center',
-                width:'100%',
+        width: '100%',   
         justifyContent: 'flex-end',
         flexDirection: 'row'
     },
     additionalComponent: {
         flex: 1,
+        height: '100%',
+        justifyContent: 'center',
+    },
+    additionalComponentStart: {
+        width:'auto',
         height: '100%',
         justifyContent: 'center',
     },
