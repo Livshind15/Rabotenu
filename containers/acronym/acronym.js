@@ -13,8 +13,8 @@ const Stack = createStackNavigator();
 export default function Acronym() {
   return (
     <Stack.Navigator initialRouteName="Main" >
-      <Stack.Screen name="Acronym" options={{ headerShown: false }} component={AcronymMain} />
-      <Stack.Screen name="AcronymResult" options={{ headerShown: false }} component={AcronymResult} />
+      <Stack.Screen name="Acronym" options={{ headerShown: false,title:'רבותינו' }} component={AcronymMain} />
+      <Stack.Screen name="AcronymResult" options={{ headerShown: false,title:'רבותינו' }} component={AcronymResult} />
     </Stack.Navigator>
   )
 }

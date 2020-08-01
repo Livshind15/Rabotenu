@@ -37,8 +37,8 @@ const SearchResultView = ({ navigation, route }) => {
             </View>
             <View style={styles.body}>
                 <Navigator initialRouteName='SearchExplore' tabBar={props => <TopTabBar {...props} />}>
-                    <Screen name='Tree' component={searchTree} />
-                    <Screen name='SearchExplore' component={searchResult} />
+                    <Screen name='Tree' options={{title:'רבותינו' }}  component={searchTree} />
+                    <Screen name='SearchExplore' options={{title:'רבותינו' }}  component={searchResult} />
                 </Navigator>
             </View>
         </View>

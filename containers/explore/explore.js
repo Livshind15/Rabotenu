@@ -30,16 +30,16 @@ export const getBooksByByBookName = async (booksNames) => {
 export default function Explore(props) {
   return (
     <Stack.Navigator initialRouteName="ExplorePages" >
-      <Stack.Screen name="ExplorePages" options={{ headerShown: false }} component={ExplorePages} />
-      <Stack.Screen name="Result" options={{ headerShown: false }} component={BookNavigator} />
+      <Stack.Screen name="ExplorePages" options={{ headerShown: false,title:'רבותינו' }} component={ExplorePages} />
+      <Stack.Screen name="Result" options={{ headerShown: false,title:'רבותינו' }} component={BookNavigator} />
     </Stack.Navigator>
   );
 }
 
 const ExplorePages = () => (
   <Navigator initialRouteName='SearchExplore' tabBar={props => <TopTabBar {...props} />}>
-    <Screen name='SearchExplore' component={SearchExploreRoutes} />
-    <Screen name='Tree' component={ExploreTreeView} />
+    <Screen name='SearchExplore' options={{title:'רבותינו' }} component={SearchExploreRoutes} />
+    <Screen name='Tree'  options={{title:'רבותינו' }} component={ExploreTreeView} />
   </Navigator>
 )
 
@@ -64,9 +64,9 @@ const SearchExploreRoutes = () => {
 
   return (
     <Stack.Navigator initialRouteName="Main" >
-      <Stack.Screen name="ResultView" options={{ headerShown: false }} component={exploreResultView} />
-      <Stack.Screen name="Main" options={{ headerShown: false }} component={exploreMain} />
-      <Stack.Screen name="AddReplace" options={{ headerShown: false }} component={exploreAddReplace} />
+      <Stack.Screen name="ResultView" options={{ headerShown: false ,title:'רבותינו'}} component={exploreResultView} />
+      <Stack.Screen name="Main" options={{ headerShown: false ,title:'רבותינו'}} component={exploreMain} />
+      <Stack.Screen name="AddReplace" options={{ headerShown: false,title:'רבותינו' }} component={exploreAddReplace} />
     </Stack.Navigator>
   )
 }

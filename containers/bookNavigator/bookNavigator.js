@@ -70,11 +70,11 @@ const BookNavigator = ({ navigation, route }) => {
 
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
-            <Screen name='Copy' component={bookCopy} />
-            <Screen name='Menu' component={View} />
-            <Screen name='Display' component={bookDisplay} />
-            <Screen name='BookList' component={bookList} />
-            <Screen name='View' component={bookView} />
+            <Screen name='Copy' options={{title:'רבותינו' }}  component={bookCopy} />
+            <Screen name='Menu' options={{title:'רבותינו' }}  component={View} />
+            <Screen name='Display' options={{title:'רבותינו' }}  component={bookDisplay} />
+            <Screen name='BookList' options={{title:'רבותינו' }}  component={bookList} />
+            <Screen name='View' options={{title:'רבותינו' }}  component={bookView} />
         </Navigator>
     )
 }
