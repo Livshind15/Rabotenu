@@ -48,6 +48,12 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
       textAlign: 'right',
       fontSize: 20 + (textSize * 50),
     },
+    pasokLink:{
+      color: '#11AFC2',
+      fontFamily: "OpenSansHebrewBold",
+      textAlign: 'right',
+      fontSize: 12 + (textSize * 50),
+    },
     pasokContent: {
       color: '#455253',
       fontFamily: "OpenSansHebrew",
@@ -66,7 +72,11 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
   const bookContentRender = React.useCallback(() => {
 
     const booksElement = (bookContent || []).reduce((elements, item) => {
-
+      let isParsa = false; 
+      let content = grammar? item.content.replace(/[^א-ת\s,;.-]/g, ''):item.content;
+      if (RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content)) {
+        isParsa = true
+      }
       if (item.bookName !== bookName) {
         bookName = item.bookName;
         elements.push(<Text key={uuidv4()} style={styles.book}>{item.bookName}</Text>)
@@ -82,9 +92,9 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
       elements.push(
         <Text key={uuidv4()} style={styles.pasokContainer}>
           {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
-          <Text style={styles.pasokContent}>{grammar? item.content.replace(/[^א-ת\s,;.-]/g, ''):item.content}</Text>
+          <Text style={styles.pasokContent}>{content.replace(RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`),'')}</Text>
+          {isParsa &&  <Text style={styles.pasokLink}>{'פ'}</Text>}
         </Text>
-
       )
       return elements
     }, [])

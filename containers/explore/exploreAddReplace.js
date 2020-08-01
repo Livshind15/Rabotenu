@@ -6,8 +6,99 @@ import Icon from "react-native-vector-icons/Entypo";
 
 
 import Background from '../../component/background/background';
+import { ScrollView } from 'react-native-gesture-handler';
 
-export default function ExploreAddReplace({ navigation }) {
+const Replace = ({ onClick, inputSrc, inputDes, onSrcChange, onDesChange }) => {
+    return (
+        <View style={styles.row}>
+            <View style={styles.startCol}>
+                <InputArea input={inputSrc} onChange={onSrcChange} title={'במקום'}></InputArea>
+            </View>
+            <View style={styles.centerCol}>
+                <View style={styles.divider} />
+            </View>
+            <View style={styles.endCol}>
+                <InputArea input={inputDes} withPlus={true} onChange={onDesChange} onClick={onClick} title={'חפש את'}></InputArea>
+            </View>
+        </View>
+    )
+}
+
+const Add = ({ onClick, inputSrc, inputDes, onSrcChange, onDesChange }) => {
+
+    return (
+        <View style={styles.row}>
+            <View style={styles.startCol}>
+                <InputArea input={inputSrc} onChange={onSrcChange} title={'כשאחפש'}></InputArea>
+            </View>
+            <View style={styles.centerCol}>
+                <View style={styles.divider} />
+            </View>
+            <View style={styles.endCol}>
+                <InputArea input={inputDes} withPlus={true} onChange={onDesChange} onClick={onClick} title={'חפש גם את'}></InputArea>
+            </View>
+        </View>
+    )
+}
+export default function ExploreAddReplace({ navigation,initReplace,initAdds,onSave }) {
+    const [replacesElement, setReplacesElement] = React.useState([])
+    const [replaces, setReplaces] = React.useState(initReplace &&initReplace.length ? initReplace:[{srcInput:"",desInput:""}])
+    const [addElement, setAddElement] = React.useState([])
+    const [add, setAdd] = React.useState(initAdds && initAdds.length ? initAdds:[{srcInput:"",desInput:""}])
+
+    React.useEffect(() => {
+        setReplacesElement(replaces.map((v, key) => {
+            return <Replace key={key} inputSrc={v.srcInput} onSrcChange={(input) => {
+                setReplaces(replaces.map((replace, index) => {
+                    if (index === key) {
+                        return { ...replace, srcInput: input }
+                    }
+                    return replace;
+                }))
+            }} inputDes={v.desInput} onDesChange={(input) => {
+                setReplaces(replaces.map((replace, index) => {
+                    if (index === key) {
+                        return { ...replace, desInput: input }
+                    }
+                    return replace;
+                }))
+            }} onClick={onAddReplaces} />
+        }))
+    }, [replaces])
+    const onAddReplaces = React.useCallback(
+        () => {
+            setReplaces([...replaces, { srcInput: "", desInput: '' }])
+        },
+        [replaces],
+    )
+
+    React.useEffect(() => {
+        setAddElement(add.map((v, key) => {
+            return <Add key={key} inputSrc={v.srcInput} onSrcChange={(input) => {
+                setAdd(add.map((add, index) => {
+                    if (index === key) {
+                        return { ...add, srcInput: input }
+                    }
+                    return add;
+                }))
+            }} inputDes={v.desInput} onDesChange={(input) => {
+                setAdd(add.map((add, index) => {
+                    if (index === key) {
+                        return { ...add, desInput: input }
+                    }
+                    return add;
+                }))
+            }} onClick={onAdd} />
+        }))
+    }, [add])
+    const onAdd = React.useCallback(
+        () => {
+            setAdd([...add, { srcInput: "", desInput: '' }])
+        },
+        [add],
+    )
+
+
 
     return (
         <Background>
@@ -15,32 +106,21 @@ export default function ExploreAddReplace({ navigation }) {
                 <Text style={styles.textHeader}>החלפות והוספות</Text>
             </View>
             <View style={styles.bodyContainer}>
-                <View style={styles.row}>
-                    <View style={styles.startCol}>
-                        <InputArea title={'במקום'}></InputArea>
-                    </View>
-                    <View style={styles.centerCol}>
-                        <View style={styles.divider} />
-                    </View>
-                    <View style={styles.endCol}>
-                        <InputArea withPlus={true}  title={'חפש את'}></InputArea>
-                    </View>
-                </View>
-                <View style={styles.row}>
-                    <View style={styles.startCol}>
-                        <InputArea title={'כשאחפש'}></InputArea>
-                    </View>
-                    <View style={styles.centerCol}>
-                        <View style={styles.divider} />
-                    </View>
-                    <View style={styles.endCol}>
-                        <InputArea withPlus={true} title={'חפש גם את'}></InputArea>
-                    </View>
-                </View>
+                <ScrollView style={{ flex: 1, width: '100%' }}>
+                    {replacesElement}
+                    {addElement}
+                </ScrollView>
+
             </View>
             <View style={styles.bottomContainer}>
                 <View style={styles.buttonWrapper}>
-                    <ClickButton optionsButton={{ paddingVertical: 6 }} onPress={() => navigation.goBack()}>אישור</ClickButton>
+                    <ClickButton optionsButton={{ paddingVertical: 6 }} onPress={() => {
+                        onSave({
+                            replace: replaces.filter(replace => replace.desInput.length && replace.srcInput.length),
+                            add: add.filter(add => add.desInput.length && add.srcInput.length),
+                        })
+                        navigation.goBack()
+                    }}>אישור</ClickButton>
                 </View>
                 <TouchableOpacity
                     underlayColor="#ffffff00"
@@ -53,43 +133,46 @@ export default function ExploreAddReplace({ navigation }) {
     );
 }
 
-const InputArea = ({ title, withPlus = false }) => (
-    <View style={styles.InputArea}>
-        <Text style={styles.inputTitle}>{title}</Text>
-        <View style={styles.inputAndButton}>
-            <View style={styles.input}>
-                <Input onChange={()=>{}} options={{ height: 32 }} placeholder={""} />
+const InputArea = ({ title, input, onChange = () => { }, onClick = () => { }, withPlus = false }) => {
+    return (
+        <View style={styles.InputArea}>
+            <Text style={styles.inputTitle}>{title}</Text>
+            <View style={styles.inputAndButton}>
+                <View style={styles.input}>
+                    <Input onChangeText={text => onChange(text)}
+                        value={input} onChange={onChange} options={{ height: 32 }} placeholder={""} />
+                </View>
+                {withPlus && <View style={styles.plusButton}>
+                    <TouchableOpacity
+                        style={[styles.button]}
+                        onPress={onClick}
+                        underlayColor="#ffffff00"
+                    >
+                        <Icon name={'plus'} size={20} color={'#ffffff'}></Icon>
+                    </TouchableOpacity>
+                </View>}
             </View>
-            {withPlus && <View style={styles.plusButton}>
-            <TouchableOpacity
-                style={[styles.button]}
-                underlayColor="#ffffff00"
-            >
-            <Icon name={'plus'} size={20} color={'#ffffff'}></Icon>
-            </TouchableOpacity>
-            </View>}
-        </View>
 
-    </View>
-)
+        </View>)
+}
 
 
 
 const styles = StyleSheet.create({
-    button:{
+    button: {
         width: 27,
-        height:27,
+        height: 27,
         paddingVertical: 5,
         borderRadius: 100,
-        justifyContent:'center',
-        alignItems:'center',
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: '#00AABE',
 
     },
-    iconWrapper:{
-        flex:1,
-        width:'100%',
-        backgroundColor:'red'
+    iconWrapper: {
+        flex: 1,
+        width: '100%',
+        backgroundColor: 'red'
     },
     inputAndButton: {
         flexDirection: 'row-reverse',
@@ -98,7 +181,7 @@ const styles = StyleSheet.create({
     },
     plusButton: {
         width: 25,
-        paddingTop:1,
+        paddingTop: 1,
         marginRight: 7,
         marginLeft: 8
     },
@@ -152,7 +235,8 @@ const styles = StyleSheet.create({
     },
     row: {
         flex: 1,
-        flexDirection: 'row-reverse'
+        flexDirection: 'row-reverse',
+        paddingBottom: 2
     },
     headerContainer: {
         flex: 0.1,

@@ -20,11 +20,11 @@ const Stack = createStackNavigator();
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-export const getBooksByByBookName = async (bookName) => {
-    const { data } = await axios.get(`${config.serverUrl}/mapping/books/book/${bookName}`);
-    return (data || []).map((book,index) => {
-      return {...book,key:index}
-    });
+export const getBooksByByBookName = async (booksNames) => {
+  const { data } = await axios.post(`${config.serverUrl}/mapping/books/book`, { booksNames: booksNames });
+  return (data || []).map((book, index) => {
+    return { ...book, key: index }
+  });
 }
 
 export default function Explore(props) {
@@ -52,15 +52,26 @@ const TopTabBar = ({ navigation, state }) => (
   </View>
 );
 
-const SearchExploreRoutes = () => (
-  <Stack.Navigator initialRouteName="Main" >
-    <Stack.Screen name="ResultView" options={{ headerShown: false }} component={ExploreResultView} />
-    <Stack.Screen name="Main" options={{ headerShown: false }} component={ExploreMain} />
-    <Stack.Screen name="AddReplace" options={{ headerShown: false }} component={ExploreAddReplace} />
-  </Stack.Navigator>
-)
+const SearchExploreRoutes = () => {
+  const [add, setAdd] = React.useState([{ srcInput: "", desInput: "" }]);
+  const [replace, setReplace] = React.useState([{ srcInput: "", desInput: "" }]);
+  const exploreAddReplace = (props) => <ExploreAddReplace initReplace={replace} initAdds={add} onSave={({ replace, add }) => {
+    setAdd(add);
+    setReplace(replace);
+  }} {...props} />
+  const exploreMain = (props) => <ExploreMain replaceInput={replace} addInput={add}  {...props} />
+  const exploreResultView = (props) => <ExploreResultView replaceInput={replace} addInput={add} {...props} />
 
-const ExploreMain = ({ navigation }) => {
+  return (
+    <Stack.Navigator initialRouteName="Main" >
+      <Stack.Screen name="ResultView" options={{ headerShown: false }} component={exploreResultView} />
+      <Stack.Screen name="Main" options={{ headerShown: false }} component={exploreMain} />
+      <Stack.Screen name="AddReplace" options={{ headerShown: false }} component={exploreAddReplace} />
+    </Stack.Navigator>
+  )
+}
+
+const ExploreMain = ({ navigation, replaceInput, addInput }) => {
   const [input, setInput] = React.useState('');
   const [isLoading, setLoading] = React.useState(false);
   return (
@@ -74,7 +85,17 @@ const ExploreMain = ({ navigation }) => {
             <ClickButton optionsButton={{ paddingVertical: 6 }} onPress={async () => {
               if (!isLoading) {
                 setLoading(true)
-                const result = await getBooksByByBookName(input);
+                const newInput = replaceInput.reduce((input, currReplace) => {
+                  input = input.replace(currReplace.srcInput, currReplace.desInput)
+                  return input;
+                }, input)
+                const addInputs =  addInput.reduce((addInput, inputToAdd)=> {
+                  if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
+                    addInput.push(inputToAdd.desInput)
+                  }
+                  return addInput;
+                }, [])
+                const result = await getBooksByByBookName([newInput,...addInputs]);
                 setLoading(false)
                 navigation.push('ResultView', { result: result, searchInput: input });
               }

@@ -3,8 +3,8 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, LayoutAnimation, Platform, UIManager } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-export default function Accordian({ children, header, customStyles = { container: {} }, additionalComponent, index }) {
-    const [expanded, setExpanded] = React.useState(false);
+export default function Accordian({ children, header,initExpanded = false, customStyles = { container: {} }, additionalComponent, index }) {
+    const [expanded, setExpanded] = React.useState(initExpanded );
     const accordian = React.useRef(null);
 
     React.useEffect(() => {
@@ -21,9 +21,9 @@ export default function Accordian({ children, header, customStyles = { container
     return (
         <View>
             <TouchableOpacity underlayColor="#ffffff00" ref={accordian} style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}, customStyles.container || {}]} onPress={() => toggleExpand()}>
-                <View style={styles.additionalComponent}>
+              {additionalComponent&&  <View style={styles.additionalComponent}>
                     {additionalComponent}
-                </View>
+                </View>}
                 <View style={styles.toggleAndText}>
                     <Text style={[styles.title, styles.font, expanded ? styles.titleBold : {}]}>{header}</Text>
                     <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     toggleAndText: {
         flex: 1,
         alignItems: 'center',
+                width:'100%',
         justifyContent: 'flex-end',
         flexDirection: 'row'
     },

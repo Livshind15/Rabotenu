@@ -13,6 +13,8 @@ import SearchTypeModel from '../../component/searchType/searchType';
 import Resources from '../resources/resources';
 import config from "../../config/config";
 import { SearchContext, SearchProvider } from '../../contexts/searchContext';
+import SearchView from './searchView';
+import BookNavigator from '../bookNavigator/bookNavigator';
 
 
 const Stack = createStackNavigator();
@@ -34,6 +36,9 @@ export default function Search() {
       <Stack.Screen name="MainSearch" options={{ headerShown: false }} component={SearchMain} />
       <Stack.Screen name="SearchResultView" options={{ headerShown: false }} component={SearchResultView} />
       <Stack.Screen name="Resources" options={{ headerShown: false }} component={Resources} />
+      <Stack.Screen name="SearchView" options={{ headerShown: false }} component={SearchView} />
+      <Stack.Screen name="Result" options={{ headerShown: false }} component={BookNavigator} />
+
     </Stack.Navigator>
     </SearchProvider>
   );

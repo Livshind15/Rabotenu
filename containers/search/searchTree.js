@@ -51,7 +51,6 @@ const SearchTree = ({ navigation, input, onSearch, onInput, result }) => {
     const [isLoading, setLoading] = React.useState(false);
     const { data, error, isPending } = useAsync({ promiseFn: getGroups, bookResult: result })
     const [showErrorModel, setShowErrorModel] = React.useState(false);
-    console.log(data);
     React.useEffect(() => {
         if (error) {
             setShowErrorModel(true);
@@ -79,7 +78,7 @@ const SearchTree = ({ navigation, input, onSearch, onInput, result }) => {
                     <Text style={styles.titleResult}>תוצאות</Text>
                 </View>
                 <ScrollView style={styles.scroll}>
-                    {!isPending && data && data.length ? <Tree results={data} /> : <View style={styles.spinnerContainer}>
+                    {!isPending && data && data.length ? <Tree navigation={navigation} results={data} /> : <View style={styles.spinnerContainer}>
                         <Spinner />
                     </View>}
                 </ScrollView>

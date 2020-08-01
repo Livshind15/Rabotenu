@@ -44,7 +44,7 @@ const BookNavigator = ({ navigation, route }) => {
     }
     const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
     React.useEffect(() => {
-        run(booksIds[0], page);
+        run(booksIds[0]||'', page);
         setPage(page + 1)
     }, [])
     const onScroll = ({ nativeEvent }) => {

@@ -32,7 +32,7 @@ const ResourcesSearch = ({ navigation, resources, onRemove }) => {
                 </View>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttonsContainerRow}>
-                        <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 6 }} optionsText={{ fontSize: 22 }}>חפש תוצאות</ClickButton></View>
+                        <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} optionsText={{ fontSize: 22 }}>חפש תוצאות</ClickButton></View>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }}>חזרה</ClickButton></View>
                     </View>
                     <View style={styles.buttonsContainerRow}>

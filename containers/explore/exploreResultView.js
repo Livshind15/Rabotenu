@@ -7,7 +7,7 @@ import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import {getBooksByByBookName} from './explore'
 
-export default function ExploreResultView({ route, navigation }) {
+export default function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
   const { searchInput } = route.params;
   const [result , setResult] = React.useState(route.params.result);
   const [input, setInput] = React.useState(searchInput);
@@ -41,7 +41,17 @@ export default function ExploreResultView({ route, navigation }) {
             <ClickButton outline={true} optionsButton={{ paddingVertical: 8 }} onPress={async () => {
               if (!isLoading) {
                 setLoading(true)
-                const result = await getBooksByByBookName(input);
+                const newInput = replaceInput.reduce((input,currReplace)=>{
+                  input = input.replace(currReplace.srcInput,currReplace.desInput)
+                  return input;
+                },input)
+                const addInputs =  addInput.reduce((addInput, inputToAdd)=> {
+                  if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
+                    addInput.push(inputToAdd.desInput)
+                  }
+                  return addInput;
+                }, [])
+                const result = await getBooksByByBookName([newInput,...addInputs]);
                 setResult(result)
                 setLoading(false)
               }

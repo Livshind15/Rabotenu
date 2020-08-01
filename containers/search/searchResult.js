@@ -37,7 +37,9 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                                     <View style={styles.endContainer}>
                                         <View style={styles.showButtonWrapper}>
                                             <TouchableOpacity
-                                                underlayColor="#ffffff00" >
+                                                underlayColor="#ffffff00"
+                                                onPress={()=>navigation.push('SearchView',{booksIds:[book.bookId]})}
+                                                 >
                                                 <Text style={styles.showButtonText}>צפייה</Text>
                                             </TouchableOpacity>
                                         </View>

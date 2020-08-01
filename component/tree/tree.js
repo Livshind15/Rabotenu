@@ -2,16 +2,27 @@ import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import OctIcons from "react-native-vector-icons/Octicons";
 import Accordian from '../../component/accordian/accordian';
+import { flatten } from 'lodash';
 
+const getSubBookInGroup = (group) => {
+    let books = group.books;
+    if(group.subGroups){
+        books = [...books,...flatten(group.subGroups.map(getSubBookInGroup))]
+    }
+    return books
+}
 
-const Tree = ({ results, deep = 0 }) => (
+const Tree = ({navigation, results, deep = 0 }) => (
     <>
         {results.map((result, index) => (
             <Accordian customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.groupName} additionalComponent={
                 <View style={styles.endContainer}>
                     <View style={styles.showButtonWrapper}>
                         <TouchableOpacity
-                            underlayColor="#ffffff00" >
+                            underlayColor="#ffffff00" 
+                            onPress={()=>navigation.push('SearchView',{booksIds:getSubBookInGroup(result).map(book => book.bookId)})}
+
+                            >
                             <Text style={styles.showButtonText}>צפייה</Text>
                         </TouchableOpacity>
                     </View>
@@ -21,7 +32,7 @@ const Tree = ({ results, deep = 0 }) => (
                 </View>
             }>
                 <View >
-                    {result.subGroups && <Tree results={result.subGroups} deep={deep + 1} />}
+                    {result.subGroups && <Tree navigation={navigation} results={result.subGroups} deep={deep + 1} />}
                     {((result.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
                         <View style={styles.bookContainer}>
                             <View style={styles.bookName}>
@@ -31,7 +42,10 @@ const Tree = ({ results, deep = 0 }) => (
                             <View style={styles.endContainer}>
                                 <View style={styles.showButtonWrapper}>
                                     <TouchableOpacity
-                                        underlayColor="#ffffff00" >
+                                        underlayColor="#ffffff00" 
+                                        onPress={()=>navigation.push('SearchView',{booksIds:[book.bookId]})}
+
+                                        >
                                         <Text style={styles.showButtonText}>צפייה</Text>
                                     </TouchableOpacity>
                                 </View>
