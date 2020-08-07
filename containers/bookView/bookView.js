@@ -60,6 +60,12 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
       textAlign: 'right',
       fontSize: 12 + (textSize * 50),
     },
+  pasokContentGray:{
+color: '#CBD4D3',
+      fontFamily: "OpenSansHebrew",
+      textAlign: 'right',
+      fontSize: 17 + (textSize * 50),
+  },
     pasokContent: {
       color: '#455253',
       fontFamily: "OpenSansHebrew",
@@ -81,6 +87,8 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
       let isParsa = false;
       let bold = false;
       let boldCenter = false;
+      let grey = false;
+
       let content = grammar ? item.content.replace(/[^א-ת\s,;.-]/g, '') : item.content;
       if (RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content)) {
         isParsa = true
@@ -106,16 +114,25 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
         <View key={uuidv4()} style={styles.pasokContainer}>
           {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
           {content.split(' ').map((splitContent => {
+            if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
+              grey = true;
+            }
+            if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
+              grey = false;
+              return <Text style={styles.pasokContentGray}>{' '}{splitContent.replace(new RegExp(/<.כתיב./, 'g'), '').replace(/<\/?כתיב>/g, '')}</Text>
+
+            }
+            if (grey) {
+              return <Text style={styles.pasokContentGray}>{' '}{splitContent.replace(/<\/?כתיב>/g, '')}</Text>
+            }
             if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
               boldCenter = true;
-              console.log(splitContent)
             }
 
             if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
               return <Text style={styles.pasokContentMark}>{' '}{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text>
             }
             if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
-              console.log(splitContent)
               boldCenter = false;
 
               return <Text style={styles.pasokContentBold}>{' '}{splitContent.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')}</Text>
