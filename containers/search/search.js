@@ -15,6 +15,7 @@ import config from "../../config/config";
 import { SearchContext, SearchProvider } from '../../contexts/searchContext';
 import SearchView from './searchView';
 import BookNavigator from '../bookNavigator/bookNavigator';
+import TableSearch from '../tableSearch/tableSearch';
 
 
 const Stack = createStackNavigator();
@@ -32,14 +33,15 @@ export default function Search() {
   return (
     <SearchProvider>
 
-    <Stack.Navigator initialRouteName="MainSearch" >
-      <Stack.Screen name="MainSearch" options={{ headerShown: false,title:'רבותינו' }} component={SearchMain} />
-      <Stack.Screen name="SearchResultView" options={{ headerShown: false ,title:'רבותינו'}} component={SearchResultView} />
-      <Stack.Screen name="Resources" options={{ headerShown: false,title:'רבותינו' }} component={Resources} />
-      <Stack.Screen name="SearchView" options={{ headerShown: false ,title:'רבותינו'}} component={SearchView} />
-      <Stack.Screen name="Result" options={{ headerShown: false ,title:'רבותינו'}} component={BookNavigator} />
+      <Stack.Navigator initialRouteName="MainSearch" >
+        <Stack.Screen name="MainSearch" options={{ headerShown: false, title: 'רבותינו' }} component={SearchMain} />
+        <Stack.Screen name="SearchResultView" options={{ headerShown: false, title: 'רבותינו' }} component={SearchResultView} />
+        <Stack.Screen name="Resources" options={{ headerShown: false, title: 'רבותינו' }} component={Resources} />
+        <Stack.Screen name="SearchView" options={{ headerShown: false, title: 'רבותינו' }} component={SearchView} />
+        <Stack.Screen name="Result" options={{ headerShown: false, title: 'רבותינו' }} component={BookNavigator} />
+        <Stack.Screen name="TableSearch" options={{ headerShown: false, title: 'רבותינו' }} component={TableSearch} />
 
-    </Stack.Navigator>
+      </Stack.Navigator>
     </SearchProvider>
   );
 }
@@ -58,41 +60,47 @@ const SearchMain = ({ navigation }) => {
   const [isLoading, setLoading] = React.useState(false);
   const [showOptionsSearch, setShowOptionsSearch] = React.useState(false);
   const [showSearchType, setShowSearchType] = React.useState(false);
-  const { searchInput, setSearchInput,setBookResult } = React.useContext(SearchContext);
+  const { searchInput, setSearchInput, setBookResult } = React.useContext(SearchContext);
 
 
   return (
-      <Background>
-        <SearchOptionsModel onResources={() => navigation.push('Resources')} openSearchType={() => setShowSearchType(true)} visible={showOptionsSearch} setVisible={setShowOptionsSearch} ></SearchOptionsModel>
-        <SearchTypeModel setVisible={setShowSearchType} options={options} visible={showSearchType}></SearchTypeModel>
-        <View style={styles.page}>
-          <View style={styles.container}>
-            <View style={styles.textWrapper}>
-              <Text style={styles.text}>הקלד את המילה החיפוש שתרצה לאתר</Text>
-            </View>
-            <View style={styles.input}>
-              <Input isLoading={isLoading} value={searchInput} onChange={setSearchInput} placeholder={'חפש'} />
-            </View>
-            <View style={styles.buttonWrapper}>
-              <ClickButton onPress={async () => {
-                if (!isLoading) {
-                  setLoading(true)
-                  const result = await getBooksByContent(searchInput);
-                  setLoading(false)
-                  setBookResult(result);
-                  navigation.push('SearchResultView',{onSearch:getBooksByContent})
-                }
-              }} outline={true} >חיפוש</ClickButton>
-            </View>
-            <TouchableOpacity
-              underlayColor="#ffffff00"
-              onPress={() => setShowOptionsSearch(true)}
-            >
-              <Text style={styles.clickText}>אפשרויות חיפוש מתקדמות</Text>
-            </TouchableOpacity>
+    <Background>
+      <SearchOptionsModel onResources={() => navigation.push('Resources')} openSearchType={() => setShowSearchType(true)} visible={showOptionsSearch} setVisible={setShowOptionsSearch} ></SearchOptionsModel>
+      <SearchTypeModel onOptionChange={(index) => {
+        if (index === 4) {
+          navigation.push('TableSearch');
+          setShowSearchType(false)
+        }
+
+      }} setVisible={setShowSearchType} options={options} visible={showSearchType}></SearchTypeModel>
+      <View style={styles.page}>
+        <View style={styles.container}>
+          <View style={styles.textWrapper}>
+            <Text style={styles.text}>הקלד את המילה החיפוש שתרצה לאתר</Text>
           </View>
+          <View style={styles.input}>
+            <Input isLoading={isLoading} value={searchInput} onChange={setSearchInput} placeholder={'חפש'} />
+          </View>
+          <View style={styles.buttonWrapper}>
+            <ClickButton onPress={async () => {
+              if (!isLoading) {
+                setLoading(true)
+                const result = await getBooksByContent(searchInput);
+                setLoading(false)
+                setBookResult(result);
+                navigation.push('SearchResultView', { onSearch: getBooksByContent })
+              }
+            }} outline={true} >חיפוש</ClickButton>
+          </View>
+          <TouchableOpacity
+            underlayColor="#ffffff00"
+            onPress={() => setShowOptionsSearch(true)}
+          >
+            <Text style={styles.clickText}>אפשרויות חיפוש מתקדמות</Text>
+          </TouchableOpacity>
         </View>
-      </Background>
+      </View>
+    </Background>
   )
 }
 

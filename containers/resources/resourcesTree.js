@@ -7,33 +7,29 @@ import axios from "axios";
 
 import Background from '../../component/background/background';
 import ResourceTree from '../../component/resourcesTree/resourceTree';
-import { Spinner } from '@ui-kitten/components';
-import ErrorModel from '../../component/modalError/modalError';
 
-
-const getGroups = async () => {
-    const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
-    return data || [];
+const addCheckForResources = (resources) => {
+    return resources.map(resource => {
+        const books = resource.books.map(book =>{  
+            return {...book,isCheck:true}
+        })
+        let subGroups = []
+        if(resource.subGroups.length){
+            subGroups = addCheckForResources(resource.subGroups)
+        }
+        return {...resource,books,subGroups,isCheck:true}
+    })
 }
 
-const ResourcesTreeView = ({ navigation }) => {
-    const { data, error, isPending } = useAsync({ promiseFn: getGroups })
-    const [showErrorModel, setShowErrorModel] = React.useState(false);
-    React.useEffect(()=>{
-        if(error){
-            setShowErrorModel(true);
-        }
-    },[error])
+const ResourcesTreeView = ({ navigation,resources }) => {
+    
     return (
         <Background>
-            <ErrorModel errorMsg={"שגיאה בבקשה מהשרת של תצוגת עץ"} errorTitle={'שגיאה'} visible={showErrorModel} setVisible={setShowErrorModel} />
 
             <View style={styles.page}>
-                {!isPending &&data&& data.length ? <ScrollView style={styles.scroll}>
-                    <ResourceTree navigation={navigation} groups={data} />
-                </ScrollView> : <View style={styles.spinnerContainer}>
-                        <Spinner />
-                    </View>}
+               <ScrollView style={styles.scroll}>
+                    <ResourceTree navigation={navigation} groups={addCheckForResources(resources)} />
+                </ScrollView>
             </View>
         </Background>
     )

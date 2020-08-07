@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, ScrollView, View, Text,TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
 
 
 
@@ -34,9 +34,9 @@ const getSearchContent = async ({ booksIds, searchInput }) => {
 }
 
 
-const SearchView = ({ navigation,route }) => {
+const SearchView = ({ navigation, route }) => {
     const { searchInput } = React.useContext(SearchContext);
-    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, booksIds:route.params.booksIds, searchInput })
+    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, booksIds: route.params.booksIds, searchInput })
     const [showErrorModel, setShowErrorModel] = React.useState(false);
     React.useEffect(() => {
         if (error) {
@@ -51,36 +51,96 @@ const SearchView = ({ navigation,route }) => {
                 {!isPending && data && data.length ? <ScrollView style={styles.scroll}>
                     {data.map(res => {
                         const content = res.highlight[0].match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/g);
+                        let boldCenter = false;
                         return (
                             <Accordian initExpanded={true} header={`${res.groupName}, ${res.bookName}, ${res.chapter}, פסוק ${res.verse}`} >
-                                <TouchableOpacity onLongPress={()=>{
-                                     navigation.push('Result',{ selectedBooks:[{bookId:res.bookId}] })
+                                <TouchableOpacity onLongPress={() => {
+                                    navigation.push('Result', { selectedBooks: [{ bookId: res.bookId }] })
                                 }} style={styles.contentContainer}>
                                     <Text style={styles.pasokContainer}>
-                                        {res.pevVerses && res.pevVerses.map(content => (
-                                            <>
-                                                {content.verse ? <Text style={styles.pasok}>{content.verse} </Text> : <></>}
-                                                <Text style={styles.pasokContent}>{content.content.trim()}</Text>
-                                            </>
+                                        {res.pevVerses && res.pevVerses.map(content => {
+                                            return (
+                                                <>
+                                                    {content.verse ? <Text style={styles.pasok}>{content.verse} </Text> : <></>}
+                                                    {content.content.split(' ').map(splitContent => {
+                                                        if (RegExp(/<\/?דה>/g).test(splitContent)) {
+                                                            boldCenter = true;
+                                                        }
 
-                                        ))}
+                                                        if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
+                                                            return <><Text style={styles.pasokContentMark}>{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
+                                                        }
+                                                        if (RegExp(/<.דה./g).test(splitContent) || RegExp(/<\/?דה>/g).test(splitContent)) {
+                                                            boldCenter = false;
+
+                                                            return <><Text style={styles.pasokContentBold}>{splitContent.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')}</Text><Text> </Text> </>
+
+                                                        }
+                                                        if (boldCenter) {
+                                                            return <><Text style={styles.pasokContentBold}>{splitContent.replace(/<\/?דה>/g, '')}</Text><Text> </Text> </>
+
+                                                        }
+
+                                                        return <><Text style={styles.pasokContent}>{splitContent.replace(RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`), '')}</Text><Text> </Text></>
+                                                    })}                                                </>)
+
+                                        })}
 
                                         {res.verse ? <Text style={styles.pasok}>{res.verse} </Text> : <></>}
                                         {content.map(splitContent => {
+                                            if (RegExp(/<\/?דה>/g).test(splitContent)) {
+                                                boldCenter = true;
+                                            }
+
                                             if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
                                                 return <><Text style={styles.pasokContentMark}>{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
                                             }
-                                            return <><Text style={styles.pasokContent}>{splitContent}</Text><Text> </Text></>
+                                            if (RegExp(/<.דה./g).test(splitContent) || RegExp(/<\/?דה>/g).test(splitContent)) {
+                                                boldCenter = false;
+
+                                                return <><Text style={styles.pasokContentBold}>{splitContent.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')}</Text><Text> </Text> </>
+
+                                            }
+                                            if (boldCenter) {
+                                                return <><Text style={styles.pasokContentBold}>{splitContent.replace(/<\/?דה>/g, '')}</Text><Text> </Text> </>
+
+                                            }
+
+                                            return <><Text style={styles.pasokContent}>{splitContent.replace(RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`), '')}</Text><Text> </Text></>
                                         }
 
                                         )}
-                                        {res.nextVerses && res.nextVerses.map(content => (
-                                            <>
-                                                {content.verse ? <Text style={styles.pasok}>{content.verse} </Text> : <></>}
-                                                <Text style={styles.pasokContent}>{content.content.trim()}</Text>
-                                            </>
+                                        {res.nextVerses && res.nextVerses.map(content => {
 
-                                        ))}
+                                            return (
+                                                <>
+                                                    {content.verse ? <Text style={styles.pasok}>{content.verse} </Text> : <></>}
+                                                    {content.content.split(' ').map(splitContent => {
+                                                        if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
+                                                            boldCenter = true;
+                                                            console.log(splitContent)
+                                                        }
+
+                                                        if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
+                                                            return <><Text style={styles.pasokContentMark}>{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
+                                                        }
+                                                        if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
+                                                            console.log(splitContent)
+                                                            boldCenter = false;
+
+                                                            return <><Text style={styles.pasokContentBold}>{splitContent.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')}</Text><Text> </Text> </>
+
+                                                        }
+                                                        if (boldCenter) {
+                                                            return <><Text style={styles.pasokContentBold}>{splitContent.replace(/<\/?דה>/g, '')}</Text><Text> </Text> </>
+
+                                                        }
+
+                                                        return <><Text style={styles.pasokContent}>{splitContent.replace(RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`), '')}</Text><Text> </Text></>
+                                                    })}
+
+                                                </>)
+                                        })}
 
                                     </Text>
                                 </TouchableOpacity>
@@ -114,6 +174,13 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         backgroundColor: 'yellow',
         fontSize: 20,
+    },
+    pasokContentBold: {
+        color: '#455253',
+        fontFamily: "OpenSansHebrewBold",
+        textAlign: 'right',
+        fontSize: 19,
+        padding: 0
     },
     pasok: {
         color: '#455253',

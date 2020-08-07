@@ -42,10 +42,7 @@ const AcronymMain = ({ navigation }) => {
               }} outline={false} optionsButton={{ paddingVertical: 6 }} >חיפוש</ClickButton>
             </View>
           </View>
-          <TouchableOpacity
-            underlayColor="#ffffff00" >
-            <Text style={styles.clickText}>אפשרויות חיפוש מתקדמות</Text>
-          </TouchableOpacity>
+     
         </View>
       </View>
       <View style={styles.addButtonContainer}>

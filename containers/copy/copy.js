@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     bottomContainer: {
-        flex: 0.25,
+        flex: 0.3,
         width: "100%"
     },
     sliderWrapper: {

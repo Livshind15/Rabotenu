@@ -9,6 +9,7 @@ import axios from "axios";
 import config from "../../config/config";
 import BookDisplay from '../bookDisplay/bookDisplay';
 import Copy from '../copy/copy';
+import BookMenu from '../../component/bookMenu/bookMenu';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
@@ -71,7 +72,7 @@ const BookNavigator = ({ navigation, route }) => {
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
             <Screen name='Copy' options={{title:'רבותינו' }}  component={bookCopy} />
-            <Screen name='Menu' options={{title:'רבותינו' }}  component={View} />
+            <Screen name='Menu' options={{title:'רבותינו' }}  component={BookMenu} />
             <Screen name='Display' options={{title:'רבותינו' }}  component={bookDisplay} />
             <Screen name='BookList' options={{title:'רבותינו' }}  component={bookList} />
             <Screen name='View' options={{title:'רבותינו' }}  component={bookView} />

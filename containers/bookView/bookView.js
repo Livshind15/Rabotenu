@@ -48,7 +48,13 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
       textAlign: 'right',
       fontSize: 20 + (textSize * 50),
     },
-    pasokLink:{
+    pasokContentBold: {
+      color: '#455253',
+      fontFamily: "OpenSansHebrewBold",
+      textAlign: 'right',
+      fontSize: 21 + (textSize * 50),
+  },
+    pasokLink: {
       color: '#11AFC2',
       fontFamily: "OpenSansHebrewBold",
       textAlign: 'right',
@@ -61,8 +67,8 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
       fontSize: 20 + (textSize * 50),
     },
     pasokContainer: {
-      textAlign: 'right',
-      direction: 'rtl'
+      flexWrap: 'wrap',
+      flexDirection: 'row-reverse',
 
     }
   });
@@ -72,10 +78,15 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
   const bookContentRender = React.useCallback(() => {
 
     const booksElement = (bookContent || []).reduce((elements, item) => {
-      let isParsa = false; 
-      let content = grammar? item.content.replace(/[^א-ת\s,;.-]/g, ''):item.content;
+      let isParsa = false;
+      let bold = false;
+      let boldCenter = false;
+      let content = grammar ? item.content.replace(/[^א-ת\s,;.-]/g, '') : item.content;
       if (RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content)) {
         isParsa = true
+      }
+      if (RegExp(`<\s*דה[^>]*>(.*?)<\s*/\s*דה>`).test(content)) {
+        bold = true
       }
       if (item.bookName !== bookName) {
         bookName = item.bookName;
@@ -89,12 +100,37 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
         chapter = item.chapter;
         elements.push(<Text key={uuidv4()} style={styles.chapter}>{item.chapter}</Text>)
       }
+      { item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></> }
+
       elements.push(
-        <Text key={uuidv4()} style={styles.pasokContainer}>
+        <View key={uuidv4()} style={styles.pasokContainer}>
           {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
-          <Text style={styles.pasokContent}>{content.replace(RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`),'')}</Text>
-          {isParsa &&  <Text style={styles.pasokLink}>{'פ'}</Text>}
-        </Text>
+          {content.split(' ').map((splitContent => {
+            if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
+              boldCenter = true;
+              console.log(splitContent)
+            }
+
+            if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
+              return <Text style={styles.pasokContentMark}>{' '}{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text>
+            }
+            if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
+              console.log(splitContent)
+              boldCenter = false;
+
+              return <Text style={styles.pasokContentBold}>{' '}{splitContent.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')}</Text>
+
+            }
+            if (boldCenter) {
+              return <Text style={styles.pasokContentBold}>{' '}{splitContent.replace(/<\/?דה>/g, '')}</Text>
+
+            }
+
+            return <Text style={styles.pasokContent}>{' '} {splitContent.replace(RegExp('<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>'), '')}</Text>
+          }))}
+          {isParsa && <Text style={styles.pasokLink}>{'פ'}</Text>}
+
+        </View>
       )
       return elements
     }, [])

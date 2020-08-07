@@ -11,7 +11,6 @@ const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 
 const ResourcesSearch = ({ navigation, resources, onRemove }) => {
-
     return (
         <Background>
             <View style={styles.page}>
@@ -22,10 +21,10 @@ const ResourcesSearch = ({ navigation, resources, onRemove }) => {
                     <ScrollView style={styles.resourcesContainerScroll}>
                         {(resources || []).map((resource, index) => (
                             <View key={index} style={styles.resourceContainer}>
-                                <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([resource.key])}>
+                                <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([resource.bookId])}>
                                     <Icon color={'#47BBB2'} name={'close'} size={20} />
                                 </TouchableOpacity>
-                                <Text style={styles.resourceName}>{resource.name}</Text>
+                                <Text style={styles.resourceName}>{`${resource.groupName}, ${resource.bookName}`}</Text>
                             </View>
                         ))}
                     </ScrollView>
@@ -37,8 +36,8 @@ const ResourcesSearch = ({ navigation, resources, onRemove }) => {
                     </View>
                     <View style={styles.buttonsContainerRow}>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }} onPress={() => {
-                            onRemove(resources.map(({ key }) => {
-                                return key
+                            onRemove(resources.map(({ bookId }) => {
+                                return bookId
                             }))
                         }}>נקה הכל</ClickButton></View>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }}>הגדר קבוצה חדשה</ClickButton></View>

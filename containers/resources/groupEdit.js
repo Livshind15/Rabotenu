@@ -7,19 +7,40 @@ import ClickButton from '../../component/clickButton/clickButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import Icon from "react-native-vector-icons/AntDesign";
 import IconEvilIcons from "react-native-vector-icons/EvilIcons";
-import GroupEdit from './groupEdit';
+import Input from '../../component/input/input';
+
 const Stack = createStackNavigator();
 
 
-
-const ResourcesGroups = ({ navigation, resources, onRemove }) => {
-
+const GroupEdit = ({ navigation, name='' }) => {
+    const [groupName, setGroupName] = React.useState(name)
+    const [edit, setEdit] = React.useState(false)
     return (
         <Background>
             <View style={styles.page}>
-           
+                {!edit && <View style={styles.groupNameContainer}>
+                    <Text style={styles.groupName}>{groupName}</Text>
+                    <TouchableOpacity onPress={() => {
+                        setEdit(true)
+                    }} underlayColor="#ffffff00">
+                        <IconEvilIcons color={'#595959'} name={'pencil'} size={40}></IconEvilIcons>
+                    </TouchableOpacity>
+
+                </View>}
+                {edit && <View style={styles.input}>
+                    <View style={styles.buttonWrapper}>
+                        <ClickButton outline={true} onPress={() => {
+                            setEdit(false)
+                        }} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>שמור</ClickButton>
+                    </View>
+                    <View style={styles.inputWrapper}>
+                        <Input isLoading={false} value={groupName} placeholder={'תן שם לקבוצה'} onChange={(text) =>setGroupName(text)} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+                    </View>
+
+                </View>}
+
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>הקבוצות שלי:</Text>
+                    <Text style={styles.title}>מאגרי הקבוצה:</Text>
                 </View>
                 <View style={styles.resourcesContainer}>
                     <ScrollView style={styles.resourcesContainerScroll}>
@@ -29,26 +50,17 @@ const ResourcesGroups = ({ navigation, resources, onRemove }) => {
                                 <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([resource.key])}>
                                     <Icon color={'#47BBB2'} name={'close'} size={20} />
                                 </TouchableOpacity>
-                                <Text style={styles.resourceName}>{"בדיקה"}</Text>
-                            </View>
-
-                            <View style={styles.resourceContainerEnd} >
-                                <TouchableOpacity underlayColor="#ffffff00">
-                                    <IconEvilIcons color={'#B4B4B4'} name={'pencil'} size={40}></IconEvilIcons>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={()=>{
-                                    navigation.push('edit')
-                                }} underlayColor="#ffffff00">
-                                    <Text style={styles.viewText}>{"צפייה"}</Text>
-                                </TouchableOpacity>
-
+                                <Text style={styles.resourceName}>{"בדddיקה"}</Text>
                             </View>
                         </View>
                         {/* ))} */}
                     </ScrollView>
                 </View>
                 <View style={styles.buttonsContainer}>
-                    <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} optionsText={{ fontSize: 22 }}>יצרת קבוצה חדשה</ClickButton></View>
+                    <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} optionsText={{
+                        fontSize: 24.
+
+                    }}>סגור</ClickButton></View>
 
                 </View>
 
@@ -57,25 +69,40 @@ const ResourcesGroups = ({ navigation, resources, onRemove }) => {
     )
 }
 
-const Routes = (props) => {
-    return (
-        <Stack.Navigator initialRouteName="main" >
-            <Stack.Screen name="main" options={{ headerShown: false, title: 'רבותינו' }} component={ResourcesGroups} />
-            <Stack.Screen name="edit" options={{ headerShown: false, title: 'רבותינו' }} component={GroupEdit} />
-        </Stack.Navigator>
-    );
-}
-
 
 
 const styles = StyleSheet.create({
-
     resourceContainerStart: {
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
         height: '100%',
         flexDirection: 'row-reverse',
+    },
+    input: {
+        width: '100%',
+        height: 60,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomColor: '#A6A5A5',
+        borderBottomWidth: 1,
+        justifyContent: 'center',
+    },
+    groupNameContainer: {
+        width: '100%',
+        height: 60,
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        alignItems: 'center',
+        borderBottomColor: '#A6A5A5',
+        borderBottomWidth: 1,
+        paddingHorizontal: 25,
+    },
+    inputWrapper: {
+        flex: 0.82,
+        height: '100%',
+        justifyContent: 'center'
     },
     resourceContainerEnd: {
         width: 'auto',
@@ -125,8 +152,17 @@ const styles = StyleSheet.create({
         color: '#7B7B7B',
         textAlign: 'right'
     },
+    groupName: {
+        fontFamily: "OpenSansHebrewBold",
+        fontSize: 25,
+        color: '#595959',
+        paddingLeft: 10,
+        paddingBottom:1,
+        textAlign: 'right'
+    },
     titleContainer: {
         flex: 0.15,
+        paddingVertical: 10,
         width: '100%',
         justifyContent: 'center',
         alignItems: 'flex-end',
@@ -152,4 +188,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Routes;
+export default GroupEdit;

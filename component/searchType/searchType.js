@@ -10,12 +10,12 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 
 
-export default function SearchTypeModel({ visible, setVisible, options }) {
-    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent options={options} setVisible={setVisible} /></Modal> :
-        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent options={options} setVisible={setVisible} /></MobileModal>
+export default function SearchTypeModel({ visible, setVisible, options, onOptionChange }) {
+    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent onOptionChange={onOptionChange} options={options} setVisible={setVisible} /></Modal> :
+        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent options={options} setVisible={setVisible} onOptionChange={onOptionChange} /></MobileModal>
 }
 
-const ModelContent = ({ setVisible, options }) => {
+const ModelContent = ({ setVisible, options, onOptionChange }) => {
     const [selectedOptions, setSelectedOptions] = React.useState(0);
     return (
         <View style={styles.container}>
@@ -26,9 +26,16 @@ const ModelContent = ({ setVisible, options }) => {
             </View>
             <ScrollView style={styles.options}>
                 {options.map((option, key) => (
-                    <TouchableOpacity underlayColor="#ffffff00" onPress={() => setSelectedOptions(key)}>
+                    <TouchableOpacity underlayColor="#ffffff00" onPress={() => {
+                        setSelectedOptions(key)
+                        onOptionChange(key)
+                    }}>
                         <View style={styles.option}>
-                            <Radio onChange={() => setSelectedOptions(key)} checked={selectedOptions === key} />
+                            <Radio onChange={() => {
+                                setSelectedOptions(key)
+                                onOptionChange(key)
+                            }} checked={selectedOptions === key} />
+
                             <View style={styles.textWrapper}>
                                 <Text style={styles.optionTextTitle}>{option.title}</Text>
                                 <Text style={styles.optionText}>{option.description}</Text>
@@ -92,7 +99,7 @@ const styles = StyleSheet.create({
     },
     buttonWrapper: {
         width: 95,
-        alignItems:'center',
+        alignItems: 'center',
         flex: 0.16
     },
     container: {

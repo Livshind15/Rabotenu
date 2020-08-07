@@ -7,47 +7,92 @@ import TabButton from '../../component/tabButton/tabButton';
 import ResourcesSearch from './searchResource';
 import ResourcesTreeView from './resourcesTree';
 import ResourcesGroups from './resourcesGroups';
+import config from "../../config/config";
+import { useAsync } from "react-async";
+import axios from "axios";
+import ErrorModel from '../../component/modalError/modalError';
+import { flatten, isEqual } from 'lodash';
+import { Spinner } from '@ui-kitten/components';
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-const initResources = [{ name: 'תנך', key: 0 }, { name: 'תנך', key: 1 }, { name: 'תנך', key: 2 }, { name: 'תנך', key: 3 }, { name: 'תנך', key: 4 }];
+
+const getGroups = async () => {
+    const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
+    return data || [];
+}
+
+const getAllBooksFromGroups = (groups) => {
+    return flatten(groups.map(group => {
+        let books = group.books.map(book => {
+            return { ...book, groupName: group.groupName, groupId: group.groupId }
+        })
+        if (group.subGroups && group.subGroups.length) {
+            books = [...books, ...getAllBooksFromGroups(group.subGroups)]
+        }
+        return books
+    }))
+}
+
 
 const Resources = ({ navigation }) => {
     const [allResourceToggle, setResourceToggle] = React.useState(true);
-    const [resources, setResources] = React.useState(initResources);
-    const resourcesSearch = (props) => <ResourcesSearch {...props} resources={resources} onRemove={(keys) => {
-        setResources(keys.reduce((filterResources, key) => {
-            filterResources = filterResources.filter(resource => resource.key != key);
-            return filterResources;
-        }, resources));
-    }} />
+    const { data, error, isPending } = useAsync({ promiseFn: getGroups })
+    const [resources, setResources] = React.useState([]);
+    const [allResource, setAlResources] = React.useState([]);
+    const [showErrorModel, setShowErrorModel] = React.useState(false);
+    React.useEffect(() => {
+        if (error) {
+            setShowErrorModel(true);
+        }
+    }, [error]);
+    React.useEffect(() => {
+        if (data && data.length) {
+            const books = getAllBooksFromGroups(data);
+            setAlResources(books);
+            setResources(books)
+        }
+    }, [data]);
     React.useEffect(() => {
         if (allResourceToggle) {
-            setResources(initResources);
+            setResources(allResource);
         }
     }, [allResourceToggle]);
     React.useEffect(() => {
-        if (resources !== initResources) {
-            setResourceToggle(false);
-        }
+        const isAllResource = isEqual(resources, allResource)
+        setResourceToggle(isAllResource);
     }, [resources]);
+    const resourcesTreeView =  (props) => <ResourcesTreeView resources={data} {...props} />
 
+    const resourcesSearch = (props) => <ResourcesSearch {...props} resources={resources} onRemove={(keys) => {
+        setResources(keys.reduce((filterResources, key) => {
+            filterResources = filterResources.filter(resource => resource.bookId != key);
+            return filterResources;
+        }, resources));
+    }} />
     return (
-        <View style={styles.page}>
-            <View style={styles.header}>
-                <Toggle checked={allResourceToggle} onChange={setResourceToggle} />
-                <Text style={styles.headerText}>חפש בכל המאגרים</Text>
-            </View>
-            <View style={styles.body}>
-                <Navigator initialRouteName='SearchResource' tabBar={props => <TopTabBar {...props} />}>
-                    <Screen name='groupResource' component={ResourcesGroups} />
-                    <Screen name='SearchResource' component={resourcesSearch} />
-                    <Screen name='TreeResource' component={ResourcesTreeView} />
+        <>
+            {!isPending && data && data.length ?
+                <View style={styles.page}>
+                    <ErrorModel errorMsg={"שגיאה בבקשה מהשרת של המאגרים"} errorTitle={'שגיאה'} visible={showErrorModel} setVisible={setShowErrorModel} />
 
-                </Navigator>
-            </View>
-        </View>
+                    <View style={styles.header}>
+                        <Toggle checked={allResourceToggle} onChange={setResourceToggle} />
+                        <Text style={styles.headerText}>חפש בכל המאגרים</Text>
+                    </View>
+                    <View style={styles.body}>
+                        <Navigator initialRouteName='SearchResource' tabBar={props => <TopTabBar {...props} />}>
+                            <Screen name='groupResource' component={ResourcesGroups} />
+                            <Screen name='SearchResource' component={resourcesSearch} />
+                            <Screen name='TreeResource' component={resourcesTreeView} />
+
+                        </Navigator>
+                    </View>
+                </View> : <View style={styles.spinnerContainer}>
+                    <Spinner />
+                </View>}
+        </>
     )
 }
 
@@ -62,6 +107,12 @@ const TopTabBar = ({ navigation, state }) => (
 );
 
 const styles = StyleSheet.create({
+    spinnerContainer: {
+        flex: 1,
+        width: "100%",
+        justifyContent: 'center',
+        alignItems: "center"
+    },
     tabs: {
         height: 60,
         width: '100%',
