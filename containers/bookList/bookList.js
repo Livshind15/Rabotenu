@@ -7,12 +7,12 @@ import Background from '../../component/background/background';
 
 
 
-const BookList = ({ tree,isPending,navigation,onSelectChapter }) => {
+const BookList = ({ tree,isPending,navigation,onSelectChapter,bookId }) => {
     return (
         <Background>
             <View style={styles.page}>
                 <ScrollView style={styles.scroll}>
-                    {!isPending && tree ? <BookListTree onSelect={(select => {
+                    {!isPending && tree ? <BookListTree bookId={bookId} onSelect={(select => {
                         if(select.chapter){
                             onSelectChapter(select.chapter)
                             navigation.navigate('View')

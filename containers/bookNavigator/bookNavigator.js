@@ -17,6 +17,7 @@ const getBookTree = async ({ booksIds }) => {
     const data = await Promise.all(booksIds.map(bookId => {
         return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
     }))
+    console.log({data});
     return data || [];
 }
 
@@ -44,7 +45,7 @@ const BookNavigator = ({ navigation, route }) => {
 
     const treeBooksResponse = useAsync({ promiseFn: getBookTree, booksIds })
     const bookView = (props) => <BookView  {...props} startChapter={initChapter} textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending}  />
-    const bookList = (props) => <BookList  {...props} onSelectChapter={setChapter } tree={treeBooksResponse.data || {}} isPending={treeBooksResponse.isPending} />
+    const bookList = (props) => <BookList  bookId ={booksIds[0]} {...props} onSelectChapter={setChapter } tree={treeBooksResponse.data || {}} isPending={treeBooksResponse.isPending} />
     const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
         setTextSide(textSize);
         setGrammar(grammar);
@@ -52,11 +53,12 @@ const BookNavigator = ({ navigation, route }) => {
         setFlavors(flavors);
     }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
     const bookCopy = (props) => <Copy {...props} onSave={()=>{}}></Copy>
+    const bookMenu = (props) => <BookMenu {...props} bookId={booksIds[0]}></BookMenu>
 
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
             <Screen name='Copy' options={{title:'רבותינו' }}  component={bookCopy} />
-            <Screen name='Menu' options={{title:'רבותינו' }}  component={BookMenu} />
+            <Screen name='Menu' options={{title:'רבותינו' }}  component={bookMenu} />
             <Screen name='Display' options={{title:'רבותינו' }}  component={bookDisplay} />
             <Screen name='BookList' options={{title:'רבותינו' }}  component={bookList} />
             <Screen name='View' options={{title:'רבותינו' }}  component={bookView} />

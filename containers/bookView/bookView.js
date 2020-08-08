@@ -1,12 +1,7 @@
 import * as React from 'react';
-import axios from "axios";
 import Background from '../../component/background/background';
-import { useAsync } from "react-async";
 import { Spinner } from '@ui-kitten/components';
-import { v4 as uuidv4 } from 'react-native-uuid';
-import { View, Platform, FlatList, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
-import config from "../../config/config";
-import { log } from 'react-native-reanimated';
+import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native';
 
 
 

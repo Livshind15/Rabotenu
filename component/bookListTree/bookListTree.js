@@ -5,24 +5,31 @@ import OctIcons from "react-native-vector-icons/Octicons";
 import Accordian from '../../component/accordian/accordian';
 import Feather from 'react-native-vector-icons/Feather';
 
-const BookListTree = ({ results, deep = 0,onSelect=()=>{} }) => {
+const BookListTree = ({ results, bookId, deep = 0, onSelect = () => { } }) => {
     return <>
         {results.map((result, index) => (
-            <Accordian onExpanded={()=> {
-                if( result.isBook){
-                    onSelect({'book': result.text})
+            <Accordian onExpanded={() => {
+                if (result.isBook) {
+                    onSelect({ 'book': result.text })
                 }
-                else if(!result.tree){
-                    onSelect({'chapter': result.text})
+                else if (!result.tree) {
+                    onSelect({ 'chapter': result.text })
                 }
-             }} shouldExpanded={!!result.tree} customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.text} additionalComponent={
-                result.isBook ?  <View style={styles.endContainer}>
-                    <Feather color={'#0384AE'} size={30} name={'info'}></Feather>
-                </View>: <></>
+            }} shouldExpanded={!!result.tree} customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId}, ${result.text}` : result.text} additionalComponent={
+                result.isBook ? <View style={styles.endContainer}>
+                    <TouchableOpacity underlayColor="#ffffff00" >
+
+                        <OctIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#0384AE' : '#A0A0A0'} size={30} name={'book'}></OctIcons>
+                    </TouchableOpacity>
+                    <TouchableOpacity underlayColor="#ffffff00" >
+
+                        <Feather style={{ paddingHorizontal: 5 }} color={'#0384AE'} size={30} name={'info'}></Feather>
+                    </TouchableOpacity>
+                </View> : <></>
             }>
-            
+
                 <View >
-                    {result.tree && <BookListTree onSelect={onSelect} results={result.tree} deep={deep + 1} />}
+                    {result.tree && <BookListTree bookId={bookId} onSelect={onSelect} results={result.tree} deep={deep + 1} />}
                 </View>
 
             </Accordian>
