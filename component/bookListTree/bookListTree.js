@@ -5,22 +5,30 @@ import OctIcons from "react-native-vector-icons/Octicons";
 import Accordian from '../../component/accordian/accordian';
 import Feather from 'react-native-vector-icons/Feather';
 
-const BookListTree = ({ results, deep = 0 }) => (
-    <>
+const BookListTree = ({ results, deep = 0,onSelect=()=>{} }) => {
+    return <>
         {results.map((result, index) => (
-            <Accordian customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.text} additionalComponent={
+            <Accordian onExpanded={()=> {
+                if( result.isBook){
+                    onSelect({'book': result.text})
+                }
+                else if(!result.tree){
+                    onSelect({'chapter': result.text})
+                }
+             }} shouldExpanded={!!result.tree} customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.text} additionalComponent={
                 result.isBook ?  <View style={styles.endContainer}>
                     <Feather color={'#0384AE'} size={30} name={'info'}></Feather>
                 </View>: <></>
             }>
+            
                 <View >
-                    {result.tree && <BookListTree results={result.tree} deep={deep + 1} />}
+                    {result.tree && <BookListTree onSelect={onSelect} results={result.tree} deep={deep + 1} />}
                 </View>
 
             </Accordian>
         ))}
     </>
-)
+}
 
 const styles = StyleSheet.create({
     resultText: {

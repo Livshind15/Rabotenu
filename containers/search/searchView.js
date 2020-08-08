@@ -118,14 +118,12 @@ const SearchView = ({ navigation, route }) => {
                                                     {content.content.split(' ').map(splitContent => {
                                                         if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
                                                             boldCenter = true;
-                                                            console.log(splitContent)
                                                         }
 
                                                         if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
                                                             return <><Text style={styles.pasokContentMark}>{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
                                                         }
                                                         if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
-                                                            console.log(splitContent)
                                                             boldCenter = false;
 
                                                             return <><Text style={styles.pasokContentBold}>{splitContent.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')}</Text><Text> </Text> </>

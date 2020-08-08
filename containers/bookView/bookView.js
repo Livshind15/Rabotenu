@@ -6,10 +6,11 @@ import { Spinner } from '@ui-kitten/components';
 import { v4 as uuidv4 } from 'react-native-uuid';
 import { View, Platform, FlatList, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
 import config from "../../config/config";
+import { log } from 'react-native-reanimated';
 
 
 
-export default function BookView({ textSize, grammar, bookContent, isPending }) {
+export default function BookView({ textSize, grammar, bookContent, startChapter, isPending }) {
   const styles = StyleSheet.create({
     view: {
       width: '100%',
@@ -80,6 +81,7 @@ export default function BookView({ textSize, grammar, bookContent, isPending }) 
     }
   });
   const flatListRef = React.useRef();
+  const [layoutMap,setLayout] = React.useState([]);
   let bookName = []
   let section = []
   let chapter = ''
@@ -99,61 +101,95 @@ export default function BookView({ textSize, grammar, bookContent, isPending }) 
     }
     elements.push({ type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
     return elements
-  }, [])
+  }, []);
+
+  const renderText = ( item, index) => {
+    if (item.type === 'bookName') {
+      return <Text style={styles.book}>{item.value}</Text>
+    }
+    if (item.type === 'section') {
+      return <Text style={styles.parsa}>{item.value}</Text>
+    }
+    if (item.type === 'chapter') {
+      return <Text style={styles.chapter}>{item.value}</Text>
+    }
+    if (item.type === 'verse') {
+      let grayText = false
+      let boldText = false
+      return <View style={styles.pasokContainer}>
+        <Text style={styles.pasok}>{item.index} </Text>
+  
+        {item.value.split(' ').map(((splitContent, index) => {
+          if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
+            grayText = true;
+          }
+          if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
+            grayText = false;
+            return <Text style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
+          }
+          if (grayText) {
+            return <Text style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
+          }
+          if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
+            boldText = true;
+          }
+          if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
+            boldText = false;
+            return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
+          }
+          if (boldText) {
+            return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
+          }
+          return <Text style={styles.pasokContent}> {splitContent}</Text>
+        }))}
+        {item.parsaTag ? <Text style={styles.pasokLink}>{'פ'}</Text> : <></>}
+      </View>
+    }
+    return <></>
+  }
+
+  React.useEffect(
+    () => {
+      const index = data.findIndex((item) => item.type === 'chapter' && item.value === startChapter);
+      if (index !== -1) {
+        flatListRef.current.scrollToIndex({
+          animated: false,
+          index: index
+        });
+      }
+    }
+    , [startChapter])
+
   return (
 
     <Background>
       {isPending ? <View style={styles.spinnerContainer}>
         <Spinner />
-      </View> : <FlatList ref={flatListRef} style={styles.view} data={data} renderItem={({ item, index }) => {
-        if (item.type === 'bookName') {
-          return <Text style={styles.book}>{item.value}</Text>
-        }
-        if (item.type === 'section') {
-          return <Text style={styles.parsa}>{item.value}</Text>
-        }
-        if (item.type === 'chapter') {
-          return <Text style={styles.chapter}>{item.value}</Text>
-        }
-        if (item.type === 'verse') {
-          let boldText = false;
-          let grayText = false
-          return <View style={styles.pasokContainer}>
-            <Text style={styles.pasok}>{item.index} </Text>
+      </View> : <FlatList
 
-            {item.value.split(' ').map(((splitContent, index) => {
-              if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
-                grayText = true;
-              }
-              if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
-                grayText = false;
-                return <Text style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
-              }
-              if (grayText) {
-                return <Text style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
-              }
-              if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
-                boldText = true;
-              }
-              if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
-                boldText = false;
-                return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
-              }
-              if (boldText) {
-                return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
-              }
-              return <Text style={styles.pasokContent}> {splitContent}</Text>
-            }))}
-            {item.parsaTag ? <Text style={styles.pasokLink}>{'פ'}</Text> : <></>}
-          </View>
-        }
-        return <></>
-      }} />}
+          onScrollToIndexFailed={() => { }}
+          getItemLayout={(data, index) => {
+            return { length: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5, offset: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5 * index, index }
+          }}
+
+          ref={flatListRef} style={styles.view} data={data} renderItem={({ item, index }) => {
+            return (<View key={index} onLayout={({ nativeEvent: { layout } }) => {
+              const newLayout = layoutMap;
+              newLayout[index] = layout;
+              setLayout([...newLayout])
+              
+            }}>
+              {renderText(item,index)}
+            </View>)
+
+          }} />}
 
 
     </Background>
   )
 }
+
+
 
 const removeGrammar = (content) => {
   return content.replace(/[^א-ת\s,;.-]/g, '')

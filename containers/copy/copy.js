@@ -29,14 +29,15 @@ const Copy = ({ onSave, navigation }) => {
                             style={styles.button}
                             onPress={() => {
                                 onSave({ textSize, grammar, exegesis, flavors })
-                                navigation.goBack()
+                                navigation.navigate('View')
                             }}
                             underlayColor="#ffffff00" >
                             <Text style={styles.buttonText} >שמירה</Text>
                         </TouchableOpacity>
                     </View>
                     <TouchableOpacity
-                        onPress={() => navigation.goBack()}
+                        onPress={() => navigation.navigate('View')
+                        }
                         underlayColor="#ffffff00" >
                         <Text style={styles.clickText}>סגירה ללא שמירה</Text>
                     </TouchableOpacity>

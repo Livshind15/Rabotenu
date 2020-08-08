@@ -7,11 +7,11 @@ import { CheckBox } from '@ui-kitten/components';
 import { ScrollView } from 'react-native-gesture-handler';
 
 
-const BookDisplay = ({onSave,navigation,setting}) => {
+const BookDisplay = ({ onSave, navigation, setting }) => {
     const [textSize, setTextSide] = React.useState(setting.textSize);
     const [grammar, setGrammar] = React.useState(setting.grammar);
-    const [exegesis,setExegesis]= React.useState(setting.exegesis);
-    const [flavors,setFlavors]= React.useState(setting.flavors);
+    const [exegesis, setExegesis] = React.useState(setting.exegesis);
+    const [flavors, setFlavors] = React.useState(setting.flavors);
 
 
     return (
@@ -19,8 +19,8 @@ const BookDisplay = ({onSave,navigation,setting}) => {
             <View style={styles.page}>
                 <ScrollView style={styles.optionContainer}>
                     <Option checked={flavors} onChange={setFlavors} customStyle={{ option: { borderTopWidth: 0 } }}>אל תציג טעמים בכל המאגרים</Option>
-                    <Option  checked={grammar} onChange={setGrammar}>אל תציג ניקוד בכל המאגרים</Option>
-                    <Option  checked={exegesis} onChange={setExegesis}>אל תציג ציוני מפרשים והערות</Option>
+                    <Option checked={grammar} onChange={setGrammar}>אל תציג ניקוד בכל המאגרים</Option>
+                    <Option checked={exegesis} onChange={setExegesis}>אל תציג ציוני מפרשים והערות</Option>
                     <View style={styles.sliderContainer}>
                         <Text style={styles.optionTextSlider}>גודל תצוגה:</Text>
                         <View style={styles.sliderWrapperAndText}>
@@ -48,16 +48,17 @@ const BookDisplay = ({onSave,navigation,setting}) => {
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={()=>{
-                            onSave({textSize,grammar,exegesis,flavors})
-                            navigation.goBack()
+                            onPress={() => {
+                                onSave({ textSize, grammar, exegesis, flavors })
+                                navigation.navigate('View')
                             }}
                             underlayColor="#ffffff00" >
                             <Text style={styles.buttonText} >שמירה</Text>
                         </TouchableOpacity>
                     </View>
                     <TouchableOpacity
-                    onPress={()=>navigation.goBack()}
+                        onPress={() => navigation.navigate('View')
+                        }
                         underlayColor="#ffffff00" >
                         <Text style={styles.clickText}>סגירה ללא שמירה</Text>
                     </TouchableOpacity>
@@ -68,15 +69,15 @@ const BookDisplay = ({onSave,navigation,setting}) => {
     )
 }
 
-const Option = ({ children,checked,onChange, customStyle = { option: {} } }) => (
+const Option = ({ children, checked, onChange, customStyle = { option: {} } }) => (
     <TouchableOpacity
         style={[styles.option, customStyle.option]}
         underlayColor="#ffffff00"
-        onPress={()=> onChange(!checked)}>
+        onPress={() => onChange(!checked)}>
         <View style={styles.checkBoxWrapper}>
             <CheckBox
                 checked={checked}
-                onChange={()=> onChange(!checked)}>
+                onChange={() => onChange(!checked)}>
             </CheckBox>
         </View>
         <View style={styles.optionTitleWrapper}>
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         paddingTop: 18,
         fontSize: 18,
-      },
+    },
     button: {
         width: '95%',
         height: '80%',
@@ -133,8 +134,8 @@ const styles = StyleSheet.create({
     sliderContainer: {
         flex: 1,
         paddingTop: 20,
-        alignSelf:'center',
-       width:'96%',       
+        alignSelf: 'center',
+        width: '96%',
     },
     sliderTextContainer: {
         flex: 0.2,
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         justifyContent: 'center',
         color: '#606060',
-        
+
         fontSize: 21
     },
     optionContainer: {
