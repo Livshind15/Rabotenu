@@ -9,20 +9,22 @@ const BookListTree = ({ results, bookId, deep = 0, onSelect = () => { } }) => {
     return <>
         {results.map((result, index) => (
             <Accordian onExpanded={() => {
-                if (result.isBook) {
-                    onSelect({ 'book': result.text })
-                }
-                else if (!result.tree) {
-                    onSelect({ 'chapter': result.text })
+
+                if (!result.tree ) {
+                    onSelect({
+                        'chapter': result.text
+                    })
                 }
             }} shouldExpanded={!!result.tree} customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId}, ${result.text}` : result.text} additionalComponent={
                 result.isBook ? <View style={styles.endContainer}>
-                    <TouchableOpacity underlayColor="#ffffff00" >
-
+                    <TouchableOpacity onPress={() => {
+                    if(bookId !== result.id){
+                        onSelect({ 'book': result.id })
+                    }}
+                    } underlayColor="#ffffff00" >
                         <OctIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#0384AE' : '#A0A0A0'} size={30} name={'book'}></OctIcons>
                     </TouchableOpacity>
                     <TouchableOpacity underlayColor="#ffffff00" >
-
                         <Feather style={{ paddingHorizontal: 5 }} color={'#0384AE'} size={30} name={'info'}></Feather>
                     </TouchableOpacity>
                 </View> : <></>

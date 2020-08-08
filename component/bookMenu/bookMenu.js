@@ -18,21 +18,24 @@ const getSubBooks = async ({ bookId }) => {
     return data || [];
 }
 
-const BookMenu = ({ bookId }) => {
+const BookMenu = ({ bookId,onBookSelect ,navigation}) => {
     const { data, error, isPending } = useAsync({ promiseFn: getSubBooks, bookId })
 
     return (
         <Background>
 
             <View style={styles.page}>
-                {!isPending && data && data.length ? <ScrollView style={styles.pageScroll}>
+                {!isPending && data?<ScrollView style={styles.pageScroll}>
                     <Accordian header={'מפרשים'} >
                         {flatten(data.map((item,key) => (
-                            item.map((book,index) => (
-                                <TouchableOpacity key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
+                            (item||[]).map((book,index) => (
+                                <TouchableOpacity onPress={()=>{
+                                    onBookSelect(book.bookId)
+                                    navigation.navigate('View')
+
+                                    }} key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
                                     <Text style={styles.resultText}>{book.groupName}</Text>
                                     <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
-
                                 </TouchableOpacity>
                             )))))}
                         

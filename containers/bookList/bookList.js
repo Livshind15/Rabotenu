@@ -7,7 +7,7 @@ import Background from '../../component/background/background';
 
 
 
-const BookList = ({ tree,isPending,navigation,onSelectChapter,bookId }) => {
+const BookList = ({ tree,isPending,navigation,onSelectChapter,onSelectBook,bookId }) => {
     return (
         <Background>
             <View style={styles.page}>
@@ -15,6 +15,10 @@ const BookList = ({ tree,isPending,navigation,onSelectChapter,bookId }) => {
                     {!isPending && tree ? <BookListTree bookId={bookId} onSelect={(select => {
                         if(select.chapter){
                             onSelectChapter(select.chapter)
+                            navigation.navigate('View')
+                        }
+                        if(select.book){
+                            onSelectBook(select.book)
                             navigation.navigate('View')
                         }
                     })} results={tree} /> : <></>}

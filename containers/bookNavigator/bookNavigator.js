@@ -13,11 +13,11 @@ import BookMenu from '../../component/bookMenu/bookMenu';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-const getBookTree = async ({ booksIds }) => {
+const getBookTree = async ([ booksIds ]) => {
     const data = await Promise.all(booksIds.map(bookId => {
         return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
     }))
-    console.log({data});
+    console.log({ data });
     return data || [];
 }
 
@@ -30,38 +30,53 @@ const getBookContent = async ([bookId]) => {
 
 const BookNavigator = ({ navigation, route }) => {
     const { selectedBooks } = route.params;
-    const booksIds = (selectedBooks || []).map(book => book.bookId)
+    const [booksIds, setBooksIds] = React.useState((selectedBooks || []).map(book => book.bookId));
+    const [currBook, setCurrBook] = React.useState(booksIds[0])
     const [textSize, setTextSide] = React.useState(0.15);
     const [grammar, setGrammar] = React.useState(false);
     const [exegesis, setExegesis] = React.useState(true);
     const [flavors, setFlavors] = React.useState(true);
     const [bookContent, setBookContent] = React.useState([]);
-    const [initChapter,setChapter] = React.useState('')
-    const onBookContentResolved = (data) => {setBookContent([...bookContent, ...data])}
+    const [initChapter, setChapter] = React.useState('');
+    const [tree, setTree] = React.useState([])
+    const onBookContentResolved = (data) => { setBookContent([...data]) }
     const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
     React.useEffect(() => {
-        run(booksIds[0]||'');
-    }, [])
+        run(currBook || '');
+    }, [currBook])
 
-    const treeBooksResponse = useAsync({ promiseFn: getBookTree, booksIds })
-    const bookView = (props) => <BookView  {...props} startChapter={initChapter} textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending}  />
-    const bookList = (props) => <BookList  bookId ={booksIds[0]} {...props} onSelectChapter={setChapter } tree={treeBooksResponse.data || {}} isPending={treeBooksResponse.isPending} />
+    const treeFunc = useAsync({ deferFn: getBookTree, onResolve: setTree, booksIds })
+    React.useEffect(() => {
+        treeFunc.run(booksIds);
+    }, [booksIds])
+    const bookView = (props) => <BookView  {...props} startChapter={initChapter} textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} />
+    const bookList = (props) => <BookList onSelectBook={(book) => {
+        if (!booksIds.includes(book)) {
+            setBooksIds([...booksIds, book])
+        }
+        setCurrBook(book)
+    }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree|| {}} isPending={treeFunc.isPending} />
     const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
         setTextSide(textSize);
         setGrammar(grammar);
         setExegesis(exegesis);
         setFlavors(flavors);
     }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
-    const bookCopy = (props) => <Copy {...props} onSave={()=>{}}></Copy>
-    const bookMenu = (props) => <BookMenu {...props} bookId={booksIds[0]}></BookMenu>
+    const bookCopy = (props) => <Copy {...props} onSave={() => { }}></Copy>
+    const bookMenu = (props) => <BookMenu {...props} bookId={currBook} onBookSelect={(book) => {
+        if (!booksIds.includes(book)) {
+            setBooksIds([...booksIds, book])
+        }
+        setCurrBook(book)
+    }} bookId={currBook}></BookMenu>
 
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
-            <Screen name='Copy' options={{title:'רבותינו' }}  component={bookCopy} />
-            <Screen name='Menu' options={{title:'רבותינו' }}  component={bookMenu} />
-            <Screen name='Display' options={{title:'רבותינו' }}  component={bookDisplay} />
-            <Screen name='BookList' options={{title:'רבותינו' }}  component={bookList} />
-            <Screen name='View' options={{title:'רבותינו' }}  component={bookView} />
+            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookCopy} />
+            <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
+            <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
+            <Screen name='BookList' options={{ title: 'רבותינו' }} component={bookList} />
+            <Screen name='View' options={{ title: 'רבותינו' }} component={bookView} />
         </Navigator>
     )
 }
