@@ -4,7 +4,7 @@ import Background from '../../component/background/background';
 import { useAsync } from "react-async";
 import { Spinner } from '@ui-kitten/components';
 import { v4 as uuidv4 } from 'react-native-uuid';
-import { View, Platform,FlatList, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
+import { View, Platform, FlatList, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
 import config from "../../config/config";
 
 
@@ -58,6 +58,7 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
       color: '#11AFC2',
       fontFamily: "OpenSansHebrewBold",
       textAlign: 'right',
+      alignSelf: 'center',
       fontSize: 12 + (textSize * 50),
     },
     pasokContentGray: {
@@ -95,7 +96,7 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
       chapter = content.chapter
       elements.push({ type: "chapter", value: content.chapter })
     }
-    elements.push({ type: "verse",parsaTag:RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
+    elements.push({ type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
     return elements
   }, [])
   return (
@@ -116,30 +117,31 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
           let grayText = false
           return <View style={styles.pasokContainer}>
             <Text style={styles.pasok}>{item.index} </Text>
-            {item.value.split(' ').map((splitContent => {
+         
+            {item.value.split(' ').map(((splitContent, index) => {
               if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                 grayText = true;
               }
               if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
                 grayText = false;
-                return <Text style={styles.pasokContentGray}>{' '}{removeGrayTag(splitContent)}</Text>
+                return <Text style={styles.pasokContentGray}> { removeGrayTag(splitContent)}</Text>
               }
               if (grayText) {
-                return <Text style={styles.pasokContentGray}>{' '}{removeGrayTag(splitContent)}</Text>
+                return <Text style={styles.pasokContentGray}>{ removeGrayTag(splitContent)}</Text>
               }
               if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
                 boldText = true;
               }
               if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
                 boldText = false;
-                return <Text style={styles.pasokContentBold}>{' '}{removeBoldTag(splitContent)}</Text>
+                return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
               }
               if (boldText) {
-                return <Text style={styles.pasokContentBold}>{' '}{removeBoldTag(splitContent)}</Text>
+                return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
               }
-              return <Text style={styles.pasokContent}>{' '}{splitContent}</Text>
+              return <Text style={styles.pasokContent}> {splitContent}</Text>
             }))}
-            {item.parsaTag?  <Text style={styles.pasokLink}>{'פ'}</Text>:<></>}
+            {item.parsaTag ? <Text style={styles.pasokLink}>{'פ'}</Text> : <></>}
           </View>
         }
         return <></>
