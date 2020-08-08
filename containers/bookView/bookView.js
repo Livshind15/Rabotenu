@@ -146,7 +146,7 @@ export default function BookView({ textSize, grammar, bookContent, startChapter,
   React.useEffect(
     () => {
       const index = data.findIndex((item) => item.type === 'chapter' && item.value === startChapter);
-      if (index !== -1) {
+      if (index !== -1 &&  flatListRef.current &&  flatListRef.current.scrollToIndex) {
         flatListRef.current.scrollToIndex({
           animated: false,
           index: index
