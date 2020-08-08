@@ -9,7 +9,7 @@ import config from "../../config/config";
 
 
 
-export default function BookView({ textSize, grammar, bookContent, isPending, reachToEnd }) {
+export default function BookView({ textSize, grammar, bookContent, isPending }) {
   const styles = StyleSheet.create({
     view: {
       width: '100%',
@@ -79,6 +79,7 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
 
     }
   });
+  const flatListRef = React.useRef();
   let bookName = []
   let section = []
   let chapter = ''
@@ -102,7 +103,9 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
   return (
 
     <Background>
-      <FlatList style={styles.view} data={data} renderItem={({ item, index }) => {
+      {isPending ? <View style={styles.spinnerContainer}>
+        <Spinner />
+      </View> : <FlatList ref={flatListRef} style={styles.view} data={data} renderItem={({ item, index }) => {
         if (item.type === 'bookName') {
           return <Text style={styles.book}>{item.value}</Text>
         }
@@ -117,17 +120,17 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
           let grayText = false
           return <View style={styles.pasokContainer}>
             <Text style={styles.pasok}>{item.index} </Text>
-         
+
             {item.value.split(' ').map(((splitContent, index) => {
               if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                 grayText = true;
               }
               if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
                 grayText = false;
-                return <Text style={styles.pasokContentGray}> { removeGrayTag(splitContent)}</Text>
+                return <Text style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
               }
               if (grayText) {
-                return <Text style={styles.pasokContentGray}>{ removeGrayTag(splitContent)}</Text>
+                return <Text style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
               }
               if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
                 boldText = true;
@@ -145,7 +148,7 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
           </View>
         }
         return <></>
-      }} />
+      }} />}
 
 
     </Background>

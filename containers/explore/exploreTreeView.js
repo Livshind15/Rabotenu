@@ -21,7 +21,6 @@ function removeNulls(obj) {
   }
 const getGroups = async () => {
     const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
-    console.log(removeNulls(data));
     return  JSON.parse(JSON.stringify(data))||[]
     return data || [];
 }

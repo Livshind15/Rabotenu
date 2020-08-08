@@ -35,22 +35,14 @@ const BookNavigator = ({ navigation, route }) => {
     const [exegesis, setExegesis] = React.useState(true);
     const [flavors, setFlavors] = React.useState(true);
     const [bookContent, setBookContent] = React.useState([]);
-    const [reachToEnd, setReachToEnd] = React.useState(false);
-    const [page, setPage] = React.useState(0);
-    const onBookContentResolved = (data) => {
-        if (!data.length) {
-            setReachToEnd(true);
-        }
-        setBookContent([...bookContent, ...data])
-    }
+    const onBookContentResolved = (data) => {setBookContent([...bookContent, ...data])}
     const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
     React.useEffect(() => {
-        run(booksIds[0]||'', page);
-        setPage(page + 1)
+        run(booksIds[0]||'');
     }, [])
 
     const treeBooksResponse = useAsync({ promiseFn: getBookTree, booksIds })
-    const bookView = () => <BookView textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} reachToEnd={reachToEnd} />
+    const bookView = () => <BookView chapter={'פרק ה'} textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending}  />
     const bookList = () => <BookList tree={treeBooksResponse.data || {}} isPending={treeBooksResponse.isPending} />
     const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
         setTextSide(textSize);
