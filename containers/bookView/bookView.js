@@ -4,12 +4,12 @@ import Background from '../../component/background/background';
 import { useAsync } from "react-async";
 import { Spinner } from '@ui-kitten/components';
 import { v4 as uuidv4 } from 'react-native-uuid';
-import { View, Platform, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
+import { View, Platform,FlatList, StyleSheet, Dimensions, Text, ScrollView } from 'react-native';
 import config from "../../config/config";
 
 
 
-export default function BookView({ textSize, grammar, bookContent, isPending, reachToEnd, onScroll }) {
+export default function BookView({ textSize, grammar, bookContent, isPending, reachToEnd }) {
   const styles = StyleSheet.create({
     view: {
       width: '100%',
@@ -53,19 +53,19 @@ export default function BookView({ textSize, grammar, bookContent, isPending, re
       fontFamily: "OpenSansHebrewBold",
       textAlign: 'right',
       fontSize: 21 + (textSize * 50),
-  },
+    },
     pasokLink: {
       color: '#11AFC2',
       fontFamily: "OpenSansHebrewBold",
       textAlign: 'right',
       fontSize: 12 + (textSize * 50),
     },
-  pasokContentGray:{
-color: '#CBD4D3',
+    pasokContentGray: {
+      color: '#CBD4D3',
       fontFamily: "OpenSansHebrew",
       textAlign: 'right',
       fontSize: 17 + (textSize * 50),
-  },
+    },
     pasokContent: {
       color: '#455253',
       fontFamily: "OpenSansHebrew",
@@ -78,96 +78,91 @@ color: '#CBD4D3',
 
     }
   });
-  let bookName = ''
-  let section = ''
+  let bookName = []
+  let section = []
   let chapter = ''
-  const bookContentRender = React.useCallback(() => {
 
-    const booksElement = (bookContent || []).reduce((elements, item) => {
-      let isParsa = false;
-      let bold = false;
-      let boldCenter = false;
-      let grey = false;
-
-      let content = grammar ? item.content.replace(/[^א-ת\s,;.-]/g, '') : item.content;
-      if (RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content)) {
-        isParsa = true
-      }
-      if (RegExp(`<\s*דה[^>]*>(.*?)<\s*/\s*דה>`).test(content)) {
-        bold = true
-      }
-      if (item.bookName !== bookName) {
-        bookName = item.bookName;
-        elements.push(<Text key={uuidv4()} style={styles.book}>{item.bookName}</Text>)
-      }
-      if (item.section !== section) {
-        section = item.section;
-        elements.push(<Text key={uuidv4()} style={styles.parsa}>{item.section}</Text>)
-      }
-      if (item.chapter !== chapter) {
-        chapter = item.chapter;
-        elements.push(<Text key={uuidv4()} style={styles.chapter}>{item.chapter}</Text>)
-      }
-      { item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></> }
-
-      elements.push(
-        <View key={uuidv4()} style={styles.pasokContainer}>
-          {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
-          {content.split(' ').map((splitContent => {
-            if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
-              grey = true;
-            }
-            if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
-              grey = false;
-              return <Text style={styles.pasokContentGray}>{' '}{splitContent.replace(new RegExp(/<.כתיב./, 'g'), '').replace(/<\/?כתיב>/g, '')}</Text>
-
-            }
-            if (grey) {
-              return <Text style={styles.pasokContentGray}>{' '}{splitContent.replace(/<\/?כתיב>/g, '')}</Text>
-            }
-            if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
-              boldCenter = true;
-            }
-
-            if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
-              return <Text style={styles.pasokContentMark}>{' '}{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text>
-            }
-            if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
-              boldCenter = false;
-
-              return <Text style={styles.pasokContentBold}>{' '}{splitContent.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')}</Text>
-
-            }
-            if (boldCenter) {
-              return <Text style={styles.pasokContentBold}>{' '}{splitContent.replace(/<\/?דה>/g, '')}</Text>
-
-            }
-
-            return <Text style={styles.pasokContent}>{' '} {splitContent.replace(RegExp('<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>'), '')}</Text>
-          }))}
-          {isParsa && <Text style={styles.pasokLink}>{'פ'}</Text>}
-
-        </View>
-      )
-      return elements
-    }, [])
-    if (!reachToEnd) {
-      booksElement.push(
-        <View key={uuidv4()} style={styles.spinnerContainer}>
-          <Spinner color="#00ACC0" />
-        </View>
-      )
+  let data = bookContent.reduce((elements, content) => {
+    if (!bookName.includes(content.bookName)) {
+      bookName = [...bookName, content.bookName]
+      elements.push({ type: "bookName", value: content.bookName })
     }
-    return booksElement;
-  }, [bookContent, isPending])
-
-
+    if (!section.includes(content.section)) {
+      section = [...section, content.section]
+      elements.push({ type: "section", value: content.section })
+    }
+    if (chapter !== content.chapter) {
+      chapter = content.chapter
+      elements.push({ type: "chapter", value: content.chapter })
+    }
+    elements.push({ type: "verse",parsaTag:RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
+    return elements
+  }, [])
   return (
+
     <Background>
-      <ScrollView scrollEventThrottle={16} onScroll={onScroll} style={styles.view}>
-        {bookContentRender()}
-      </ScrollView>
+      <FlatList style={styles.view} data={data} renderItem={({ item, index }) => {
+        if (item.type === 'bookName') {
+          return <Text style={styles.book}>{item.value}</Text>
+        }
+        if (item.type === 'section') {
+          return <Text style={styles.parsa}>{item.value}</Text>
+        }
+        if (item.type === 'chapter') {
+          return <Text style={styles.chapter}>{item.value}</Text>
+        }
+        if (item.type === 'verse') {
+          let boldText = false;
+          let grayText = false
+          return <View style={styles.pasokContainer}>
+            <Text style={styles.pasok}>{item.index} </Text>
+            {item.value.split(' ').map((splitContent => {
+              if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
+                grayText = true;
+              }
+              if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
+                grayText = false;
+                return <Text style={styles.pasokContentGray}>{' '}{removeGrayTag(splitContent)}</Text>
+              }
+              if (grayText) {
+                return <Text style={styles.pasokContentGray}>{' '}{removeGrayTag(splitContent)}</Text>
+              }
+              if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
+                boldText = true;
+              }
+              if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
+                boldText = false;
+                return <Text style={styles.pasokContentBold}>{' '}{removeBoldTag(splitContent)}</Text>
+              }
+              if (boldText) {
+                return <Text style={styles.pasokContentBold}>{' '}{removeBoldTag(splitContent)}</Text>
+              }
+              return <Text style={styles.pasokContent}>{' '}{splitContent}</Text>
+            }))}
+            {item.parsaTag?  <Text style={styles.pasokLink}>{'פ'}</Text>:<></>}
+          </View>
+        }
+        return <></>
+      }} />
+
+
     </Background>
   )
+}
+
+const removeGrammar = (content) => {
+  return content.replace(/[^א-ת\s,;.-]/g, '')
+}
+
+const removeTag = (content) => {
+  return content.replace(RegExp('<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>'), '')
+}
+
+const removeGrayTag = (content) => {
+  return content.replace(new RegExp(/<.כתיב./, 'g'), '').replace(/<\/?כתיב>/g, '')
+}
+
+const removeBoldTag = (content) => {
+  return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')
 }
 

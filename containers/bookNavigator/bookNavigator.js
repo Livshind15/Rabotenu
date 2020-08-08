@@ -21,8 +21,8 @@ const getBookTree = async ({ booksIds }) => {
 }
 
 
-const getBookContent = async ([bookId, index]) => {
-    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?gteIndex=${index * 500}&lteIndex=${(index * 500) + 500}`);
+const getBookContent = async ([bookId]) => {
+    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}`);
     return data || [];
 
 }
@@ -48,18 +48,9 @@ const BookNavigator = ({ navigation, route }) => {
         run(booksIds[0]||'', page);
         setPage(page + 1)
     }, [])
-    const onScroll = ({ nativeEvent }) => {
-        let paddingToBottom = 2500;
-        paddingToBottom += nativeEvent.layoutMeasurement.height;
-        if (nativeEvent.contentOffset.y >= nativeEvent.contentSize.height - paddingToBottom) {
-            if (!isPending && !reachToEnd) {
-                run(booksId, page);
-                setPage(page + 1)
-            }
-        }
-    }
+
     const treeBooksResponse = useAsync({ promiseFn: getBookTree, booksIds })
-    const bookView = () => <BookView textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} reachToEnd={reachToEnd} onScroll={onScroll} />
+    const bookView = () => <BookView textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} reachToEnd={reachToEnd} />
     const bookList = () => <BookList tree={treeBooksResponse.data || {}} isPending={treeBooksResponse.isPending} />
     const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
         setTextSide(textSize);
