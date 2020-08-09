@@ -13,7 +13,7 @@ import BookMenu from '../../component/bookMenu/bookMenu';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-const getBookTree = async ([ booksIds ]) => {
+const getBookTree = async ([booksIds]) => {
     const data = await Promise.all(booksIds.map(bookId => {
         return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
     }))
@@ -37,6 +37,7 @@ const BookNavigator = ({ navigation, route }) => {
     const [exegesis, setExegesis] = React.useState(true);
     const [flavors, setFlavors] = React.useState(true);
     const [bookContent, setBookContent] = React.useState([]);
+    const [bookListMount,setBookListMount]= React.useState(false);
     const [initChapter, setChapter] = React.useState('');
     const [tree, setTree] = React.useState([])
     const onBookContentResolved = (data) => { setBookContent([...data]) }
@@ -49,13 +50,13 @@ const BookNavigator = ({ navigation, route }) => {
     React.useEffect(() => {
         treeFunc.run(booksIds);
     }, [booksIds])
-    const bookView = (props) => <BookView  {...props} startChapter={initChapter} textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} />
+    const bookView = (props) => <BookView setMount={setBookListMount}  {...props} startChapter={initChapter} textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} />
     const bookList = (props) => <BookList onSelectBook={(book) => {
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])
         }
         setCurrBook(book)
-    }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree|| {}} isPending={treeFunc.isPending} />
+    }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree || {}} isPending={treeFunc.isPending} />
     const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
         setTextSide(textSize);
         setGrammar(grammar);
@@ -72,7 +73,7 @@ const BookNavigator = ({ navigation, route }) => {
 
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
-            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookCopy} />
+            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount? bookCopy:View} />
             <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
             <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
             <Screen name='BookList' options={{ title: 'רבותינו' }} component={bookList} />

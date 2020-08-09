@@ -2,10 +2,32 @@ import * as React from 'react';
 import Background from '../../component/background/background';
 import { Spinner } from '@ui-kitten/components';
 import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native';
+import { delay } from '../../utils/helpers';
 
+const bookToElements = (bookContent,grammar) => {
+  let bookName = [];
+  let section = [];
+  let chapter = '';
+  return bookContent.reduce((elements, content) => {
+    if (!bookName.includes(content.bookName)) {
+      bookName = [...bookName, content.bookName]
+      elements.push({ type: "bookName", value: content.bookName })
+    }
+    if (!section.includes(content.section)) {
+      section = [...section, content.section]
+      elements.push({ type: "section", value: content.section })
+    }
+    if (chapter !== content.chapter) {
+      chapter = content.chapter
+      elements.push({ type: "chapter", value: content.chapter })
+    }
+    elements.push({ type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
+    return elements
 
+  }, []);
+}
 
-export default function BookView({ textSize, grammar, bookContent, startChapter, isPending }) {
+export default function BookView({ textSize, grammar,setMount, bookContent, startChapter, isPending }) {
   const styles = StyleSheet.create({
     view: {
       width: '100%',
@@ -76,29 +98,20 @@ export default function BookView({ textSize, grammar, bookContent, startChapter,
     }
   });
   const flatListRef = React.useRef();
-  const [layoutMap,setLayout] = React.useState([]);
-  let bookName = []
-  let section = []
-  let chapter = ''
+  const [layoutMap, setLayout] = React.useState([]);
+  const [data,setData] = React.useState(bookToElements(bookContent,grammar))
+  React.useEffect(()=>{
+    setData(bookToElements(bookContent,grammar)) 
+  },[bookContent])
 
-  let data = bookContent.reduce((elements, content) => {
-    if (!bookName.includes(content.bookName)) {
-      bookName = [...bookName, content.bookName]
-      elements.push({ type: "bookName", value: content.bookName })
-    }
-    if (!section.includes(content.section)) {
-      section = [...section, content.section]
-      elements.push({ type: "section", value: content.section })
-    }
-    if (chapter !== content.chapter) {
-      chapter = content.chapter
-      elements.push({ type: "chapter", value: content.chapter })
-    }
-    elements.push({ type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
-    return elements
-  }, []);
+  React.useEffect(()=>{
+   delay(1000).then(()=>{
+    setMount(true) 
+   })
+  },[])
 
-  const renderText = ( item, index) => {
+ 
+  const renderText = (item, index) => {
     if (item.type === 'bookName') {
       return <Text style={styles.book}>{item.value}</Text>
     }
@@ -113,7 +126,7 @@ export default function BookView({ textSize, grammar, bookContent, startChapter,
       let boldText = false
       return <View style={styles.pasokContainer}>
         <Text style={styles.pasok}>{item.index} </Text>
-  
+
         {item.value.split(' ').map(((splitContent, index) => {
           if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
             grayText = true;
@@ -146,7 +159,7 @@ export default function BookView({ textSize, grammar, bookContent, startChapter,
   React.useEffect(
     () => {
       const index = data.findIndex((item) => item.type === 'chapter' && item.value === startChapter);
-      if (index !== -1 &&  flatListRef.current &&  flatListRef.current.scrollToIndex) {
+      if (index !== -1 && flatListRef.current && flatListRef.current.scrollToIndex) {
         flatListRef.current.scrollToIndex({
           animated: false,
           index: index
@@ -172,9 +185,9 @@ export default function BookView({ textSize, grammar, bookContent, startChapter,
               const newLayout = layoutMap;
               newLayout[index] = layout;
               setLayout([...newLayout])
-              
+
             }}>
-              {renderText(item,index)}
+              {renderText(item, index)}
             </View>)
 
           }} />}
