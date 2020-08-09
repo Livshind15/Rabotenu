@@ -77,10 +77,10 @@ const BookNavigator = ({ navigation, route }) => {
     }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
     const bookCopy = (props) => <Copy {...props} onSave={() => { }}></Copy>
     const bookMenu = (props) => <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book) => {
+        setChapter('')
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])
         }
-        setChapter('')
         setCurrBook(book)
     }} bookId={currBook}></BookMenu>
 
