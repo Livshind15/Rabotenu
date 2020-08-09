@@ -122,8 +122,8 @@ export default function BookView({ textSize, grammar, setMount, bookContent, sta
       return <Text style={styles.chapter}>{item.value}</Text>
     }
     if (item.type === 'verse') {
-      let grayText = false
-      let boldText = false
+      let grayText = false;
+      let boldText = false;
       return <View style={styles.pasokContainer}>
         <Text style={styles.pasok}>{item.index} </Text>
 
@@ -200,19 +200,19 @@ export default function BookView({ textSize, grammar, setMount, bookContent, sta
 
 
 
-const removeGrammar = (content) => {
+export const removeGrammar = (content) => {
   return content.replace(/[^א-ת\s,;.-]/g, '')
 }
 
-const removeTag = (content) => {
+export const removeTag = (content) => {
   return content.replace(RegExp('<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>'), '')
 }
 
-const removeGrayTag = (content) => {
+export const removeGrayTag = (content) => {
   return content.replace(new RegExp(/<.כתיב./, 'g'), '').replace(/<\/?כתיב>/g, '')
 }
 
-const removeBoldTag = (content) => {
+export const removeBoldTag = (content) => {
   return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')
 }
 
