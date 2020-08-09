@@ -74,7 +74,9 @@ const BookNavigator = ({ navigation, route }) => {
     }} bookId={currBook}></BookMenu>
 
     return (
-        <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
+        <Navigator   timingConfig={{
+            duration: 0, // will disable the animation
+          }}  swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
             <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount? bookCopy:View} />
             <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
             <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
