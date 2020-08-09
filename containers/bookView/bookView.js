@@ -27,7 +27,7 @@ const bookToElements = (bookContent, grammar) => {
   }, []);
 }
 
-export default function BookView({ textSize, grammar, setMount, bookContent, startChapter, isPending }) {
+export default function BookView({ textSize, grammar,fetchMore, setMount, bookContent, startChapter, isPending }) {
   const styles = StyleSheet.create({
     view: {
       width: '100%',
@@ -156,17 +156,17 @@ export default function BookView({ textSize, grammar, setMount, bookContent, sta
     return <></>
   }
 
-  React.useEffect(
-    () => {
-      const index = data.findIndex((item) => item.type === 'chapter' && item.value === startChapter);
-      if (index !== -1 && flatListRef.current && flatListRef.current.scrollToIndex) {
-        flatListRef.current.scrollToIndex({
-          animated: false,
-          index: index
-        });
-      }
-    }
-    , [startChapter])
+  // React.useEffect(
+  //   () => {
+  //     const index = data.findIndex((item) => item.type === 'chapter' && item.value === startChapter);
+  //     if (index !== -1 && flatListRef.current && flatListRef.current.scrollToIndex) {
+  //       flatListRef.current.scrollToIndex({
+  //         animated: false,
+  //         index: index
+  //       });
+  //     }
+  //   }
+  //   , [startChapter])
 
   return (
 
@@ -176,6 +176,8 @@ export default function BookView({ textSize, grammar, setMount, bookContent, sta
       </View> : <FlatList
           keyExtractor={item => item.id}
           initialNumToRender={7}
+          onEndReached={fetchMore}
+          onEndReachedThreshold={0.5}
           onScrollToIndexFailed={() => { }}
           getItemLayout={(data, index) => {
             return { length: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5, offset: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5 * index, index }

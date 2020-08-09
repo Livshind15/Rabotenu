@@ -22,13 +22,12 @@ const getBookTree = async ([booksIds]) => {
 }
 
 
-const getBookContent = async ([bookId]) => {
-    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}`);
+const getBookContent = async ([bookId, index]) => {
+    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?gteIndex=${index * 50}&lteIndex=${((index + 1) * 50)}`);
     return data || [];
-
 }
 
-const getSubBooks = async ([ bookId ]) => {
+const getSubBooks = async ([bookId]) => {
     const { data } = await axios.get(`${config.serverUrl}/mapping/groups/childBooks/${bookId}`);
     console.log(data);
     return data || [];
@@ -43,25 +42,28 @@ const BookNavigator = ({ navigation, route }) => {
     const [exegesis, setExegesis] = React.useState(true);
     const [flavors, setFlavors] = React.useState(true);
     const [bookContent, setBookContent] = React.useState([]);
-    const [bookListMount,setBookListMount]= React.useState(false);
-    const [initChapter, setChapter] = React.useState(selectedChapter||'');
+    const [bookListMount, setBookListMount] = React.useState(false);
+    const [initChapter, setChapter] = React.useState(selectedChapter || '');
     const [tree, setTree] = React.useState([])
+    const [index, setIndex] = React.useState([]);
     const onBookContentResolved = (data) => { setBookContent([...data]) }
     const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
+
     React.useEffect(() => {
-        run(currBook || '');
+        run(currBook || '', index);
+        setIndex(index + 1)
     }, [currBook])
-    const subBooks = useAsync({deferFn:getSubBooks})
-    React.useEffect(()=>{
+    const subBooks = useAsync({ deferFn: getSubBooks })
+    React.useEffect(() => {
         subBooks.run(currBook)
-    },[currBook])
+    }, [currBook])
 
 
     const treeFunc = useAsync({ deferFn: getBookTree, onResolve: setTree, booksIds })
     React.useEffect(() => {
         treeFunc.run(booksIds);
     }, [booksIds])
-    const bookView = (props) => <BookView setMount={setBookListMount}  {...props} startChapter={initChapter} textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} />
+    const bookView = (props) => <BookView fetchMore={() => { }} setMount={setBookListMount}  {...props} startChapter={initChapter} textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} />
     const bookList = (props) => <BookList onSelectBook={(book) => {
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])
@@ -85,10 +87,10 @@ const BookNavigator = ({ navigation, route }) => {
     }} bookId={currBook}></BookMenu>
 
     return (
-        <Navigator   timingConfig={{
+        <Navigator timingConfig={{
             duration: 0, // will disable the animation
-          }}  swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
-            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount? bookCopy:View} />
+        }} swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
+            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount ? bookCopy : View} />
             <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
             <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
             <Screen name='BookList' options={{ title: 'רבותינו' }} component={bookList} />
