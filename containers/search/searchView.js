@@ -60,6 +60,12 @@ const SearchView = ({ navigation, route }) => {
                                     <Text style={styles.pasokContainer}>
                                         {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
                                         {content.map(splitContent => {
+                                            if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
+                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
+                                            }
+                                            if (RegExp(`<\s*/\s*em>(.*?)<\s*em[^>]*>`).test(splitContent)) {
+                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{splitContent.match(/<\/em>(.*?)<em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
+                                            }
                                             if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                                                 grayText = true;
                                             }
@@ -81,9 +87,7 @@ const SearchView = ({ navigation, route }) => {
                                                 return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
                                             }
 
-                                            if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
-                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
-                                            }
+                                    
                                             return <Text style={styles.pasokContent}> {removeTag(splitContent)}</Text>
                                         }
                                         )}
