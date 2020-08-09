@@ -52,10 +52,12 @@ const SearchView = ({ navigation, route }) => {
                     {data.map(res => {
                         const content = res.highlight[0].match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/g);
                         let boldCenter = false;
+
+                        let grayText = false;
                         return (
                             <Accordian initExpanded={true} header={`${res.groupName}, ${res.bookName}, ${res.chapter}, פסוק ${res.verse}`} >
-                                <TouchableOpacity onLongPress={() => {
-                                    navigation.push('Result', { selectedBooks: [{ bookId: res.bookId }] })
+                                <TouchableOpacity onPress={() => {
+                                    navigation.push('Result', {selectedChapter:res.chapterx, selectedBooks: [{ bookId: res.bookId }] })
                                 }} style={styles.contentContainer}>
                                     <Text style={styles.pasokContainer}>
                                         {res.pevVerses && res.pevVerses.map(content => {
@@ -63,6 +65,16 @@ const SearchView = ({ navigation, route }) => {
                                                 <>
                                                     {content.verse ? <Text style={styles.pasok}>{content.verse} </Text> : <></>}
                                                     {content.content.split(' ').map(splitContent => {
+                                                        if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
+                                                            grayText = true;
+                                                        }
+                                                        if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
+                                                            grayText = false;
+                                                            return <Text style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
+                                                        }
+                                                        if (grayText) {
+                                                            return <Text style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
+                                                        }
                                                         if (RegExp(/<\/?דה>/g).test(splitContent)) {
                                                             boldCenter = true;
                                                         }
@@ -88,6 +100,16 @@ const SearchView = ({ navigation, route }) => {
 
                                         {res.verse ? <Text style={styles.pasok}>{res.verse} </Text> : <></>}
                                         {content.map(splitContent => {
+                                            if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
+                                                grayText = true;
+                                            }
+                                            if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
+                                                grayText = false;
+                                                return <Text style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
+                                            }
+                                            if (grayText) {
+                                                return <Text style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
+                                            }
                                             if (RegExp(/<\/?דה>/g).test(splitContent)) {
                                                 boldCenter = true;
                                             }
@@ -116,6 +138,16 @@ const SearchView = ({ navigation, route }) => {
                                                 <>
                                                     {content.verse ? <Text style={styles.pasok}>{content.verse} </Text> : <></>}
                                                     {content.content.split(' ').map(splitContent => {
+                                                        if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
+                                                            grayText = true;
+                                                        }
+                                                        if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
+                                                            grayText = false;
+                                                            return <Text style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
+                                                        }
+                                                        if (grayText) {
+                                                            return <Text style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
+                                                        }
                                                         if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
                                                             boldCenter = true;
                                                         }
@@ -156,6 +188,9 @@ const SearchView = ({ navigation, route }) => {
         </Background>
     )
 }
+const removeGrayTag = (content) => {
+    return content.replace(new RegExp(/<.כתיב./, 'g'), '').replace(/<\/?כתיב>/g, '')
+}
 
 
 
@@ -179,6 +214,12 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         fontSize: 19,
         padding: 0
+    },
+    pasokContentGray: {
+        color: '#CBD4D3',
+        fontFamily: "OpenSansHebrew",
+        textAlign: 'right',
+        fontSize: 18,
     },
     pasok: {
         color: '#455253',

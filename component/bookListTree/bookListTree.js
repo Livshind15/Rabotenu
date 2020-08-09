@@ -24,9 +24,9 @@ const BookListTree = ({ results, bookId, deep = 0, onSelect = () => { } }) => {
                     } underlayColor="#ffffff00" >
                         <OctIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#0384AE' : '#A0A0A0'} size={30} name={'book'}></OctIcons>
                     </TouchableOpacity>
-                    <TouchableOpacity underlayColor="#ffffff00" >
+                    {/* <TouchableOpacity underlayColor="#ffffff00" >
                         <Feather style={{ paddingHorizontal: 5 }} color={'#0384AE'} size={30} name={'info'}></Feather>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View> : <></>
             }>
 

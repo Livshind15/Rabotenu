@@ -4,30 +4,30 @@ import { Spinner } from '@ui-kitten/components';
 import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native';
 import { delay } from '../../utils/helpers';
 
-const bookToElements = (bookContent,grammar) => {
+const bookToElements = (bookContent, grammar) => {
   let bookName = [];
   let section = [];
   let chapter = '';
   return bookContent.reduce((elements, content) => {
     if (!bookName.includes(content.bookName)) {
       bookName = [...bookName, content.bookName]
-      elements.push({ type: "bookName", value: content.bookName })
+      elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName })
     }
     if (!section.includes(content.section)) {
       section = [...section, content.section]
-      elements.push({ type: "section", value: content.section })
+      elements.push({ id: elements.length + 1, type: "section", value: content.section })
     }
     if (chapter !== content.chapter) {
       chapter = content.chapter
-      elements.push({ type: "chapter", value: content.chapter })
+      elements.push({ id: elements.length + 1, type: "chapter", value: content.chapter })
     }
-    elements.push({ type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
+    elements.push({ id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
     return elements
 
   }, []);
 }
 
-export default function BookView({ textSize, grammar,setMount, bookContent, startChapter, isPending }) {
+export default function BookView({ textSize, grammar, setMount, bookContent, startChapter, isPending }) {
   const styles = StyleSheet.create({
     view: {
       width: '100%',
@@ -99,18 +99,18 @@ export default function BookView({ textSize, grammar,setMount, bookContent, star
   });
   const flatListRef = React.useRef();
   const [layoutMap, setLayout] = React.useState([]);
-  const [data,setData] = React.useState(bookToElements(bookContent,grammar))
-  React.useEffect(()=>{
-    setData(bookToElements(bookContent,grammar)) 
-  },[bookContent])
+  const [data, setData] = React.useState(bookToElements(bookContent, grammar))
+  React.useEffect(() => {
+    setData(bookToElements(bookContent, grammar))
+  }, [bookContent])
 
-  React.useEffect(()=>{
-   delay(1000).then(()=>{
-    setMount(true) 
-   })
-  },[])
+  React.useEffect(() => {
+    delay(1000).then(() => {
+      setMount(true)
+    })
+  }, [])
 
- 
+
   const renderText = (item, index) => {
     if (item.type === 'bookName') {
       return <Text style={styles.book}>{item.value}</Text>
@@ -174,6 +174,7 @@ export default function BookView({ textSize, grammar,setMount, bookContent, star
       {isPending ? <View style={styles.spinnerContainer}>
         <Spinner />
       </View> : <FlatList
+          keyExtractor={item => item.id}
 
           onScrollToIndexFailed={() => { }}
           getItemLayout={(data, index) => {

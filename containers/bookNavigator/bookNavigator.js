@@ -29,7 +29,7 @@ const getBookContent = async ([bookId]) => {
 }
 
 const BookNavigator = ({ navigation, route }) => {
-    const { selectedBooks } = route.params;
+    const { selectedBooks, selectedChapter } = route.params;
     const [booksIds, setBooksIds] = React.useState((selectedBooks || []).map(book => book.bookId));
     const [currBook, setCurrBook] = React.useState(booksIds[0])
     const [textSize, setTextSide] = React.useState(0.15);
@@ -38,7 +38,7 @@ const BookNavigator = ({ navigation, route }) => {
     const [flavors, setFlavors] = React.useState(true);
     const [bookContent, setBookContent] = React.useState([]);
     const [bookListMount,setBookListMount]= React.useState(false);
-    const [initChapter, setChapter] = React.useState('');
+    const [initChapter, setChapter] = React.useState(selectedChapter||'');
     const [tree, setTree] = React.useState([])
     const onBookContentResolved = (data) => { setBookContent([...data]) }
     const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
@@ -55,6 +55,7 @@ const BookNavigator = ({ navigation, route }) => {
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])
         }
+        setChapter('')
         setCurrBook(book)
     }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree || {}} isPending={treeFunc.isPending} />
     const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
@@ -68,6 +69,7 @@ const BookNavigator = ({ navigation, route }) => {
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])
         }
+        setChapter('')
         setCurrBook(book)
     }} bookId={currBook}></BookMenu>
 
