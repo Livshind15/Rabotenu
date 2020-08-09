@@ -183,9 +183,9 @@ export default function BookView({ textSize, grammar, setMount, bookContent, sta
 
           ref={flatListRef} style={styles.view} data={data} renderItem={({ item, index }) => {
             return (<View key={index} onLayout={({ nativeEvent: { layout } }) => {
-              const newLayout = layoutMap;
-              newLayout[index] = layout;
-              setLayout([...newLayout])
+              // const newLayout = layoutMap;
+              // newLayout[index] = layout;
+              // setLayout([...newLayout])
 
             }}>
               {renderText(item, index)}
