@@ -175,7 +175,7 @@ export default function BookView({ textSize, grammar, setMount, bookContent, sta
         <Spinner />
       </View> : <FlatList
           keyExtractor={item => item.id}
-
+          initialNumToRender={7}
           onScrollToIndexFailed={() => { }}
           getItemLayout={(data, index) => {
             return { length: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5, offset: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5 * index, index }
