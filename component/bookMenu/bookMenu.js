@@ -12,12 +12,6 @@ import axios from "axios";
 import { Spinner } from '@ui-kitten/components';
 import { flatten } from 'lodash';
 
-const getSubBooks = async ([ bookId ]) => {
-    const { data } = await axios.get(`${config.serverUrl}/mapping/groups/childBooks/${bookId}`);
-    console.log(data);
-    return data || [];
-}
-
 const BookMenu = ({ data, onBookSelect, navigation,isPending }) => {
 
 
@@ -31,8 +25,7 @@ const BookMenu = ({ data, onBookSelect, navigation,isPending }) => {
                             (item || []).map((book, index) => (
                                 <TouchableOpacity onPress={() => {
                                     onBookSelect(book.bookId)
-                                    navigation.navigate('View')
-
+                                    navigation.goBack()
                                 }} key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
                                     <Text style={styles.resultText}>{book.groupName}</Text>
                                     <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>

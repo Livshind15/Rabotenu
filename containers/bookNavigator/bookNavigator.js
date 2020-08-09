@@ -23,7 +23,7 @@ const getBookTree = async ([booksIds]) => {
 
 
 const getBookContent = async ([bookId, index]) => {
-    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?gteIndex=${index * 50}&lteIndex=${((index + 1) * 50)}`);
+    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?gteIndex=${index*50}&lteIndex=${((index*50)+50)}`);
     return data || [];
 }
 
@@ -51,7 +51,7 @@ const BookNavigator = ({ navigation, route }) => {
 
     React.useEffect(() => {
         run(currBook || '', index);
-        setIndex(index + 1)
+        // setIndex(index + 1)
     }, [currBook])
     const subBooks = useAsync({ deferFn: getSubBooks })
     React.useEffect(() => {
@@ -68,9 +68,10 @@ const BookNavigator = ({ navigation, route }) => {
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])
         }
+        console.log({book})
         setChapter('')
         setCurrBook(book)
-    }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree || {}} isPending={treeFunc.isPending} />
+    }} bookId={currBook} {...props} onSelectChapter={()=>{}} tree={tree || {}} isPending={treeFunc.isPending} />
     const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
         setTextSide(textSize);
         setGrammar(grammar);
@@ -87,10 +88,8 @@ const BookNavigator = ({ navigation, route }) => {
     }} bookId={currBook}></BookMenu>
 
     return (
-        <Navigator timingConfig={{
-            duration: 0, // will disable the animation
-        }} swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
-            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount ? bookCopy : View} />
+        <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
+            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount ? bookCopy : View } />
             <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
             <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
             <Screen name='BookList' options={{ title: 'רבותינו' }} component={bookList} />
