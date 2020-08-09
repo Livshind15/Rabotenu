@@ -12,18 +12,13 @@ import axios from "axios";
 import { Spinner } from '@ui-kitten/components';
 import { flatten } from 'lodash';
 
-const getSubBooks = async ({ bookId }) => {
+const getSubBooks = async ([ bookId ]) => {
     const { data } = await axios.get(`${config.serverUrl}/mapping/groups/childBooks/${bookId}`);
     console.log(data);
     return data || [];
 }
 
-const BookMenu = ({ bookId, onBookSelect, navigation }) => {
-    const [currBookId, setBookId] = React.useState(bookId);
-    const { data, error, isPending } = useAsync({ promiseFn: getSubBooks, bookId: currBookId })
-    React.useEffect(()=>{
-        setBookId(bookId)
-    },[bookId])
+const BookMenu = ({ data, onBookSelect, navigation,isPending }) => {
 
 
     return (

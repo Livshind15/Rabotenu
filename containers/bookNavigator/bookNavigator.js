@@ -28,6 +28,12 @@ const getBookContent = async ([bookId]) => {
 
 }
 
+const getSubBooks = async ([ bookId ]) => {
+    const { data } = await axios.get(`${config.serverUrl}/mapping/groups/childBooks/${bookId}`);
+    console.log(data);
+    return data || [];
+}
+
 const BookNavigator = ({ navigation, route }) => {
     const { selectedBooks, selectedChapter } = route.params;
     const [booksIds, setBooksIds] = React.useState((selectedBooks || []).map(book => book.bookId));
@@ -45,6 +51,11 @@ const BookNavigator = ({ navigation, route }) => {
     React.useEffect(() => {
         run(currBook || '');
     }, [currBook])
+    const subBooks = useAsync({deferFn:getSubBooks})
+    React.useEffect(()=>{
+        subBooks.run(currBook)
+    },[currBook])
+
 
     const treeFunc = useAsync({ deferFn: getBookTree, onResolve: setTree, booksIds })
     React.useEffect(() => {
@@ -65,7 +76,7 @@ const BookNavigator = ({ navigation, route }) => {
         setFlavors(flavors);
     }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
     const bookCopy = (props) => <Copy {...props} onSave={() => { }}></Copy>
-    const bookMenu = (props) => <BookMenu {...props} bookId={currBook} onBookSelect={(book) => {
+    const bookMenu = (props) => <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book) => {
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])
         }
