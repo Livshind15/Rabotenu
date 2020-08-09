@@ -5,10 +5,6 @@ import Background from '../../component/background/background';
 import Accordian from '../accordian/accordian';
 import OctIcons from "react-native-vector-icons/Octicons";
 
-
-import config from "../../config/config";
-import { useAsync } from "react-async";
-import axios from "axios";
 import { Spinner } from '@ui-kitten/components';
 import { flatten } from 'lodash';
 
@@ -25,7 +21,7 @@ const BookMenu = ({ data, onBookSelect, navigation,isPending }) => {
                             (item || []).map((book, index) => (
                                 <TouchableOpacity onPress={() => {
                                     onBookSelect(book.bookId)
-                                    navigation.goBack()
+                                    navigation.navigate('View')
                                 }} key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
                                     <Text style={styles.resultText}>{book.groupName}</Text>
                                     <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>

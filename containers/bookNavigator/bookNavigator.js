@@ -23,7 +23,7 @@ const getBookTree = async ([booksIds]) => {
 
 
 const getBookContent = async ([bookId, index]) => {
-    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?gteIndex=${index*50}&lteIndex=${((index*50)+50)}`);
+    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}`);
     return data || [];
 }
 
@@ -45,7 +45,7 @@ const BookNavigator = ({ navigation, route }) => {
     const [bookListMount, setBookListMount] = React.useState(false);
     const [initChapter, setChapter] = React.useState(selectedChapter || '');
     const [tree, setTree] = React.useState([])
-    const [index, setIndex] = React.useState([]);
+    const [index, setIndex] = React.useState(0);
     const onBookContentResolved = (data) => { setBookContent([...data]) }
     const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
 
@@ -71,7 +71,7 @@ const BookNavigator = ({ navigation, route }) => {
         console.log({book})
         setChapter('')
         setCurrBook(book)
-    }} bookId={currBook} {...props} onSelectChapter={()=>{}} tree={tree || {}} isPending={treeFunc.isPending} />
+    }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree || {}} isPending={treeFunc.isPending} />
     const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
         setTextSide(textSize);
         setGrammar(grammar);

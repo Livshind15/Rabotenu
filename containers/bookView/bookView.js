@@ -156,17 +156,17 @@ export default function BookView({ textSize, grammar,fetchMore, setMount, bookCo
     return <></>
   }
 
-  // React.useEffect(
-  //   () => {
-  //     const index = data.findIndex((item) => item.type === 'chapter' && item.value === startChapter);
-  //     if (index !== -1 && flatListRef.current && flatListRef.current.scrollToIndex) {
-  //       flatListRef.current.scrollToIndex({
-  //         animated: false,
-  //         index: index
-  //       });
-  //     }
-  //   }
-  //   , [startChapter])
+  React.useEffect(
+    () => {
+      const index = data.findIndex((item) => item.type === 'chapter' && item.value === startChapter);
+      if (index !== -1 && flatListRef.current && flatListRef.current.scrollToIndex) {
+        flatListRef.current.scrollToIndex({
+          animated: false,
+          index: index
+        });
+      }
+    }
+    , [startChapter])
 
   return (
 
