@@ -11,6 +11,7 @@ import Explore from '../explore/explore';
 import Search from '../search/search';
 import Acronym from '../acronym/acronym';
 import { RabotenuContext } from '../../contexts/applicationContext';
+import { SearchProvider } from '../../contexts/searchContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,11 +19,14 @@ const Tab = createBottomTabNavigator();
 export default function MainNavigator({ route }) {
 
     return (
+        <SearchProvider>
+
         <Tab.Navigator initialRouteName={route.params.screen} tabBar={props => <BottomTabBar {...props} />}>
             <Tab.Screen name="Acronym" component={Acronym} />
             <Tab.Screen name="Search" component={Search} />
             <Tab.Screen name="Explore" component={Explore} />
         </Tab.Navigator>
+        </SearchProvider>
     );
 }
 

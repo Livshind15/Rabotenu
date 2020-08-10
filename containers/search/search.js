@@ -21,28 +21,46 @@ import TableSearch from '../tableSearch/tableSearch';
 const Stack = createStackNavigator();
 
 
-export const getBooksByContent = async (content) => {
+export const getBooksByContent = async (content, searchType, tableInput) => {
+  console.log(tableInput);
   const { data } = await axios.post(`${config.serverUrl}/book/search/books/`, {
     "content": content,
-    "type": 'exact'
+    "type": searchType || 'exact',
+    "table": tableInput
   });
   return data;
 }
 
+
 export default function Search() {
+  const { setTableInput, setBookResult, setSearchType  } = React.useContext(SearchContext);
+
+  const tableSearch = (props) => <TableSearch {...props} onSave={async (table, navigation) => {
+    const tablesInput = table.map(or => {
+      return or.map(must => {
+        return {
+          "content": must.value,
+          "type": 'exact'
+        }
+      })
+    })
+    setTableInput(tablesInput)
+    const result = await getBooksByContent("", "table", tablesInput);
+    setBookResult(result);
+    setSearchType('exact')
+    navigation.push('SearchResultView', { onSearch: getBooksByContent })
+  }} />
   return (
-    <SearchProvider>
 
-      <Stack.Navigator initialRouteName="MainSearch" >
-        <Stack.Screen name="MainSearch" options={{ headerShown: false, title: 'רבותינו' }} component={SearchMain} />
-        <Stack.Screen name="SearchResultView" options={{ headerShown: false, title: 'רבותינו' }} component={SearchResultView} />
-        <Stack.Screen name="Resources" options={{ headerShown: false, title: 'רבותינו' }} component={Resources} />
-        <Stack.Screen name="SearchView" options={{ headerShown: false, title: 'רבותינו' }} component={SearchView} />
-        <Stack.Screen name="Result" options={{ headerShown: false, title: 'רבותינו' }} component={BookNavigator} />
-        <Stack.Screen name="TableSearch" options={{ headerShown: false, title: 'רבותינו' }} component={TableSearch} />
+    <Stack.Navigator initialRouteName="MainSearch" >
+      <Stack.Screen name="MainSearch" options={{ headerShown: false, title: 'רבותינו' }} component={SearchMain} />
+      <Stack.Screen name="SearchResultView" options={{ headerShown: false, title: 'רבותינו' }} component={SearchResultView} />
+      <Stack.Screen name="Resources" options={{ headerShown: false, title: 'רבותינו' }} component={Resources} />
+      <Stack.Screen name="SearchView" options={{ headerShown: false, title: 'רבותינו' }} component={SearchView} />
+      <Stack.Screen name="Result" options={{ headerShown: false, title: 'רבותינו' }} component={BookNavigator} />
+      <Stack.Screen name="TableSearch" options={{ headerShown: false, title: 'רבותינו' }} component={tableSearch} />
 
-      </Stack.Navigator>
-    </SearchProvider>
+    </Stack.Navigator>
   );
 }
 
@@ -50,27 +68,29 @@ const options = [
   { title: 'חיפוש מדוייק', description: "חיפוש מדוייק של מילות החיפוש ללא מרחקים" },
   { title: 'חיפוש קל', description: "מרחק של עד 3 מילים בין מילות חיפוש" },
   { title: 'חפש תוצאות קרובות', description: "חפש עם קידומות לכל המילים,כתיב חסר למילים בכתיב מלא, מרחק של עד 30 מילים בין מילה למילה" },
-  { title: 'חיפוש תוצאות דומות', description: "חפש חיפוש עמום עד 20 אחוז, דלג על מילים עד 40 אחוז" },
   { title: 'חיפוש טבלאי', description: "פתח את החיפוש הטבלאי" },
 
 ]
 
+const typeToIndex = ['exact', 'close', 'like', 'table'];
 
 const SearchMain = ({ navigation }) => {
   const [isLoading, setLoading] = React.useState(false);
   const [showOptionsSearch, setShowOptionsSearch] = React.useState(false);
   const [showSearchType, setShowSearchType] = React.useState(false);
-  const { searchInput, setSearchInput, setBookResult } = React.useContext(SearchContext);
+  const { searchInput, setSearchInput, setBookResult, setSearchType, searchType, tableInput, setTableInput } = React.useContext(SearchContext);
 
 
   return (
     <Background>
       <SearchOptionsModel onResources={() => navigation.push('Resources')} openSearchType={() => setShowSearchType(true)} visible={showOptionsSearch} setVisible={setShowOptionsSearch} ></SearchOptionsModel>
-      <SearchTypeModel onOptionChange={(index) => {
-        if (index === 4) {
+      <SearchTypeModel currSelect={typeToIndex.findIndex(item => item === searchType) || 0} onOptionChange={(index) => {
+        setSearchType(typeToIndex[index] || 'exact');
+        if (index === 3) {
           navigation.push('TableSearch');
           setShowSearchType(false)
         }
+
 
       }} setVisible={setShowSearchType} options={options} visible={showSearchType}></SearchTypeModel>
       <View style={styles.page}>
@@ -85,7 +105,7 @@ const SearchMain = ({ navigation }) => {
             <ClickButton onPress={async () => {
               if (!isLoading) {
                 setLoading(true)
-                const result = await getBooksByContent(searchInput);
+                const result = await getBooksByContent(searchInput, searchType, tableInput);
                 setLoading(false)
                 setBookResult(result);
                 navigation.push('SearchResultView', { onSearch: getBooksByContent })

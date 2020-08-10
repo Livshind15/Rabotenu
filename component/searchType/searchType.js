@@ -10,13 +10,13 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 
 
-export default function SearchTypeModel({ visible, setVisible, options, onOptionChange }) {
-    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent onOptionChange={onOptionChange} options={options} setVisible={setVisible} /></Modal> :
-        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent options={options} setVisible={setVisible} onOptionChange={onOptionChange} /></MobileModal>
+export default function SearchTypeModel({ visible, setVisible, options, onOptionChange,currSelect }) {
+    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent currSelect={currSelect} onOptionChange={onOptionChange} options={options} setVisible={setVisible} /></Modal> :
+        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent currSelect={currSelect} options={options} setVisible={setVisible} onOptionChange={onOptionChange} /></MobileModal>
 }
 
-const ModelContent = ({ setVisible, options, onOptionChange }) => {
-    const [selectedOptions, setSelectedOptions] = React.useState(0);
+const ModelContent = ({ setVisible, options, onOptionChange, currSelect }) => {
+    const [selectedOptions, setSelectedOptions] = React.useState(currSelect);
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -73,7 +73,6 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         paddingRight: 10,
         fontSize: 18,
-
         marginTop: -2,
     },
     optionText: {
@@ -105,7 +104,7 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         borderRadius: 20,
-        height: 480,
+        height: 420,
         width: 410,
         backgroundColor: '#F9F9F9'
     },

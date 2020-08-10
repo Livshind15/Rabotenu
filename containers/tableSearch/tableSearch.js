@@ -7,7 +7,7 @@ import Input from '../../component/input/input';
 import Icon from "react-native-vector-icons/Entypo";
 
 
-const TableSearch = ({onSave }) => {
+const TableSearch = ({ onSave, navigation }) => {
     const [tables, setTable] = React.useState([[{ value: "" }]])
     return (
         <Background>
@@ -52,7 +52,10 @@ const TableSearch = ({onSave }) => {
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress= {()=> onSave(tables)}
+                            onPress={async () => {
+                                await onSave(tables, navigation);
+                                navigation.goBack();
+                            }}
                             underlayColor="#ffffff00" >
                             <Text style={styles.buttonText} >חפש</Text>
                         </TouchableOpacity>

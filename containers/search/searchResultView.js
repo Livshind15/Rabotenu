@@ -15,16 +15,14 @@ const { Navigator, Screen } = createMaterialTopTabNavigator();
 const SearchResultView = ({ navigation, route }) => {
     const [allResourceToggle, setResourceToggle] = React.useState(true);
     const { onSearch } = route.params;
-    const { searchInput, bookResult, setSearchInput, setBookResult } = React.useContext(SearchContext);
+    const { searchInput, bookResult, setSearchInput, setBookResult, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
     const searchResult = (props) => <SearchResult {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-        await onSearch(input);
-        const result = await onSearch(input);
+        const result = await onSearch(input, searchType, tableInput);
         setBookResult(result);
 
     }} result={bookResult} />
-    const searchTree = (props) =>  <SearchTree {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-        await onSearch(input);
-        const result = await onSearch(input);
+    const searchTree = (props) => <SearchTree {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
+        const result = await onSearch(input, searchType, tableInput);
         setBookResult(result);
 
     }} result={bookResult} />
@@ -37,8 +35,8 @@ const SearchResultView = ({ navigation, route }) => {
             </View>
             <View style={styles.body}>
                 <Navigator initialRouteName='SearchExplore' tabBar={props => <TopTabBar {...props} />}>
-                    <Screen name='Tree' options={{title:'רבותינו' }}  component={searchTree} />
-                    <Screen name='SearchExplore' options={{title:'רבותינו' }}  component={searchResult} />
+                    <Screen name='Tree' options={{ title: 'רבותינו' }} component={searchTree} />
+                    <Screen name='SearchExplore' options={{ title: 'רבותינו' }} component={searchResult} />
                 </Navigator>
             </View>
         </View>

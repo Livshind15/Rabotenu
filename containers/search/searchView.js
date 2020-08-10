@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, ScrollView, View, Text,FlatList ,TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, View, Text, FlatList, TouchableOpacity } from 'react-native';
 
 
 
@@ -15,10 +15,11 @@ import ErrorModel from '../../component/modalError/modalError';
 import Accordian from '../../component/accordian/accordian';
 import { removeTag, removeBoldTag, removeGrayTag } from '../bookView/bookView';
 
-const getSearchContent = async ({ booksIds, searchInput }) => {
+const getSearchContent = async ({ booksIds, searchInput, type }) => {
     const { data } = await axios.post(`${config.serverUrl}/book/search/`, {
         "content": searchInput,
-        "type": "exact",
+        "type": type || "exact",
+        size: 50,
         "booksIds": booksIds
     });
     return Promise.all(data.map(async verse => {
@@ -33,9 +34,10 @@ const getSearchContent = async ({ booksIds, searchInput }) => {
 
 
 const SearchView = ({ navigation, route }) => {
-    const { searchInput } = React.useContext(SearchContext);
-    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, booksIds: route.params.booksIds, searchInput })
-    const [showErrorModel, setShowErrorModel] = React.useState(false);
+    const { searchInput, searchType } = React.useContext(SearchContext);
+
+    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, booksIds: route.params.booksIds, type: searchType, searchInput })
+    const [showErrorModel, setShowErrorModel] = React.useState(false)
     React.useEffect(() => {
         if (error) {
             setShowErrorModel(true);
@@ -50,7 +52,11 @@ const SearchView = ({ navigation, route }) => {
                     <FlatList
                         keyExtractor={item => item.id}
                         style={styles.view} data={data} renderItem={({ item, index }) => {
-                            const content = item.highlight[0].match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/g);
+                            let content = item.content.match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/g);
+                            if (item.highlight && item.highlight[0]) {
+                                content = item.highlight[0].match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/g);
+                            }
+
                             let grayText = false;
                             let boldText = false;
                             return (<Accordian initExpanded={true} header={`${item.groupName}, ${item.bookName}, ${item.chapter}, פסוק ${item.verse}`} >
@@ -87,7 +93,7 @@ const SearchView = ({ navigation, route }) => {
                                                 return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
                                             }
 
-                                    
+
                                             return <Text style={styles.pasokContent}> {removeTag(splitContent)}</Text>
                                         }
                                         )}
@@ -155,8 +161,8 @@ const styles = StyleSheet.create({
 
 
     },
-    view:{
-        width:'100%'
+    view: {
+        width: '100%'
     },
     scroll: {
         flex: 1,
