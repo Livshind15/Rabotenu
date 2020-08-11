@@ -63,7 +63,11 @@ const Resources = ({ navigation }) => {
         const isAllResource = isEqual(resources, allResource)
         setResourceToggle(isAllResource);
     }, [resources]);
-    const resourcesTreeView =  (props) => <ResourcesTreeView resources={data} {...props} />
+    const resourcesTreeView =  (props) => <ResourcesTreeView resources={data} onRemoveResources={(allBooks,groups,books)=>{
+        // console.log({allBooks,)})
+       
+        // console.log({allBooks,)})
+    }} {...props} />
 
     const resourcesSearch = (props) => <ResourcesSearch {...props} resources={resources} onRemove={(keys) => {
         setResources(keys.reduce((filterResources, key) => {

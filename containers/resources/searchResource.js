@@ -4,7 +4,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Background from '../../component/background/background';
 import ClickButton from '../../component/clickButton/clickButton';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, FlatList } from 'react-native-gesture-handler';
 import Icon from "react-native-vector-icons/AntDesign";
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
@@ -18,16 +18,26 @@ const ResourcesSearch = ({ navigation, resources, onRemove }) => {
                     <Text style={styles.title}>החיפוש יתבצעו במאגרים הבאים בלבד</Text>
                 </View>
                 <View style={styles.resourcesContainer}>
-                    <ScrollView style={styles.resourcesContainerScroll}>
-                        {(resources || []).map((resource, index) => (
-                            <View key={index} style={styles.resourceContainer}>
-                                <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([resource.bookId])}>
+                    <FlatList
+                        data={resources || []}
+                        keyExtractor={(key, index) => index.toString()}
+                        initialNumToRender={7}
+                        onEndReachedThreshold={0.5}
+                        onScrollToIndexFailed={() => { }}
+                        getItemLayout={(data, index) => {
+                            return { length:60, offset: 60 * index, index }
+                        }}
+                        style={styles.resourcesContainerScroll}
+                        renderItem={({ item, index }) => {
+                            return   <View key={index} style={styles.resourceContainer}>
+                                <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([item.bookId])}>
                                     <Icon color={'#47BBB2'} name={'close'} size={20} />
                                 </TouchableOpacity>
-                                <Text style={styles.resourceName}>{`${resource.groupName}, ${resource.bookName}`}</Text>
+                                <Text style={styles.resourceName}>{`${item.groupName}, ${item.bookName}`}</Text>
                             </View>
-                        ))}
-                    </ScrollView>
+                        }}
+                    />
+    
                 </View>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttonsContainerRow}>
