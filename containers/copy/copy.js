@@ -28,7 +28,7 @@ const Copy = ({ onSave, navigation }) => {
                         <TouchableOpacity
                             style={styles.button}
                             onPress={() => {
-                                onSave({ textSize, grammar, exegesis, flavors })
+                                onSave({ attachTitle, comments, exegesis, dontRemove })
                                 navigation.navigate('View')
                             }}
                             underlayColor="#ffffff00" >
@@ -69,7 +69,7 @@ const Option = ({ children, showCheckBox = true, checked, onChange, title, withR
                 </View>
             </TouchableOpacity>}
             {withRadioOption && <View style={styles.radioOptionContainer}>
-                {subOption.map((option, key) => (<TouchableOpacity underlayColor="#ffffff00" onPress={() => checked && setSelectedOptions(key)}>
+                {subOption.map((option, key) => (<TouchableOpacity key={key} underlayColor="#ffffff00" onPress={() => checked && setSelectedOptions(key)}>
                     <View style={styles.optionRadio}>
                         <Radio disabled={!checked} onChange={() => checked && setSelectedOptions(key)} checked={selectedOptions === key} />
                         <Text style={styles.optionRadioText}>{option}</Text>

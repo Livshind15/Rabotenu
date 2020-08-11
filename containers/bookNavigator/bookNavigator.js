@@ -39,7 +39,7 @@ const BookNavigator = ({ navigation, route }) => {
     const [currBook, setCurrBook] = React.useState(booksIds[0])
     const [textSize, setTextSide] = React.useState(0.15);
     const [grammar, setGrammar] = React.useState(false);
-    const [exegesis, setExegesis] = React.useState(true);
+    const [exegesis, setExegesis] = React.useState(false);
     const [flavors, setFlavors] = React.useState(true);
     const [bookContent, setBookContent] = React.useState([]);
     const [bookListMount, setBookListMount] = React.useState(false);
@@ -63,7 +63,7 @@ const BookNavigator = ({ navigation, route }) => {
     React.useEffect(() => {
         treeFunc.run(booksIds);
     }, [booksIds])
-    const bookView = (props) => <BookView fetchMore={() => { }} setMount={setBookListMount}  {...props} startChapter={initChapter} textSize={textSize} grammar={grammar} bookContent={bookContent} isPending={isPending} />
+    const bookView = (props) => <BookView fetchMore={() => { }} setMount={setBookListMount}  {...props} startChapter={initChapter} textSize={textSize} exegesis={exegesis} grammar={grammar} bookContent={bookContent} isPending={isPending} />
     const bookList = (props) => <BookList onSelectBook={(book) => {
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])

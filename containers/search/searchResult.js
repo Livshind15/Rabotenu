@@ -4,10 +4,12 @@ import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-nati
 import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
+import { SearchContext } from '../../contexts/searchContext';
 
 const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
     const [searchInput, setInput] = React.useState(input);
     const [isLoading, setLoading] = React.useState(false);
+    const { setSearchType} = React.useContext(SearchContext);
 
     return (
         <Background>
@@ -15,6 +17,7 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                 <View style={styles.input}>
                     <View style={styles.buttonWrapper}>
                         <ClickButton outline={true} onPress={async () => {
+                            setSearchType('exact')
                             onInput(searchInput)
                             setLoading(true)
                             await onSearch(searchInput)

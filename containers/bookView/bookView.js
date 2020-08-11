@@ -2,7 +2,9 @@ import * as React from 'react';
 import Background from '../../component/background/background';
 import { Spinner } from '@ui-kitten/components';
 import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native';
+
 import { delay } from '../../utils/helpers';
+import { TextInput } from 'react-native-gesture-handler';
 
 const bookToElements = (bookContent, grammar) => {
   let bookName = [];
@@ -27,7 +29,16 @@ const bookToElements = (bookContent, grammar) => {
   }, []);
 }
 
-export default function BookView({ textSize, grammar,fetchMore, setMount, bookContent, startChapter, isPending }) {
+const SelectText = ({ style, children }) => (
+  <TextInput
+    underlineColorAndroid='transparent'
+    underlineColorAndroid={'#FFFFFF00'}
+    editable={false}
+    value={children}
+    style={style} />
+)
+
+export default function BookView({ textSize,exegesis, grammar, fetchMore, setMount, bookContent, startChapter, isPending }) {
   const styles = StyleSheet.create({
     view: {
       width: '100%',
@@ -113,19 +124,23 @@ export default function BookView({ textSize, grammar,fetchMore, setMount, bookCo
 
   const renderText = (item, index) => {
     if (item.type === 'bookName') {
-      return <Text style={styles.book}>{item.value}</Text>
+      return <Text selectable style={styles.book}>{item.value}</Text>
     }
     if (item.type === 'section') {
-      return <Text style={styles.parsa}>{item.value}</Text>
+      return <Text selectable style={styles.parsa}>{item.value}</Text>
+
     }
     if (item.type === 'chapter') {
-      return <Text style={styles.chapter}>{item.value}</Text>
+      return <Text selectable style={styles.chapter}>{item.value}</Text>
+
+
     }
     if (item.type === 'verse') {
       let grayText = false;
       let boldText = false;
-      return <View style={styles.pasokContainer}>
-        <Text style={styles.pasok}>{item.index} </Text>
+
+      return <View key={Math.random()} selectable style={styles.pasokContainer}>
+        <Text selectable key={Math.random()} style={styles.pasok}>{item.index} </Text>
 
         {item.value.split(' ').map(((splitContent, index) => {
           if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
@@ -133,24 +148,24 @@ export default function BookView({ textSize, grammar,fetchMore, setMount, bookCo
           }
           if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
             grayText = false;
-            return <Text style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
+            return <Text selectable key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
           }
           if (grayText) {
-            return <Text style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
+            return <Text selectable key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
           }
           if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
             boldText = true;
           }
           if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
             boldText = false;
-            return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
+            return <Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
           }
           if (boldText) {
-            return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
+            return <Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
           }
-          return <Text style={styles.pasokContent}> {splitContent}</Text>
+          return <Text selectable key={Math.random()} style={styles.pasokContent}> {splitContent}</Text>
         }))}
-        {item.parsaTag ? <Text style={styles.pasokLink}>{'פ'}</Text> : <></>}
+        {item.parsaTag && !exegesis ? <Text selectable key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}
       </View>
     }
     return <></>
@@ -174,7 +189,7 @@ export default function BookView({ textSize, grammar,fetchMore, setMount, bookCo
       {isPending ? <View style={styles.spinnerContainer}>
         <Spinner />
       </View> : <FlatList
-          keyExtractor={item => item.id}
+          keyExtractor={(key,index)=> index.toString()}
           initialNumToRender={7}
           onEndReached={fetchMore}
           onEndReachedThreshold={0.5}

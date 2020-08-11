@@ -15,11 +15,12 @@ import ErrorModel from '../../component/modalError/modalError';
 import Accordian from '../../component/accordian/accordian';
 import { removeTag, removeBoldTag, removeGrayTag } from '../bookView/bookView';
 
-const getSearchContent = async ({ booksIds, searchInput, type }) => {
+const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => {
     const { data } = await axios.post(`${config.serverUrl}/book/search/`, {
         "content": searchInput,
-        "type": type || "exact",
+        "type": !isEmpty(tableInput) ? type || 'exact' : 'exact',
         size: 50,
+        table:tableInput,
         "booksIds": booksIds
     });
     return Promise.all(data.map(async verse => {
@@ -34,9 +35,9 @@ const getSearchContent = async ({ booksIds, searchInput, type }) => {
 
 
 const SearchView = ({ navigation, route }) => {
-    const { searchInput, searchType } = React.useContext(SearchContext);
+    const { searchInput, searchType,tableInput } = React.useContext(SearchContext);
 
-    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, booksIds: route.params.booksIds, type: searchType, searchInput })
+    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent,tableInput, booksIds: route.params.booksIds, type: searchType, searchInput })
     const [showErrorModel, setShowErrorModel] = React.useState(false)
     React.useEffect(() => {
         if (error) {
@@ -63,7 +64,7 @@ const SearchView = ({ navigation, route }) => {
                                 <TouchableOpacity onPress={() => {
                                     navigation.push('Result', { selectedChapter: item.chapter, selectedBooks: [{ bookId: item.bookId }] })
                                 }} style={styles.contentContainer}>
-                                    <Text style={styles.pasokContainer}>
+                                    <View style={styles.pasokContainer}>
                                         {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
                                         {content.map(splitContent => {
                                             if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
@@ -97,7 +98,7 @@ const SearchView = ({ navigation, route }) => {
                                             return <Text style={styles.pasokContent}> {removeTag(splitContent)}</Text>
                                         }
                                         )}
-                                    </Text>
+                                    </View>
                                 </TouchableOpacity>
                             </Accordian>)
                         }} />
@@ -153,12 +154,9 @@ const styles = StyleSheet.create({
 
     },
     pasokContainer: {
-        textAlign: 'right',
-        direction: 'rtl',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 0
-
+        flexWrap: 'wrap',
+        flexDirection: 'row-reverse',
+  
 
     },
     view: {

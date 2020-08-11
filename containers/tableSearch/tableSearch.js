@@ -7,8 +7,10 @@ import Input from '../../component/input/input';
 import Icon from "react-native-vector-icons/Entypo";
 
 
-const TableSearch = ({ onSave, navigation }) => {
-    const [tables, setTable] = React.useState([[{ value: "" }]])
+const TableSearch = ({ onSave, navigation, tableInit }) => {
+    const [tables, setTable] = React.useState(tableInit)
+    const [isLoading, setLoading] = React.useState(false);
+
     return (
         <Background>
             <View style={styles.page}>
@@ -18,7 +20,7 @@ const TableSearch = ({ onSave, navigation }) => {
                             <>
                                 {tables.map((table, index) => (
                                     <>
-                                        <Table tables={tables} table={table} onRemove={() => {
+                                        <Table isLoading={isLoading} tables={tables} table={table} onRemove={() => {
                                             const newTables = tables.filter((val, tableIndex) => {
                                                 return index != tableIndex
                                             });
@@ -53,8 +55,12 @@ const TableSearch = ({ onSave, navigation }) => {
                         <TouchableOpacity
                             style={styles.button}
                             onPress={async () => {
+                              if(!isLoading){
+                                setLoading(true)
                                 await onSave(tables, navigation);
-                                navigation.goBack();
+                                setLoading(false)
+                              }
+                               
                             }}
                             underlayColor="#ffffff00" >
                             <Text style={styles.buttonText} >חפש</Text>
@@ -66,7 +72,7 @@ const TableSearch = ({ onSave, navigation }) => {
     )
 }
 
-const Table = ({ table, tables, setTable, onRemove }) => {
+const Table = ({ table, tables, setTable,isLoading, onRemove }) => {
     return (
         <View style={styles.table}>
             <View style={styles.inputsWrapper}>
@@ -74,7 +80,7 @@ const Table = ({ table, tables, setTable, onRemove }) => {
                     table.map((input, index) => (
                         <>
                             <View style={styles.input}>
-                                <Input value={input.value} onChange={(text) => {
+                                <Input isLoading={isLoading} value={input.value} onChange={(text) => {
                                     const newInput = table;
                                     newInput[index].value = text;
                                     setTable([...newInput]);

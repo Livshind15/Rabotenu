@@ -18,9 +18,9 @@ const BookDisplay = ({ onSave, navigation, setting }) => {
         <Background>
             <View style={styles.page}>
                 <ScrollView style={styles.optionContainer}>
-                    <Option checked={flavors} onChange={setFlavors} customStyle={{ option: { borderTopWidth: 0 } }}>אל תציג טעמים בכל המאגרים</Option>
-                    <Option checked={grammar} onChange={setGrammar}>אל תציג ניקוד בכל המאגרים</Option>
-                    <Option checked={exegesis} onChange={setExegesis}>אל תציג ציוני מפרשים והערות</Option>
+                    {/* <Option key={Math.random()} checked={flavors} onChange={setFlavors} customStyle={{ option: { borderTopWidth: 0 } }}>אל תציג טעמים בכל המאגרים</Option> */}
+                    <Option key={Math.random()} checked={grammar} onChange={setGrammar}>אל תציג ניקוד בכל המאגרים</Option>
+                    <Option key={Math.random()} checked={exegesis} onChange={setExegesis}>אל תציג ציוני מפרשים והערות</Option>
                     <View style={styles.sliderContainer}>
                         <Text style={styles.optionTextSlider}>גודל תצוגה:</Text>
                         <View style={styles.sliderWrapperAndText}>

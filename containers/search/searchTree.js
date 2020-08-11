@@ -7,7 +7,6 @@ import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import Tree from '../../component/tree/tree';
-import results from './searchTree.mock';
 import config from "../../config/config";
 import { useAsync } from "react-async";
 import axios from "axios";
@@ -15,6 +14,7 @@ import { Spinner } from '@ui-kitten/components';
 import _ from 'lodash';
 
 import ErrorModel from '../../component/modalError/modalError';
+import { SearchContext } from '../../contexts/searchContext';
 
 const getGroups = async ({ bookResult }) => {
     const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
@@ -51,6 +51,8 @@ const SearchTree = ({ navigation, input, onSearch, onInput, result }) => {
     const [isLoading, setLoading] = React.useState(false);
     const { data, error, isPending } = useAsync({ promiseFn: getGroups, bookResult: result })
     const [showErrorModel, setShowErrorModel] = React.useState(false);
+    const { setSearchType} = React.useContext(SearchContext);
+
     React.useEffect(() => {
         if (error) {
             setShowErrorModel(true);
@@ -63,6 +65,7 @@ const SearchTree = ({ navigation, input, onSearch, onInput, result }) => {
                 <View style={styles.input}>
                     <View style={styles.buttonWrapper}>
                         <ClickButton onPress={async () => {
+                            setSearchType("exact")
                             onInput(searchInput)
                             setLoading(true)
                             await onSearch(searchInput)

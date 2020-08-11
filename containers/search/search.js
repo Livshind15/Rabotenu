@@ -16,16 +16,17 @@ import { SearchContext, SearchProvider } from '../../contexts/searchContext';
 import SearchView from './searchView';
 import BookNavigator from '../bookNavigator/bookNavigator';
 import TableSearch from '../tableSearch/tableSearch';
+import { isEmpty } from 'lodash';
 
 
 const Stack = createStackNavigator();
 
 
 export const getBooksByContent = async (content, searchType, tableInput) => {
-  console.log(tableInput);
+
   const { data } = await axios.post(`${config.serverUrl}/book/search/books/`, {
     "content": content,
-    "type": searchType || 'exact',
+    "type": !isEmpty(tableInput) ? searchType || 'exact' : 'exact',
     "table": tableInput
   });
   return data;
@@ -33,9 +34,9 @@ export const getBooksByContent = async (content, searchType, tableInput) => {
 
 
 export default function Search() {
-  const { setTableInput, setBookResult, setSearchType  } = React.useContext(SearchContext);
-
-  const tableSearch = (props) => <TableSearch {...props} onSave={async (table, navigation) => {
+  const { setTableInput, setBookResult, setSearchType } = React.useContext(SearchContext);
+  const [tableInit] = React.useState([[{ value: "" }]])
+  const tableSearch = (props) => <TableSearch tableInit={tableInit} {...props} onSave={async (table, navigation) => {
     const tablesInput = table.map(or => {
       return or.map(must => {
         return {
@@ -44,10 +45,9 @@ export default function Search() {
         }
       })
     })
-    setTableInput(tablesInput)
     const result = await getBooksByContent("", "table", tablesInput);
+    setTableInput(tablesInput)
     setBookResult(result);
-    setSearchType('exact')
     navigation.push('SearchResultView', { onSearch: getBooksByContent })
   }} />
   return (
