@@ -36,9 +36,24 @@ const getAllBooksFromGroups = (groups) => {
 }
 
 
+
+export const addCheckForResources = (resources, check) => {
+    return resources.map(resource => {
+        const books = resource.books.map(book => {
+            return { ...book, isCheck: check }
+        })
+        let subGroups = []
+        if (resource.subGroups.length) {
+            subGroups = addCheckForResources(resource.subGroups)
+        }
+        return { ...resource, books, subGroups, isCheck: check }
+    })
+}
+
 const Resources = ({ navigation }) => {
     const [allResourceToggle, setResourceToggle] = React.useState(true);
     const { data, error, isPending } = useAsync({ promiseFn: getGroups })
+    const [resourcesTree, setResourcesTree] = React.useState([]);
     const [resources, setResources] = React.useState([]);
     const [allResource, setAlResources] = React.useState([]);
     const [showErrorModel, setShowErrorModel] = React.useState(false);
@@ -50,12 +65,16 @@ const Resources = ({ navigation }) => {
     React.useEffect(() => {
         if (data && data.length) {
             const books = getAllBooksFromGroups(data);
+            setResourcesTree(addCheckForResources(data, true))
             setAlResources(books);
             setResources(books)
         }
     }, [data]);
     React.useEffect(() => {
         if (allResourceToggle) {
+            if (data && data.length) {
+                setResourcesTree(addCheckForResources(data, true))
+            }
             setResources(allResource);
         }
     }, [allResourceToggle]);
@@ -63,18 +82,30 @@ const Resources = ({ navigation }) => {
         const isAllResource = isEqual(resources, allResource)
         setResourceToggle(isAllResource);
     }, [resources]);
-    const resourcesTreeView =  (props) => <ResourcesTreeView resources={data} onRemoveResources={(allBooks,groups,books)=>{
-        // console.log({allBooks,)})
-       
-        // console.log({allBooks,)})
+    const resourcesTreeView = (props) => <ResourcesTreeView resources={resourcesTree} onRemoveResources={(allBooks, groups, books, resourceTree) => {
+        console.log({ allBooks, groups, books, resourceTree })
+        setResources(allResource.reduce((resources, resource) => {
+            if (!allBooks.includes(resource.bookId)) {
+                resources.push(resource)
+            }
+            return resources
+        }, []))
+        setResourceToggle(false)
     }} {...props} />
 
-    const resourcesSearch = (props) => <ResourcesSearch {...props} resources={resources} onRemove={(keys) => {
+    const resourcesSearch = (props) => <ResourcesSearch {...props} resources={resources} onRemoveAll={() => {
+        setResourcesTree(addCheckForResources(data, false))
+
+    }} onRemove={(keys) => {
         setResources(keys.reduce((filterResources, key) => {
             filterResources = filterResources.filter(resource => resource.bookId != key);
             return filterResources;
         }, resources));
     }} />
+
+    const resourcesGroups = (props) => <ResourcesGroups {...props}  />
+
+
     return (
         <>
             {!isPending && data && data.length ?
@@ -87,10 +118,9 @@ const Resources = ({ navigation }) => {
                     </View>
                     <View style={styles.body}>
                         <Navigator initialRouteName='SearchResource' tabBar={props => <TopTabBar {...props} />}>
-                            <Screen name='groupResource' component={ResourcesGroups} />
+                            <Screen name='groupResource' component={resourcesGroups} />
                             <Screen name='SearchResource' component={resourcesSearch} />
                             <Screen name='TreeResource' component={resourcesTreeView} />
-
                         </Navigator>
                     </View>
                 </View> : <View style={styles.spinnerContainer}>

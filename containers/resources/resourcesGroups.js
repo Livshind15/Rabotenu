@@ -10,10 +10,11 @@ import IconEvilIcons from "react-native-vector-icons/EvilIcons";
 import GroupEdit from './groupEdit';
 const Stack = createStackNavigator();
 
-
+const groupsInit = [{groupName:"קבוצה 1",groupId:"1",resources:[]},{groupName:"קבוצה 1",groupId:"2",resources:[]}]
 
 const ResourcesGroups = ({ navigation, resources, onRemove }) => {
-
+    const [groups,setGroups] = React.useState(groupsInit);
+    const [selectedGroup,setSelectedGroup] = React.useState('1');
     return (
         <Background>
             <View style={styles.page}>
@@ -23,13 +24,15 @@ const ResourcesGroups = ({ navigation, resources, onRemove }) => {
                 </View>
                 <View style={styles.resourcesContainer}>
                     <ScrollView style={styles.resourcesContainerScroll}>
-                        {/* {(resources || []).map((resource, index) => ( */}
-                        <View style={styles.resourceContainer}>
+                        {(groups || []).map((group, index) => (
+                        <TouchableOpacity style={styles.resourceContainer}>
                             <View style={styles.resourceContainerStart} >
-                                <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([resource.key])}>
+                                <TouchableOpacity underlayColor="#ffffff00" onPress={() => {
+                                   setGroups(groups.filter(currGroup => currGroup.groupId !== group.groupId))
+                                }}>
                                     <Icon color={'#47BBB2'} name={'close'} size={20} />
                                 </TouchableOpacity>
-                                <Text style={styles.resourceName}>{"בדיקה"}</Text>
+                                <Text style={styles.resourceName}>{group.groupName}</Text>
                             </View>
 
                             <View style={styles.resourceContainerEnd} >
@@ -39,12 +42,12 @@ const ResourcesGroups = ({ navigation, resources, onRemove }) => {
                                 <TouchableOpacity onPress={()=>{
                                     navigation.push('edit')
                                 }} underlayColor="#ffffff00">
-                                    <Text style={styles.viewText}>{"צפייה"}</Text>
+                                    <Text style={[styles.viewText,group.groupId !== selectedGroup ? styles.viewTextDisable : '']}>{"בחר"}</Text>
                                 </TouchableOpacity>
 
                             </View>
-                        </View>
-                        {/* ))} */}
+                        </TouchableOpacity>
+                        ))}
                     </ScrollView>
                 </View>
                 <View style={styles.buttonsContainer}>
@@ -99,6 +102,10 @@ const styles = StyleSheet.create({
         fontFamily: "OpenSansHebrew",
         fontSize: 20,
         paddingHorizontal: 15
+    },
+    viewTextDisable: {
+        color: '#B4B4B4',
+
     },
     resourceContainer: {
         width: '100%',

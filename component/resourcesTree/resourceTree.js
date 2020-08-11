@@ -18,22 +18,26 @@ const changeGroupsChecks = (group, state) => {
 }
 
 
-const getAllBooksInGroup = (group) => {
-    let removeResource = [{ booksId: [], groupIds: '' }]
-    removeResource[0].booksId = (group.books || []).reduce((books, book) => {
-        if (!book.isCheck) {
-            books.push(book.bookId)
+const getAllBooksInGroup = (groups) => {
+   return groups.reduce((groups ,group) => {
+         let removeResource = { booksId: [], groupIds: '' }
+        removeResource.booksId = (group.books || []).reduce((books, book) => {
+            if (!book.isCheck) {
+                books.push(book.bookId)
+            }
+            return books;
+        }, [])
+        removeResource.groupIds = group.groupId;
+    
+        groups.push(removeResource)
+    
+        if (group.subGroups && group.subGroups.length) {
+            groups = [...groups, ...flatten(getAllBooksInGroup(group.subGroups))]
+    
         }
-        return books;
-    }, [])
-    if (removeResource[0].booksId.length === group.books.length  ) {
-        removeResource[0].groupIds = group.groupId;
-    }
-    if (group.subGroups && group.subGroups.length) {
-        removeResource = [...removeResource, ...flatten(group.subGroups.map(subGroup => getAllBooksInGroup(subGroup)))]
-
-    }
-    return removeResource
+        return groups
+    },[])
+    
 }
 
 const checkForUnCheckResource = (group) => {
@@ -60,7 +64,7 @@ const ResourceTree = ({ navigation, onChange = () => { }, groups = [], deep = 0 
                         const newGroupsState = groupsState;
                         newGroupsState[index] = changeGroupsChecks(newGroupsState[index], state);
                         setGroups([...newGroupsState])
-                        onChange(flatten(getAllBooksInGroup(newGroupsState[index])))
+                        onChange(flatten(getAllBooksInGroup(newGroupsState)),groupsState)
                     }}>
                 </CheckBox>
             </View>
@@ -76,7 +80,7 @@ const ResourceTree = ({ navigation, onChange = () => { }, groups = [], deep = 0 
                                 const newGroupsState = groupsState;
                                 newGroupsState[index].books[key].isCheck = state;
                                 setGroups([...newGroupsState])
-                                onChange(flatten(getAllBooksInGroup(newGroupsState[index])))
+                                onChange(flatten(getAllBooksInGroup(newGroupsState)),groupsState)
 
                             }}>
                         </CheckBox>

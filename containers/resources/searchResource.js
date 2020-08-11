@@ -10,7 +10,7 @@ import Icon from "react-native-vector-icons/AntDesign";
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 
-const ResourcesSearch = ({ navigation, resources, onRemove }) => {
+const ResourcesSearch = ({ navigation, resources, onRemove,onRemoveAll }) => {
     return (
         <Background>
             <View style={styles.page}>
@@ -49,6 +49,7 @@ const ResourcesSearch = ({ navigation, resources, onRemove }) => {
                             onRemove(resources.map(({ bookId }) => {
                                 return bookId
                             }))
+                            onRemoveAll()
                         }}>נקה הכל</ClickButton></View>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }}>הגדר קבוצה חדשה</ClickButton></View>
                     </View>

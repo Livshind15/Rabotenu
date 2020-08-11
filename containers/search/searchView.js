@@ -14,6 +14,8 @@ import { SearchContext } from '../../contexts/searchContext';
 import ErrorModel from '../../component/modalError/modalError';
 import Accordian from '../../component/accordian/accordian';
 import { removeTag, removeBoldTag, removeGrayTag } from '../bookView/bookView';
+import { isEmpty } from 'lodash';
+
 
 const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => {
     const { data } = await axios.post(`${config.serverUrl}/book/search/`, {
