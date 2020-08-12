@@ -8,18 +8,22 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Icon from "react-native-vector-icons/AntDesign";
 import IconEvilIcons from "react-native-vector-icons/EvilIcons";
 import Input from '../../component/input/input';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 const Stack = createStackNavigator();
 
 
-const GroupEdit = ({ navigation, name='' }) => {
-    const [groupName, setGroupName] = React.useState(name)
-    const [edit, setEdit] = React.useState(false)
+const GroupEdit = ({ navigation, route }) => {
+    const { edit, resources,groupName,onSave } = route.params;
+    
+    const [name, setGroupName] = React.useState(groupName)
+    const [isEdit, setEdit] = React.useState(edit)
     return (
         <Background>
             <View style={styles.page}>
-                {!edit && <View style={styles.groupNameContainer}>
-                    <Text style={styles.groupName}>{groupName}</Text>
+                {!isEdit && <View style={styles.groupNameContainer}>
+                    <Text style={styles.groupName}>{name}</Text>
                     <TouchableOpacity onPress={() => {
                         setEdit(true)
                     }} underlayColor="#ffffff00">
@@ -27,14 +31,14 @@ const GroupEdit = ({ navigation, name='' }) => {
                     </TouchableOpacity>
 
                 </View>}
-                {edit && <View style={styles.input}>
+                {isEdit && <View style={styles.input}>
                     <View style={styles.buttonWrapper}>
                         <ClickButton outline={true} onPress={() => {
                             setEdit(false)
                         }} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>שמור</ClickButton>
                     </View>
                     <View style={styles.inputWrapper}>
-                        <Input isLoading={false} value={groupName} placeholder={'תן שם לקבוצה'} onChange={(text) =>setGroupName(text)} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+                        <Input isLoading={false} value={name} placeholder={'תן שם לקבוצה'} onChange={(text) =>setGroupName(text)} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
                     </View>
 
                 </View>}
@@ -44,23 +48,23 @@ const GroupEdit = ({ navigation, name='' }) => {
                 </View>
                 <View style={styles.resourcesContainer}>
                     <ScrollView style={styles.resourcesContainerScroll}>
-                        {/* {(resources || []).map((resource, index) => ( */}
-                        <View style={styles.resourceContainer}>
+                        {(resources || []).map((resource, index) => (
+                        <View key={index} style={styles.resourceContainer}>
                             <View style={styles.resourceContainerStart} >
-                                <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([resource.key])}>
+                                {/* <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([resource.key])}>
                                     <Icon color={'#47BBB2'} name={'close'} size={20} />
-                                </TouchableOpacity>
-                                <Text style={styles.resourceName}>{"בדddיקה"}</Text>
+                                </TouchableOpacity> */}
+                                <Text style={styles.resourceName}>{`${resource.groupName}, ${resource.bookName}`}</Text>
                             </View>
                         </View>
-                        {/* ))} */}
+                        ))}
                     </ScrollView>
                 </View>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} optionsText={{
                         fontSize: 24.
 
-                    }}>סגור</ClickButton></View>
+                    }}>שמור</ClickButton></View>
 
                 </View>
 
@@ -188,4 +192,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default GroupEdit;
+export default optimizeHeavyScreen(GroupEdit,PlaceHolder);

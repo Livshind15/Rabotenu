@@ -6,6 +6,8 @@ import Background from '../../component/background/background';
 import ClickButton from '../../component/clickButton/clickButton';
 import { ScrollView, FlatList } from 'react-native-gesture-handler';
 import Icon from "react-native-vector-icons/AntDesign";
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
@@ -45,12 +47,7 @@ const ResourcesSearch = ({ navigation, resources, onRemove,onRemoveAll }) => {
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }}>חזרה</ClickButton></View>
                     </View>
                     <View style={styles.buttonsContainerRow}>
-                        <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }} onPress={() => {
-                            onRemove(resources.map(({ bookId }) => {
-                                return bookId
-                            }))
-                            onRemoveAll()
-                        }}>נקה הכל</ClickButton></View>
+                        <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }} onPress={onRemoveAll}>נקה הכל</ClickButton></View>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }}>הגדר קבוצה חדשה</ClickButton></View>
                     </View>
                 </View>
@@ -123,4 +120,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default ResourcesSearch;
+export default optimizeHeavyScreen(ResourcesSearch,PlaceHolder);

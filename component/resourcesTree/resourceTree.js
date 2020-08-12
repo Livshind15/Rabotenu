@@ -27,8 +27,9 @@ const getAllBooksInGroup = (groups) => {
             }
             return books;
         }, [])
-        removeResource.groupIds = group.groupId;
-    
+        if(!group.isCheck){
+            removeResource.groupIds = group.groupId;
+        }
         groups.push(removeResource)
     
         if (group.subGroups && group.subGroups.length) {
@@ -64,13 +65,13 @@ const ResourceTree = ({ navigation, onChange = () => { }, groups = [], deep = 0 
                         const newGroupsState = groupsState;
                         newGroupsState[index] = changeGroupsChecks(newGroupsState[index], state);
                         setGroups([...newGroupsState])
-                        onChange(flatten(getAllBooksInGroup(newGroupsState)),groupsState)
+                        onChange(flatten(getAllBooksInGroup(groupsState)),groupsState)
                     }}>
                 </CheckBox>
             </View>
         } endToggle={true}>
             {group.subGroups.length || group.books.length ? <View style={styles.innerScroll}>
-                {group.subGroups.length ? <ResourceTree onChange={onChange} navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
+                {group.subGroups.length ? <ResourceTree onChange={()=>onChange(flatten(getAllBooksInGroup(groupsState)),groupsState)} navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
                 {group.books.length ? ((group.books) || []).map((book, key) => <TouchableOpacity underlayColor="#ffffff00" key={key} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
                     <Text style={styles.resultText}>{book.bookName}</Text>
                     <View style={styles.checkBoxWrapper}>
@@ -80,7 +81,7 @@ const ResourceTree = ({ navigation, onChange = () => { }, groups = [], deep = 0 
                                 const newGroupsState = groupsState;
                                 newGroupsState[index].books[key].isCheck = state;
                                 setGroups([...newGroupsState])
-                                onChange(flatten(getAllBooksInGroup(newGroupsState)),groupsState)
+                                onChange(flatten(getAllBooksInGroup(newGroupsState)),newGroupsState)
 
                             }}>
                         </CheckBox>

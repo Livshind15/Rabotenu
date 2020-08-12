@@ -11,11 +11,35 @@ import config from "../../config/config";
 import { useAsync } from "react-async";
 import axios from "axios";
 import ErrorModel from '../../component/modalError/modalError';
-import { flatten, isEqual } from 'lodash';
+import { flatten, isEqual, difference } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
+import { log } from 'react-native-reanimated';
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
+
+const getBooksInGroup = (groups, allGroups) => {
+    return groups.reduce((groups, group) => {
+        let removeResource = { booksId: [], groupIds: '' }
+        removeResource.booksId = (group.books || []).reduce((books, book) => {
+            if (!book.isCheck || allGroups) {
+                books.push(book.bookId)
+            }
+            return books;
+        }, [])
+        if (!group.isCheck || allGroups) {
+            removeResource.groupIds = group.groupId;
+        }
+        groups.push(removeResource)
+
+        if (group.subGroups && group.subGroups.length) {
+            groups = [...groups, ...flatten(getBooksInGroup(group.subGroups, allGroups))]
+
+        }
+        return groups
+    }, [])
+
+}
 
 
 const getGroups = async () => {
@@ -23,18 +47,39 @@ const getGroups = async () => {
     return data || [];
 }
 
-const getAllBooksFromGroups = (groups) => {
-    return flatten(groups.map(group => {
-        let books = group.books.map(book => {
-            return { ...book, groupName: group.groupName, groupId: group.groupId }
-        })
-        if (group.subGroups && group.subGroups.length) {
-            books = [...books, ...getAllBooksFromGroups(group.subGroups)]
-        }
-        return books
-    }))
-}
+export const getAllBooksFromGroups = (groups) => {
+    return groups.reduce((resources, group) => {
+        resources = [...resources, ...(group.books || []).reduce((books, book) => {
+            if (book.isCheck) {
+                books.push({ ...book, groupName: group.groupName, groupId: group.groupId })
+            }
 
+            return books;
+        }, [])]
+
+        if (group.subGroups && group.subGroups.length) {
+            resources = [...resources, ...(getAllBooksFromGroups(group.subGroups))]
+
+        }
+        return resources;
+    }, [])
+
+}
+export const removeResourceFromTree = (resources, keys) => {
+    return resources.map(resource => {
+        const books = resource.books.map(book => {
+            if (keys.includes(book.bookId)) {
+                return { ...book, isCheck: false }
+            }
+            return book
+        })
+        let subGroups = []
+        if (resource.subGroups.length) {
+            subGroups = removeResourceFromTree(resource.subGroups, keys)
+        }
+        return { ...resource, books, subGroups }
+    })
+}
 
 
 export const addCheckForResources = (resources, check) => {
@@ -44,19 +89,22 @@ export const addCheckForResources = (resources, check) => {
         })
         let subGroups = []
         if (resource.subGroups.length) {
-            subGroups = addCheckForResources(resource.subGroups)
+            subGroups = addCheckForResources(resource.subGroups, check)
         }
         return { ...resource, books, subGroups, isCheck: check }
     })
 }
+const groupsInit = []
 
 const Resources = ({ navigation }) => {
     const [allResourceToggle, setResourceToggle] = React.useState(true);
     const { data, error, isPending } = useAsync({ promiseFn: getGroups })
-    const [resourcesTree, setResourcesTree] = React.useState([]);
+
     const [resources, setResources] = React.useState([]);
-    const [allResource, setAlResources] = React.useState([]);
     const [showErrorModel, setShowErrorModel] = React.useState(false);
+    const [selectedGroup, setSelectedGroup] = React.useState('');
+    const [groups, setGroups] = React.useState(groupsInit);
+
     React.useEffect(() => {
         if (error) {
             setShowErrorModel(true);
@@ -64,45 +112,39 @@ const Resources = ({ navigation }) => {
     }, [error]);
     React.useEffect(() => {
         if (data && data.length) {
-            const books = getAllBooksFromGroups(data);
-            setResourcesTree(addCheckForResources(data, true))
-            setAlResources(books);
-            setResources(books)
+            setResources(addCheckForResources(data, true))
         }
     }, [data]);
     React.useEffect(() => {
         if (allResourceToggle) {
             if (data && data.length) {
-                setResourcesTree(addCheckForResources(data, true))
+                setResources(addCheckForResources(data, true))
             }
-            setResources(allResource);
         }
     }, [allResourceToggle]);
+
     React.useEffect(() => {
-        const isAllResource = isEqual(resources, allResource)
+        const allBooks = flatten(getBooksInGroup(resources, true).map(resource => resource.booksId));
+        const books = flatten(getBooksInGroup(resources, false).map(resource => resource.booksId));
+        const isAllResource = isEqual(allBooks, difference(allBooks, books))
         setResourceToggle(isAllResource);
     }, [resources]);
-    const resourcesTreeView = (props) => <ResourcesTreeView resources={resourcesTree} onRemoveResources={(allBooks, groups, books, resourceTree) => {
-        setResources(allResource.reduce((resources, resource) => {
-            if (!allBooks.includes(resource.bookId)) {
-                resources.push(resource)
-            }
-            return resources
-        }, []))
+
+    const resourcesTreeView = (props) => <ResourcesTreeView resources={resources} onRemoveResources={(allBooks, groups, books, resourceTree) => {
+        setResources(resourceTree)
         setResourceToggle(false)
     }} {...props} />
 
-    const resourcesSearch = (props) => <ResourcesSearch {...props} resources={resources} onRemoveAll={() => {
-        setResourcesTree(addCheckForResources(data, false))
+    const resourcesSearch = (props) => <ResourcesSearch onRemove={(keys) => {
+        setResources(removeResourceFromTree(resources, keys))
+    }} onRemoveAll={() => {
+        setResources(addCheckForResources(data, false))
+    }} {...props} resources={getAllBooksFromGroups(resources)}
+    />
 
-    }} onRemove={(keys) => {
-        setResources(keys.reduce((filterResources, key) => {
-            filterResources = filterResources.filter(resource => resource.bookId != key);
-            return filterResources;
-        }, resources));
-    }} />
-
-    const resourcesGroups = (props) => <ResourcesGroups {...props}  />
+    const resourcesGroups = (props) => <ResourcesGroups currResources={resources} selectedGroup={selectedGroup} groups={groups} onGroupSelect={(id) => {
+        setSelectedGroup(id);
+    }} {...props} />
 
 
     return (

@@ -8,13 +8,13 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Icon from "react-native-vector-icons/AntDesign";
 import IconEvilIcons from "react-native-vector-icons/EvilIcons";
 import GroupEdit from './groupEdit';
+import { getAllBooksFromGroups } from './resources';
 const Stack = createStackNavigator();
 
 const groupsInit = [{ groupName: "קבוצה 1", groupId: "1", resources: [] }, { groupName: "קבוצה 1", groupId: "2", resources: [] }]
 
-const ResourcesGroups = ({ navigation, resources, onRemove }) => {
-    const [groups, setGroups] = React.useState(groupsInit);
-    const [selectedGroup, setSelectedGroup] = React.useState('1');
+const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, currResources }) => {
+    console.log(groups);
     return (
         <Background>
             <View style={styles.page}>
@@ -27,7 +27,7 @@ const ResourcesGroups = ({ navigation, resources, onRemove }) => {
                             <TouchableOpacity style={styles.resourceContainer}>
                                 <View style={styles.resourceContainerStart} >
                                     <TouchableOpacity underlayColor="#ffffff00" onPress={() => {
-                                        setGroups(groups.filter(currGroup => currGroup.groupId !== group.groupId))
+                                        // setGroups(groups.filter(currGroup => currGroup.groupId !== group.groupId))
                                     }}>
                                         <Icon color={'#47BBB2'} name={'close'} size={20} />
                                     </TouchableOpacity>
@@ -39,9 +39,9 @@ const ResourcesGroups = ({ navigation, resources, onRemove }) => {
                                         <IconEvilIcons color={'#B4B4B4'} name={'pencil'} size={40}></IconEvilIcons>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {
-                                        navigation.push('edit')
+                                        // navigation.push('edit')
                                     }} underlayColor="#ffffff00">
-                                        <Text style={[styles.viewText, group.groupId !== selectedGroup ? styles.viewTextDisable : '']}>{"בחר"}</Text>
+                                        <Text onPress={() => onGroupSelect(group.groupId)} style={[styles.viewText, group.groupId !== selectedGroup ? styles.viewTextDisable : '']}>{"בחר"}</Text>
                                     </TouchableOpacity>
 
                                 </View>
@@ -50,7 +50,11 @@ const ResourcesGroups = ({ navigation, resources, onRemove }) => {
                     </ScrollView>
                 </View>
                 <View style={styles.buttonsContainer}>
-                    <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} optionsText={{ fontSize: 22 }}>יצרת קבוצה חדשה</ClickButton></View>
+                    <View style={styles.buttonWrapper}><ClickButton onPress={() => {
+                        navigation.push('edit',{edit:true,resources:getAllBooksFromGroups(currResources),groupName:"",onSave:()=>{
+
+                        }})
+                    }} optionsButton={{ paddingVertical: 7 }} optionsText={{ fontSize: 22 }}>יצרת קבוצה חדשה</ClickButton></View>
 
                 </View>
 
@@ -59,10 +63,11 @@ const ResourcesGroups = ({ navigation, resources, onRemove }) => {
     )
 }
 
-const Routes = (props) => {
+const Routes = (args) => {
+    const resourcesGroups = (props) => <ResourcesGroups {...args} {...props} />
     return (
         <Stack.Navigator initialRouteName="main" >
-            <Stack.Screen name="main" options={{ headerShown: false, title: 'רבותינו' }} component={ResourcesGroups} />
+            <Stack.Screen name="main" options={{ headerShown: false, title: 'רבותינו' }} component={resourcesGroups} />
             <Stack.Screen name="edit" options={{ headerShown: false, title: 'רבותינו' }} component={GroupEdit} />
         </Stack.Navigator>
     );
