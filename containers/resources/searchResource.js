@@ -12,7 +12,7 @@ import PlaceHolder from '../../component/placeHolder/placeHolder';
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 
-const ResourcesSearch = ({ navigation, resources, onRemove,onRemoveAll }) => {
+const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll,editParams }) => {
     return (
         <Background>
             <View style={styles.page}>
@@ -27,11 +27,11 @@ const ResourcesSearch = ({ navigation, resources, onRemove,onRemoveAll }) => {
                         onEndReachedThreshold={0.5}
                         onScrollToIndexFailed={() => { }}
                         getItemLayout={(data, index) => {
-                            return { length:60, offset: 60 * index, index }
+                            return { length: 60, offset: 60 * index, index }
                         }}
                         style={styles.resourcesContainerScroll}
                         renderItem={({ item, index }) => {
-                            return   <View key={index} style={styles.resourceContainer}>
+                            return <View key={index} style={styles.resourceContainer}>
                                 <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([item.bookId])}>
                                     <Icon color={'#47BBB2'} name={'close'} size={20} />
                                 </TouchableOpacity>
@@ -39,7 +39,7 @@ const ResourcesSearch = ({ navigation, resources, onRemove,onRemoveAll }) => {
                             </View>
                         }}
                     />
-    
+
                 </View>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttonsContainerRow}>
@@ -48,7 +48,10 @@ const ResourcesSearch = ({ navigation, resources, onRemove,onRemoveAll }) => {
                     </View>
                     <View style={styles.buttonsContainerRow}>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }} onPress={onRemoveAll}>נקה הכל</ClickButton></View>
-                        <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }}>הגדר קבוצה חדשה</ClickButton></View>
+                        <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }} onPress={() => {
+                            navigation.navigate('groupResource', { screen: 'edit',params:editParams });
+
+                        }}>הגדר קבוצה חדשה</ClickButton></View>
                     </View>
                 </View>
 
@@ -120,4 +123,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default optimizeHeavyScreen(ResourcesSearch,PlaceHolder);
+export default optimizeHeavyScreen(ResourcesSearch, PlaceHolder);

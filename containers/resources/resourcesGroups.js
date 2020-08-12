@@ -8,13 +8,11 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Icon from "react-native-vector-icons/AntDesign";
 import IconEvilIcons from "react-native-vector-icons/EvilIcons";
 import GroupEdit from './groupEdit';
-import { getAllBooksFromGroups } from './resources';
 const Stack = createStackNavigator();
 
-const groupsInit = [{ groupName: "קבוצה 1", groupId: "1", resources: [] }, { groupName: "קבוצה 1", groupId: "2", resources: [] }]
 
-const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, currResources }) => {
-    console.log(groups);
+const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, currResources, onSave,removeGroup }) => {
+    
     return (
         <Background>
             <View style={styles.page}>
@@ -23,25 +21,25 @@ const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, cur
                 </View>
                 <View style={styles.resourcesContainer}>
                     <ScrollView style={styles.resourcesContainerScroll}>
-                        {(groups || []).map((group, index) => (
+                        {Object.keys(groups || {}).map((groupId, index) => (
                             <TouchableOpacity style={styles.resourceContainer}>
                                 <View style={styles.resourceContainerStart} >
                                     <TouchableOpacity underlayColor="#ffffff00" onPress={() => {
-                                        // setGroups(groups.filter(currGroup => currGroup.groupId !== group.groupId))
+                                        removeGroup(groupId)
                                     }}>
                                         <Icon color={'#47BBB2'} name={'close'} size={20} />
                                     </TouchableOpacity>
-                                    <Text style={styles.resourceName}>{group.groupName}</Text>
+                                    <Text style={styles.resourceName}>{groups[groupId].groupName}</Text>
                                 </View>
 
                                 <View style={styles.resourceContainerEnd} >
-                                    <TouchableOpacity underlayColor="#ffffff00">
+                                    <TouchableOpacity onPress={() => {
+                                        navigation.push('edit', { edit: false, resources: groups[groupId].resources, groupName: groups[groupId].groupName,groupId, onSave: onSave })
+                                    }} underlayColor="#ffffff00">
                                         <IconEvilIcons color={'#B4B4B4'} name={'pencil'} size={40}></IconEvilIcons>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => {
-                                        // navigation.push('edit')
-                                    }} underlayColor="#ffffff00">
-                                        <Text onPress={() => onGroupSelect(group.groupId)} style={[styles.viewText, group.groupId !== selectedGroup ? styles.viewTextDisable : '']}>{"בחר"}</Text>
+                                    <TouchableOpacity  underlayColor="#ffffff00">
+                                        <Text onPress={() => onGroupSelect(groupId)} style={[styles.viewText, groupId !== selectedGroup ? styles.viewTextDisable : '']}>{"בחר"}</Text>
                                     </TouchableOpacity>
 
                                 </View>
@@ -51,9 +49,7 @@ const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, cur
                 </View>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttonWrapper}><ClickButton onPress={() => {
-                        navigation.push('edit',{edit:true,resources:getAllBooksFromGroups(currResources),groupName:"",onSave:()=>{
-
-                        }})
+                        navigation.push('edit', { edit: true, resources: currResources, groupName: "", onSave: onSave })
                     }} optionsButton={{ paddingVertical: 7 }} optionsText={{ fontSize: 22 }}>יצרת קבוצה חדשה</ClickButton></View>
 
                 </View>
@@ -64,11 +60,13 @@ const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, cur
 }
 
 const Routes = (args) => {
-    const resourcesGroups = (props) => <ResourcesGroups {...args} {...props} />
+    const resourcesGroups = (props) => <ResourcesGroups  {...args} {...props} />
+    const groupEdit = (props) => <GroupEdit {...args}  {...props} />
+
     return (
         <Stack.Navigator initialRouteName="main" >
             <Stack.Screen name="main" options={{ headerShown: false, title: 'רבותינו' }} component={resourcesGroups} />
-            <Stack.Screen name="edit" options={{ headerShown: false, title: 'רבותינו' }} component={GroupEdit} />
+            <Stack.Screen name="edit" options={{ headerShown: false, title: 'רבותינו' }} component={groupEdit} />
         </Stack.Navigator>
     );
 }

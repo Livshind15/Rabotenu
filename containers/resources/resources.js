@@ -13,7 +13,6 @@ import axios from "axios";
 import ErrorModel from '../../component/modalError/modalError';
 import { flatten, isEqual, difference } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
-import { log } from 'react-native-reanimated';
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
@@ -94,7 +93,6 @@ export const addCheckForResources = (resources, check) => {
         return { ...resource, books, subGroups, isCheck: check }
     })
 }
-const groupsInit = []
 
 const Resources = ({ navigation }) => {
     const [allResourceToggle, setResourceToggle] = React.useState(true);
@@ -103,7 +101,7 @@ const Resources = ({ navigation }) => {
     const [resources, setResources] = React.useState([]);
     const [showErrorModel, setShowErrorModel] = React.useState(false);
     const [selectedGroup, setSelectedGroup] = React.useState('');
-    const [groups, setGroups] = React.useState(groupsInit);
+    const [groups, setGroups] = React.useState({});
 
     React.useEffect(() => {
         if (error) {
@@ -119,6 +117,7 @@ const Resources = ({ navigation }) => {
         if (allResourceToggle) {
             if (data && data.length) {
                 setResources(addCheckForResources(data, true))
+                setSelectedGroup('')
             }
         }
     }, [allResourceToggle]);
@@ -130,20 +129,50 @@ const Resources = ({ navigation }) => {
         setResourceToggle(isAllResource);
     }, [resources]);
 
+    React.useEffect(() => {
+        if (!selectedGroup.length && groups[selectedGroup]) {
+            setGroups({ ...{ ...groups, [selectedGroup]: { groupName: groups[selectedGroup].groupName, resources: resources } } });
+        }
+    }, [resources]);
+
+
     const resourcesTreeView = (props) => <ResourcesTreeView resources={resources} onRemoveResources={(allBooks, groups, books, resourceTree) => {
         setResources(resourceTree)
         setResourceToggle(false)
     }} {...props} />
 
-    const resourcesSearch = (props) => <ResourcesSearch onRemove={(keys) => {
+    const resourcesSearch = (props) => <ResourcesSearch editParams={{
+        edit: true, resources: resources, groupName: "", onSave: ({ resources, groupName, groupId }) => {
+
+            setGroups({ ...groups, [groupId]: { groupName, resources: resources } });
+
+            setResources(resources)
+            setSelectedGroup(groupId)
+
+        }
+    }} onRemove={(keys) => {
         setResources(removeResourceFromTree(resources, keys))
+
     }} onRemoveAll={() => {
         setResources(addCheckForResources(data, false))
     }} {...props} resources={getAllBooksFromGroups(resources)}
     />
 
-    const resourcesGroups = (props) => <ResourcesGroups currResources={resources} selectedGroup={selectedGroup} groups={groups} onGroupSelect={(id) => {
+    const resourcesGroups = (props) => <ResourcesGroups onSave={({ resources, groupName, groupId }) => {
+
+        setGroups({ ...groups, [groupId]: { groupName, resources: resources } });
+
+        setResources(resources)
+        setSelectedGroup(groupId)
+
+    }} currResources={resources} groups={groups} removeGroup={(id) => {
+        const newGroups = groups;
+        delete newGroups[id]
+        setGroups({ ...newGroups })
+    }} selectedGroup={selectedGroup} onGroupSelect={(id) => {
         setSelectedGroup(id);
+        setResources(groups[id].resources)
+
     }} {...props} />
 
 
