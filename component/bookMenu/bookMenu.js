@@ -7,6 +7,8 @@ import OctIcons from "react-native-vector-icons/Octicons";
 
 import { Spinner } from '@ui-kitten/components';
 import { flatten } from 'lodash';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../placeHolder/placeHolder';
 
 const BookMenu = ({ data, onBookSelect, navigation,isPending }) => {
 
@@ -79,4 +81,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default BookMenu;
+export default optimizeHeavyScreen(BookMenu,PlaceHolder);

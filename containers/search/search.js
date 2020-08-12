@@ -17,6 +17,8 @@ import SearchView from './searchView';
 import BookNavigator from '../bookNavigator/bookNavigator';
 import TableSearch from '../tableSearch/tableSearch';
 import { isEmpty } from 'lodash';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen'
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 
 const Stack = createStackNavigator();
@@ -31,6 +33,7 @@ export const getBooksByContent = async (content, searchType, tableInput) => {
   });
   return data;
 }
+
 
 
 export default function Search() {
@@ -50,14 +53,15 @@ export default function Search() {
     setBookResult(result);
     navigation.push('SearchResultView', { onSearch: getBooksByContent })
   }} />
+
   return (
 
     <Stack.Navigator initialRouteName="MainSearch" >
-      <Stack.Screen name="MainSearch" options={{ headerShown: false, title: 'רבותינו' }} component={SearchMain} />
-      <Stack.Screen name="SearchResultView" options={{ headerShown: false, title: 'רבותינו' }} component={SearchResultView} />
-      <Stack.Screen name="Resources" options={{ headerShown: false, title: 'רבותינו' }} component={Resources} />
-      <Stack.Screen name="SearchView" options={{ headerShown: false, title: 'רבותינו' }} component={SearchView} />
-      <Stack.Screen name="Result" options={{ headerShown: false, title: 'רבותינו' }} component={BookNavigator} />
+      <Stack.Screen name="MainSearch" options={{ headerShown: false, title: 'רבותינו' }} component={searchMain} />
+      <Stack.Screen name="SearchResultView" options={{ headerShown: false, title: 'רבותינו' }} component={searchResultView} />
+      <Stack.Screen name="Resources" options={{ headerShown: false, title: 'רבותינו' }} component={resources} />
+      <Stack.Screen name="SearchView" options={{ headerShown: false, title: 'רבותינו' }} component={searchView} />
+      <Stack.Screen name="Result" options={{ headerShown: false, title: 'רבותינו' }} component={bookNavigator} />
       <Stack.Screen name="TableSearch" options={{ headerShown: false, title: 'רבותינו' }} component={tableSearch} />
 
     </Stack.Navigator>
@@ -123,6 +127,13 @@ const SearchMain = ({ navigation }) => {
     </Background>
   )
 }
+
+const searchResultView = optimizeHeavyScreen(SearchResultView,PlaceHolder)
+const searchMain = optimizeHeavyScreen(SearchMain,PlaceHolder)
+const resources = optimizeHeavyScreen(Resources,PlaceHolder)
+const searchView = optimizeHeavyScreen(SearchView,PlaceHolder)
+const bookNavigator = optimizeHeavyScreen(BookNavigator,PlaceHolder)
+
 
 
 const styles = StyleSheet.create({

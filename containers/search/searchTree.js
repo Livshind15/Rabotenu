@@ -15,6 +15,8 @@ import _ from 'lodash';
 
 import ErrorModel from '../../component/modalError/modalError';
 import { SearchContext } from '../../contexts/searchContext';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 
 const getGroups = async ({ bookResult }) => {
     const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
@@ -216,4 +218,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default SearchTree;
+export default optimizeHeavyScreen(SearchTree,PlaceHolder);

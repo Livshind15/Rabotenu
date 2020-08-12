@@ -5,6 +5,8 @@ import Background from '../../component/background/background';
 import { CheckBox } from '@ui-kitten/components';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Radio } from '@ui-kitten/components';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 
 
@@ -229,4 +231,4 @@ const styles = StyleSheet.create({
 
 
 
-export default Copy;
+export default optimizeHeavyScreen(Copy,PlaceHolder);

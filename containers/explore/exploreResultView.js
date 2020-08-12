@@ -6,8 +6,10 @@ import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import {getBooksByByBookName} from './explore'
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
-export default function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
+function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
   const { searchInput } = route.params;
   const [result , setResult] = React.useState(route.params.result);
   const [input, setInput] = React.useState(searchInput);
@@ -255,3 +257,5 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   }
 });
+
+export default  optimizeHeavyScreen(ExploreResultView,PlaceHolder)

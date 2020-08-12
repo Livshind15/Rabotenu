@@ -5,6 +5,8 @@ import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import { SearchContext } from '../../contexts/searchContext';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 
 const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
     const [searchInput, setInput] = React.useState(input);
@@ -208,4 +210,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default SearchResult;
+export default optimizeHeavyScreen(SearchResult,PlaceHolder);

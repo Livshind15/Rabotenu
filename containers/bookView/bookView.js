@@ -5,6 +5,8 @@ import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native';
 
 import { delay } from '../../utils/helpers';
 import { TextInput } from 'react-native-gesture-handler';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 const bookToElements = (bookContent, grammar) => {
   let bookName = [];
@@ -38,7 +40,7 @@ const SelectText = ({ style, children }) => (
     style={style} />
 )
 
-export default function BookView({ textSize,exegesis, grammar, fetchMore, setMount, bookContent, startChapter, isPending }) {
+function BookView({ textSize,exegesis, grammar, fetchMore, setMount, bookContent, startChapter, isPending }) {
   const styles = StyleSheet.create({
     view: {
       width: '100%',
@@ -233,3 +235,4 @@ export const removeBoldTag = (content) => {
   return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')
 }
 
+export default optimizeHeavyScreen(BookView,PlaceHolder);

@@ -3,6 +3,8 @@ import * as React from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import BookListTree from '../../component/bookListTree/bookListTree';
 import Background from '../../component/background/background';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 
 
@@ -43,4 +45,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default BookList;
+export default optimizeHeavyScreen(BookList,PlaceHolder);

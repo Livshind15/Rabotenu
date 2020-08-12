@@ -83,7 +83,6 @@ const Resources = ({ navigation }) => {
         setResourceToggle(isAllResource);
     }, [resources]);
     const resourcesTreeView = (props) => <ResourcesTreeView resources={resourcesTree} onRemoveResources={(allBooks, groups, books, resourceTree) => {
-        console.log({ allBooks, groups, books, resourceTree })
         setResources(allResource.reduce((resources, resource) => {
             if (!allBooks.includes(resource.bookId)) {
                 resources.push(resource)

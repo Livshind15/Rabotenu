@@ -7,6 +7,8 @@ import TabButton from '../../component/tabButton/tabButton';
 import SearchTree from './searchTree';
 import SearchResult from './searchResult';
 import { SearchContext } from '../../contexts/searchContext';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
@@ -85,4 +87,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default SearchResultView;
+export default optimizeHeavyScreen(SearchResultView,PlaceHolder);;

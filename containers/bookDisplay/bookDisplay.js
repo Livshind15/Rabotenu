@@ -5,6 +5,8 @@ import Slider from "react-native-slider";
 import Background from '../../component/background/background';
 import { CheckBox } from '@ui-kitten/components';
 import { ScrollView } from 'react-native-gesture-handler';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 
 const BookDisplay = ({ onSave, navigation, setting }) => {
@@ -217,5 +219,4 @@ const iosStyles = StyleSheet.create({
     }
 });
 
-
-export default BookDisplay;
+export default optimizeHeavyScreen(BookDisplay,PlaceHolder);

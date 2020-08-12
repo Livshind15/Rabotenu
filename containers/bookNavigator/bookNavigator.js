@@ -17,7 +17,6 @@ const getBookTree = async ([booksIds]) => {
     const data = await Promise.all(booksIds.map(bookId => {
         return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
     }))
-    console.log({ data });
     return data || [];
 }
 
@@ -29,7 +28,6 @@ const getBookContent = async ([bookId, index]) => {
 
 const getSubBooks = async ([bookId]) => {
     const { data } = await axios.get(`${config.serverUrl}/mapping/groups/childBooks/${bookId}`);
-    console.log(data);
     return data || [];
 }
 
@@ -68,7 +66,6 @@ const BookNavigator = ({ navigation, route }) => {
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])
         }
-        console.log({book})
         setChapter('')
         setCurrBook(book)
     }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree || {}} isPending={treeFunc.isPending} />

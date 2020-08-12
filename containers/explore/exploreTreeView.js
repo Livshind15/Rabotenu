@@ -9,6 +9,8 @@ import Background from '../../component/background/background';
 import ExploreTree from '../../component/exploreTree/exploreTree';
 import { Spinner } from '@ui-kitten/components';
 import ErrorModel from '../../component/modalError/modalError';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 
 function removeNulls(obj) {
     var isArray = obj instanceof Array;
@@ -89,4 +91,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default ExploreTreeView;
+ export default  optimizeHeavyScreen(ExploreTreeView,PlaceHolder);

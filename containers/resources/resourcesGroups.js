@@ -10,43 +10,42 @@ import IconEvilIcons from "react-native-vector-icons/EvilIcons";
 import GroupEdit from './groupEdit';
 const Stack = createStackNavigator();
 
-const groupsInit = [{groupName:"קבוצה 1",groupId:"1",resources:[]},{groupName:"קבוצה 1",groupId:"2",resources:[]}]
+const groupsInit = [{ groupName: "קבוצה 1", groupId: "1", resources: [] }, { groupName: "קבוצה 1", groupId: "2", resources: [] }]
 
 const ResourcesGroups = ({ navigation, resources, onRemove }) => {
-    const [groups,setGroups] = React.useState(groupsInit);
-    const [selectedGroup,setSelectedGroup] = React.useState('1');
+    const [groups, setGroups] = React.useState(groupsInit);
+    const [selectedGroup, setSelectedGroup] = React.useState('1');
     return (
         <Background>
             <View style={styles.page}>
-           
                 <View style={styles.titleContainer}>
                     <Text style={styles.title}>הקבוצות שלי:</Text>
                 </View>
                 <View style={styles.resourcesContainer}>
                     <ScrollView style={styles.resourcesContainerScroll}>
                         {(groups || []).map((group, index) => (
-                        <TouchableOpacity style={styles.resourceContainer}>
-                            <View style={styles.resourceContainerStart} >
-                                <TouchableOpacity underlayColor="#ffffff00" onPress={() => {
-                                   setGroups(groups.filter(currGroup => currGroup.groupId !== group.groupId))
-                                }}>
-                                    <Icon color={'#47BBB2'} name={'close'} size={20} />
-                                </TouchableOpacity>
-                                <Text style={styles.resourceName}>{group.groupName}</Text>
-                            </View>
+                            <TouchableOpacity style={styles.resourceContainer}>
+                                <View style={styles.resourceContainerStart} >
+                                    <TouchableOpacity underlayColor="#ffffff00" onPress={() => {
+                                        setGroups(groups.filter(currGroup => currGroup.groupId !== group.groupId))
+                                    }}>
+                                        <Icon color={'#47BBB2'} name={'close'} size={20} />
+                                    </TouchableOpacity>
+                                    <Text style={styles.resourceName}>{group.groupName}</Text>
+                                </View>
 
-                            <View style={styles.resourceContainerEnd} >
-                                <TouchableOpacity underlayColor="#ffffff00">
-                                    <IconEvilIcons color={'#B4B4B4'} name={'pencil'} size={40}></IconEvilIcons>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={()=>{
-                                    navigation.push('edit')
-                                }} underlayColor="#ffffff00">
-                                    <Text style={[styles.viewText,group.groupId !== selectedGroup ? styles.viewTextDisable : '']}>{"בחר"}</Text>
-                                </TouchableOpacity>
+                                <View style={styles.resourceContainerEnd} >
+                                    <TouchableOpacity underlayColor="#ffffff00">
+                                        <IconEvilIcons color={'#B4B4B4'} name={'pencil'} size={40}></IconEvilIcons>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {
+                                        navigation.push('edit')
+                                    }} underlayColor="#ffffff00">
+                                        <Text style={[styles.viewText, group.groupId !== selectedGroup ? styles.viewTextDisable : '']}>{"בחר"}</Text>
+                                    </TouchableOpacity>
 
-                            </View>
-                        </TouchableOpacity>
+                                </View>
+                            </TouchableOpacity>
                         ))}
                     </ScrollView>
                 </View>
