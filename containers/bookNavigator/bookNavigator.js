@@ -47,23 +47,24 @@ const BookNavigator = ({ navigation, route }) => {
     const [tree, setTree] = React.useState([])
     const [index, setIndex] = React.useState(0);
     const [refreshing, setRefreshing] = React.useState(false);
-    const onBookContentResolved = React.useCallback((data) => {
-        setBookContent([...bookContent, ...data])
-        setRefreshing(false);
-    },[bookContent])
-    const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
+    // const onBookContentResolved = React.useCallback((data) => {
+    //     setBookContent([...bookContent, ...data])
+    //     setRefreshing(false);
+    // },[bookContent])
+    // const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
 
-    React.useEffect(() => {
-        setIndex(0)
-        run(currBook, index);
-    }, [])
+    // React.useEffect(() => {
+    //     setIndex(0)
+    //     run(currBook, index);
+    // }, [])
     const subBooks = useAsync({ deferFn: getSubBooks })
     React.useEffect(() => {
         subBooks.run(currBook)
+
     }, [currBook])
-    React.useEffect(() => {
-        run(currBook, index);
-    }, [index])
+    // React.useEffect(() => {
+    //     run(currBook, index);
+    // }, [index])
 
 
     const treeFunc = useAsync({ deferFn: getBookTree, onResolve: setTree, booksIds })
@@ -71,12 +72,16 @@ const BookNavigator = ({ navigation, route }) => {
         treeFunc.run(booksIds);
     }, [booksIds])
 
-    const bookView =  React.useCallback((props) => {
-        return <BookViewClass index={index} bookId={currBook} refreshing={refreshing} fetchMore={() => {
-            setRefreshing(true);
-            setIndex(index + 1)
-        }} setMount={setBookListMount}  {...props} startChapter={initChapter} textSize={textSize} exegesis={exegesis} grammar={grammar} bookContent={bookContent} isPending={false} />
-    }, [bookContent])
+    const bookView = React.useCallback((props) => {
+        return <BookViewClass
+            {...props}
+            bookId={currBook}
+            setMount={setBookListMount}
+            startChapter={initChapter}
+            textSize={textSize}
+            exegesis={exegesis}
+            grammar={grammar} />
+    },[currBook,initChapter,textSize,exegesis,grammar])
 
     const bookList = (props) => <BookList onSelectBook={(book) => {
         if (!booksIds.includes(book)) {
@@ -85,86 +90,86 @@ const BookNavigator = ({ navigation, route }) => {
         setChapter('')
         setCurrBook(book)
     }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree || {}} isPending={treeFunc.isPending} />
-        const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
-            setTextSide(textSize);
-            setGrammar(grammar);
-            setExegesis(exegesis);
-            setFlavors(flavors);
-        }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
-        const bookCopy = (props) => <Copy {...props} onSave={() => { }}></Copy>
-        const bookMenu = (props) => <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book) => {
-            setChapter('')
-            if (!booksIds.includes(book)) {
-                setBooksIds([...booksIds, book])
-            }
-            setCurrBook(book)
-        }} bookId={currBook}></BookMenu>
-
-        return (
-            <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
-                <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount ? bookCopy : View} />
-                <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
-                <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
-                <Screen name='BookList' options={{ title: 'רבותינו' }} component={bookList} />
-                <Screen name='View' options={{ title: 'רבותינו' }} component={bookView} />
-            </Navigator>
-        )
-    }
-
-    const TopTabBar = ({ navigation, state }) => (
-        <View style={styles.tabs}>
-            <Tabs selectedIndex={state.index} onSelect={index => navigation.navigate(state.routeNames[index])}>
-                <HeaderButton>העתקה</HeaderButton>
-                <HeaderButton>תפריטי קשר</HeaderButton>
-                <HeaderButton>הגדרות תצוגה</HeaderButton>
-                <HeaderButton>רשימת ספרים</HeaderButton>
-            </Tabs>
-        </View>
-    );
-
-    const HeaderButton = ({ children, isSelected, onPress }) => (
-        <TouchableOpacity onPress={onPress} style={styles.tab} underlayColor="#ffffff00">
-            <View style={[styles.tabLabel, isSelected ? styles.tabLabelSelect : {}]}>
-                <Text style={[styles.text, isSelected ? styles.textSelect : {}]}>{children}</Text>
-            </View>
-        </TouchableOpacity>
-
-    )
-
-
-    const styles = StyleSheet.create({
-        tab: {
-            flex: 1,
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: '#CBD4D3',
-            borderWidth: 1,
-            borderColor: '#F0F0F0'
-        },
-        tabLabelSelect: {
-            backgroundColor: '#504F4F'
-        },
-        textSelect: {
-            color: '#A8AEAD',
-        },
-        text: {
-            color: '#727575',
-            fontFamily: "OpenSansHebrew",
-            textAlign: 'center',
-            fontSize: 16,
-        },
-        tabLabel: {
-            width: '100%',
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: '#CBD4D3'
-        },
-        tabs: {
-            height: 50,
-            width: '100%'
+    const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
+        setTextSide(textSize);
+        setGrammar(grammar);
+        setExegesis(exegesis);
+        setFlavors(flavors);
+    }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
+    const bookCopy = (props) => <Copy {...props} onSave={() => { }}></Copy>
+    const bookMenu = (props) => <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book) => {
+        setChapter('')
+        if (!booksIds.includes(book)) {
+            setBooksIds([...booksIds, book])
         }
-    });
+        setCurrBook(book)
+    }} bookId={currBook}></BookMenu>
 
-    export default BookNavigator;
+    return (
+        <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
+            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount ? bookCopy : View} />
+            <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
+            <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
+            <Screen name='BookList' options={{ title: 'רבותינו' }} component={bookList} />
+            <Screen name='View' options={{ title: 'רבותינו' }} component={bookView} />
+        </Navigator>
+    )
+}
+
+const TopTabBar = ({ navigation, state }) => (
+    <View style={styles.tabs}>
+        <Tabs selectedIndex={state.index} onSelect={index => navigation.navigate(state.routeNames[index])}>
+            <HeaderButton>העתקה</HeaderButton>
+            <HeaderButton>תפריטי קשר</HeaderButton>
+            <HeaderButton>הגדרות תצוגה</HeaderButton>
+            <HeaderButton>רשימת ספרים</HeaderButton>
+        </Tabs>
+    </View>
+);
+
+const HeaderButton = ({ children, isSelected, onPress }) => (
+    <TouchableOpacity onPress={onPress} style={styles.tab} underlayColor="#ffffff00">
+        <View style={[styles.tabLabel, isSelected ? styles.tabLabelSelect : {}]}>
+            <Text style={[styles.text, isSelected ? styles.textSelect : {}]}>{children}</Text>
+        </View>
+    </TouchableOpacity>
+
+)
+
+
+const styles = StyleSheet.create({
+    tab: {
+        flex: 1,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#CBD4D3',
+        borderWidth: 1,
+        borderColor: '#F0F0F0'
+    },
+    tabLabelSelect: {
+        backgroundColor: '#504F4F'
+    },
+    textSelect: {
+        color: '#A8AEAD',
+    },
+    text: {
+        color: '#727575',
+        fontFamily: "OpenSansHebrew",
+        textAlign: 'center',
+        fontSize: 16,
+    },
+    tabLabel: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#CBD4D3'
+    },
+    tabs: {
+        height: 50,
+        width: '100%'
+    }
+});
+
+export default BookNavigator;

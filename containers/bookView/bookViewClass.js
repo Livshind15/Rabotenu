@@ -3,100 +3,51 @@ import Background from '../../component/background/background';
 import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native';
 import axios from "axios";
 import config from "../../config/config";
+import { delay } from '../../utils/helpers';
 
 
+const DefaultScrollSize = 250;
 
 export default class BookViewClass extends React.Component {
     constructor(props) {
         super(props);
-        const { textSize } = this.props;
-        this.styles = StyleSheet.create({
-            view: {
-                width: '100%',
-                padding: 25
-            },
-            spinnerContainer: {
-                height: 100,
-                width: "100%",
-                justifyContent: 'center',
-                alignItems: "center",
-            },
-            book: {
-                color: '#11AFC2',
-                fontFamily: "OpenSansHebrewBold",
-                textAlign: 'center',
-                padding: 8,
-                fontSize: 24 + (textSize * 50)
-            },
-            parsa: {
-                color: '#455253',
-                fontFamily: "OpenSansHebrewBold",
-                textAlign: 'right',
-                fontSize: 22 + (textSize * 50),
-                paddingVertical: 8
-            },
-            chapter: {
-                color: '#11AFC2',
-                fontFamily: "OpenSansHebrew",
-                textAlign: 'right',
-                fontSize: 21 + (textSize * 50),
-                paddingVertical: 10
-            },
-            pasok: {
-                color: '#455253',
-                fontFamily: "OpenSansHebrewBold",
-                textAlign: 'right',
-                fontSize: 20 + (textSize * 50),
-            },
-            pasokContentBold: {
-                color: '#455253',
-                fontFamily: "OpenSansHebrewBold",
-                textAlign: 'right',
-                fontSize: 21 + (textSize * 50),
-            },
-            pasokLink: {
-                color: '#11AFC2',
-                fontFamily: "OpenSansHebrewBold",
-                textAlign: 'right',
-                alignSelf: 'center',
-                fontSize: 12 + (textSize * 50),
-            },
-            pasokContentGray: {
-                color: '#CBD4D3',
-                fontFamily: "OpenSansHebrew",
-                textAlign: 'right',
-                fontSize: 17 + (textSize * 50),
-            },
-            pasokContent: {
-                color: '#455253',
-                fontFamily: "OpenSansHebrew",
-                textAlign: 'right',
-                fontSize: 20 + (textSize * 50),
-            },
-            pasokContainer: {
-                flexWrap: 'wrap',
-                flexDirection: 'row-reverse',
 
-            }
-        });
         this.state = {
             data: [],
-            index: 0
+            index: 0,
+            loading: false,
+            bookId: this.props.bookId,
+            textSize: this.props.textSize
         }
         this.bookName = [];
         this.section = [];
         this.chapter = '';
     }
-    async componentWillMount() {
-        this.fetchMore();
+
+    async componentDidMount() {
+
+        delay(1000).then(() => {
+            this.props.setMount(true)
+        })
+        this.setState({ loading: true }, () => this.fetchMore());
     }
-    bookToElements (bookContent, grammar)  {
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.textSize !== this.props.textSize) {
+            this.setState({ textSize: textSize });
+        }
+        if (nextProps.bookId !== this.props.bookId) {
+            this.setState({ bookId: bookId, index: 0 });
+        }
+    }
+
+    bookToElements(bookContent, grammar) {
         return bookContent.reduce((elements, content) => {
-            if (! this.bookName.includes(content.bookName)) {
+            if (!this.bookName.includes(content.bookName)) {
                 this.bookName = [...this.bookName, content.bookName]
                 elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName })
             }
-            if (! this.section.includes(content.section)) {
+            if (!this.section.includes(content.section)) {
                 this.section = [...this.section, content.section]
                 elements.push({ id: elements.length + 1, type: "section", value: content.section })
             }
@@ -106,18 +57,26 @@ export default class BookViewClass extends React.Component {
             }
             elements.push({ id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
             return elements
-    
+
         }, []);
     }
+
     async getBookContent([bookId, index]) {
-        const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?lteIndex=${((index + 1) * 250)}&gteIndex=${(index * 250)}`);
+        console.log({ bookId, index });
+
+        const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?lteIndex=${index + DefaultScrollSize}&gteIndex=${index}`);
         return data || [];
     }
+
     async fetchMore() {
-        const content = await this.getBookContent([this.props.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar));
-        console.log({ content });
-        this.setState({ data: [...this.state.data, ...content], index: this.state.index + 1 })
+        console.log(this.state.loading);
+        if (this.state.loading) {
+            const content = await this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar))
+            this.setState({ data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
+        }
+
     }
+
     renderItem({ item, index }) {
         return (
             <View key={index} >
@@ -125,8 +84,9 @@ export default class BookViewClass extends React.Component {
             </View>
         )
     }
+
     renderText(item, index) {
-        const { styles } = this;
+        const styles = getStyles(this.state.textSize);
         const { exegesis } = this.props;
         if (item.type === 'bookName') {
             return <Text selectable style={styles.book}>{item.value}</Text>
@@ -141,7 +101,7 @@ export default class BookViewClass extends React.Component {
             let grayText = false;
             let boldText = false;
             return <View key={Math.random()} selectable style={styles.pasokContainer}>
-                <Text selectable key={Math.random()} style={styles.pasok}>{item.index} </Text>
+                <Text selectable key={Math.random()} style={styles.pasok}>{item.index}</Text>
                 {item.value.split(' ').map(((splitContent, index) => {
                     if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                         grayText = true;
@@ -170,29 +130,97 @@ export default class BookViewClass extends React.Component {
         }
         return <></>
     }
+
     render() {
-        console.log(this.state.data);
+
+        const styles = getStyles(this.state.textSize);
         return (
             <Background>
-                <FlatList
-
-                    onEndReachedThreshold={0.5 }
-                    onEndReached={this.fetchMore.bind(this)}
-                    getItemLayout={(data, index) => {
-                        return { length: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5, offset: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5 * index, index }
-                    }}
+                {this.state.data.length && <FlatList
+                    onEndReachedThreshold={0.9}
+                    onEndReached={() => {   this.setState({ loading: true }, () => this.fetchMore()); }}
                     keyExtractor={(date, index) => String(index)}
-                    style={this.styles.view}
+                    style={styles.view}
+                    refreshing={this.state.loading}
                     data={this.state.data}
-                    renderItem={this.renderItem.bind(this)} />
-
-
-
+                    renderItem={this.renderItem.bind(this)} />}
             </Background>
         )
     }
 }
 
+
+const getStyles = (textSize) => {
+    return StyleSheet.create({
+        view: {
+            width: '100%',
+            padding: 25
+        },
+        spinnerContainer: {
+            height: 100,
+            width: "100%",
+            justifyContent: 'center',
+            alignItems: "center",
+        },
+        book: {
+            color: '#11AFC2',
+            fontFamily: "OpenSansHebrewBold",
+            textAlign: 'center',
+            padding: 8,
+            fontSize: 24 + (textSize * 50)
+        },
+        parsa: {
+            color: '#455253',
+            fontFamily: "OpenSansHebrewBold",
+            textAlign: 'right',
+            fontSize: 22 + (textSize * 50),
+            paddingVertical: 8
+        },
+        chapter: {
+            color: '#11AFC2',
+            fontFamily: "OpenSansHebrewBold",
+            textAlign: 'right',
+            fontSize: 21 + (textSize * 50),
+            paddingVertical: 10
+        },
+        pasok: {
+            color: '#455253',
+            fontFamily: "OpenSansHebrewBold",
+            textAlign: 'right',
+            fontSize: 20 + (textSize * 50),
+        },
+        pasokContentBold: {
+            color: '#455253',
+            fontFamily: "Arial,Helvetica Neue,Helvetica,sans-serif",
+            textAlign: 'right',
+            fontSize: 21 + (textSize * 50),
+        },
+        pasokLink: {
+            color: '#11AFC2',
+            fontFamily: "Arial,Helvetica Neue,Helvetica,sans-serif",
+            textAlign: 'right',
+            alignSelf: 'center',
+            fontSize: 12 + (textSize * 50),
+        },
+        pasokContentGray: {
+            color: '#CBD4D3',
+            fontFamily: "Arial,Helvetica Neue,Helvetica,sans-serif",
+            textAlign: 'right',
+            fontSize: 17 + (textSize * 50),
+        },
+        pasokContent: {
+            color: '#455253',
+            fontFamily: "Arial,Helvetica Neue,Helvetica,sans-serif",
+            textAlign: 'right',
+            fontSize: 20 + (textSize * 50),
+        },
+        pasokContainer: {
+            flexWrap: 'wrap',
+            flexDirection: 'row-reverse',
+
+        }
+    });
+}
 
 export const removeGrammar = (content) => {
     return content.replace(/[^א-ת\s,;.-]/g, '')
