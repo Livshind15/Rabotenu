@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Tabs from '../../component/tabs/tabs'
-import BookView from '../bookView/bookView'
+import BookView, { bookToElements } from '../bookView/bookView'
 import BookList from '../bookList/bookList';
 import { useAsync } from "react-async";
 import axios from "axios";
@@ -10,6 +10,8 @@ import config from "../../config/config";
 import BookDisplay from '../bookDisplay/bookDisplay';
 import Copy from '../copy/copy';
 import BookMenu from '../../component/bookMenu/bookMenu';
+import BookViewTest from '../bookView/bookViewTest';
+import BookViewClass from '../bookView/bookViewClass';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
@@ -22,7 +24,7 @@ const getBookTree = async ([booksIds]) => {
 
 
 const getBookContent = async ([bookId, index]) => {
-    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}`);
+    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?lteIndex=${((index + 1) * 50)}&gteIndex=${(index * 50)}`);
     return data || [];
 }
 
@@ -44,24 +46,38 @@ const BookNavigator = ({ navigation, route }) => {
     const [initChapter, setChapter] = React.useState(selectedChapter || '');
     const [tree, setTree] = React.useState([])
     const [index, setIndex] = React.useState(0);
-    const onBookContentResolved = (data) => { setBookContent([...data]) }
+    const [refreshing, setRefreshing] = React.useState(false);
+    const onBookContentResolved = React.useCallback((data) => {
+        setBookContent([...bookContent, ...data])
+        setRefreshing(false);
+    },[bookContent])
     const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
 
     React.useEffect(() => {
-        run(currBook || '', index);
-        // setIndex(index + 1)
-    }, [currBook])
+        setIndex(0)
+        run(currBook, index);
+    }, [])
     const subBooks = useAsync({ deferFn: getSubBooks })
     React.useEffect(() => {
         subBooks.run(currBook)
     }, [currBook])
+    React.useEffect(() => {
+        run(currBook, index);
+    }, [index])
 
 
     const treeFunc = useAsync({ deferFn: getBookTree, onResolve: setTree, booksIds })
     React.useEffect(() => {
         treeFunc.run(booksIds);
     }, [booksIds])
-    const bookView = (props) => <BookView fetchMore={() => { }} setMount={setBookListMount}  {...props} startChapter={initChapter} textSize={textSize} exegesis={exegesis} grammar={grammar} bookContent={bookContent} isPending={isPending} />
+
+    const bookView =  React.useCallback((props) => {
+        return <BookViewClass index={index} bookId={currBook} refreshing={refreshing} fetchMore={() => {
+            setRefreshing(true);
+            setIndex(index + 1)
+        }} setMount={setBookListMount}  {...props} startChapter={initChapter} textSize={textSize} exegesis={exegesis} grammar={grammar} bookContent={bookContent} isPending={false} />
+    }, [bookContent])
+
     const bookList = (props) => <BookList onSelectBook={(book) => {
         if (!booksIds.includes(book)) {
             setBooksIds([...booksIds, book])
@@ -69,86 +85,86 @@ const BookNavigator = ({ navigation, route }) => {
         setChapter('')
         setCurrBook(book)
     }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree || {}} isPending={treeFunc.isPending} />
-    const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
-        setTextSide(textSize);
-        setGrammar(grammar);
-        setExegesis(exegesis);
-        setFlavors(flavors);
-    }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
-    const bookCopy = (props) => <Copy {...props} onSave={() => { }}></Copy>
-    const bookMenu = (props) => <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book) => {
-        setChapter('')
-        if (!booksIds.includes(book)) {
-            setBooksIds([...booksIds, book])
-        }
-        setCurrBook(book)
-    }} bookId={currBook}></BookMenu>
+        const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
+            setTextSide(textSize);
+            setGrammar(grammar);
+            setExegesis(exegesis);
+            setFlavors(flavors);
+        }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
+        const bookCopy = (props) => <Copy {...props} onSave={() => { }}></Copy>
+        const bookMenu = (props) => <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book) => {
+            setChapter('')
+            if (!booksIds.includes(book)) {
+                setBooksIds([...booksIds, book])
+            }
+            setCurrBook(book)
+        }} bookId={currBook}></BookMenu>
 
-    return (
-        <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
-            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount ? bookCopy : View } />
-            <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
-            <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
-            <Screen name='BookList' options={{ title: 'רבותינו' }} component={bookList} />
-            <Screen name='View' options={{ title: 'רבותינו' }} component={bookView} />
-        </Navigator>
-    )
-}
-
-const TopTabBar = ({ navigation, state }) => (
-    <View style={styles.tabs}>
-        <Tabs selectedIndex={state.index} onSelect={index => navigation.navigate(state.routeNames[index])}>
-            <HeaderButton>העתקה</HeaderButton>
-            <HeaderButton>תפריטי קשר</HeaderButton>
-            <HeaderButton>הגדרות תצוגה</HeaderButton>
-            <HeaderButton>רשימת ספרים</HeaderButton>
-        </Tabs>
-    </View>
-);
-
-const HeaderButton = ({ children, isSelected, onPress }) => (
-    <TouchableOpacity onPress={onPress} style={styles.tab} underlayColor="#ffffff00">
-        <View style={[styles.tabLabel, isSelected ? styles.tabLabelSelect : {}]}>
-            <Text style={[styles.text, isSelected ? styles.textSelect : {}]}>{children}</Text>
-        </View>
-    </TouchableOpacity>
-
-)
-
-
-const styles = StyleSheet.create({
-    tab: {
-        flex: 1,
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#CBD4D3',
-        borderWidth: 1,
-        borderColor: '#F0F0F0'
-    },
-    tabLabelSelect: {
-        backgroundColor: '#504F4F'
-    },
-    textSelect: {
-        color: '#A8AEAD',
-    },
-    text: {
-        color: '#727575',
-        fontFamily: "OpenSansHebrew",
-        textAlign: 'center',
-        fontSize: 16,
-    },
-    tabLabel: {
-        width: '100%',
-        height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#CBD4D3'
-    },
-    tabs: {
-        height: 50,
-        width: '100%'
+        return (
+            <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
+                <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount ? bookCopy : View} />
+                <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
+                <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
+                <Screen name='BookList' options={{ title: 'רבותינו' }} component={bookList} />
+                <Screen name='View' options={{ title: 'רבותינו' }} component={bookView} />
+            </Navigator>
+        )
     }
-});
 
-export default BookNavigator;
+    const TopTabBar = ({ navigation, state }) => (
+        <View style={styles.tabs}>
+            <Tabs selectedIndex={state.index} onSelect={index => navigation.navigate(state.routeNames[index])}>
+                <HeaderButton>העתקה</HeaderButton>
+                <HeaderButton>תפריטי קשר</HeaderButton>
+                <HeaderButton>הגדרות תצוגה</HeaderButton>
+                <HeaderButton>רשימת ספרים</HeaderButton>
+            </Tabs>
+        </View>
+    );
+
+    const HeaderButton = ({ children, isSelected, onPress }) => (
+        <TouchableOpacity onPress={onPress} style={styles.tab} underlayColor="#ffffff00">
+            <View style={[styles.tabLabel, isSelected ? styles.tabLabelSelect : {}]}>
+                <Text style={[styles.text, isSelected ? styles.textSelect : {}]}>{children}</Text>
+            </View>
+        </TouchableOpacity>
+
+    )
+
+
+    const styles = StyleSheet.create({
+        tab: {
+            flex: 1,
+            width: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#CBD4D3',
+            borderWidth: 1,
+            borderColor: '#F0F0F0'
+        },
+        tabLabelSelect: {
+            backgroundColor: '#504F4F'
+        },
+        textSelect: {
+            color: '#A8AEAD',
+        },
+        text: {
+            color: '#727575',
+            fontFamily: "OpenSansHebrew",
+            textAlign: 'center',
+            fontSize: 16,
+        },
+        tabLabel: {
+            width: '100%',
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#CBD4D3'
+        },
+        tabs: {
+            height: 50,
+            width: '100%'
+        }
+    });
+
+    export default BookNavigator;

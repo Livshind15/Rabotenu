@@ -1,14 +1,16 @@
 import * as React from 'react';
 import Background from '../../component/background/background';
 import { Spinner } from '@ui-kitten/components';
-import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native';
+import { View, FlatList,ListView, StyleSheet, Dimensions, Text } from 'react-native';
+import InfiniteScrollView from 'react-native-infinite-scroll-view';
+import { RecyclerListView, DataProvider,LayoutProvider } from 'recyclerlistview';
 
 import { delay } from '../../utils/helpers';
 import { TextInput } from 'react-native-gesture-handler';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 
-const bookToElements = (bookContent, grammar) => {
+export const bookToElements = (bookContent, grammar) => {
   let bookName = [];
   let section = [];
   let chapter = '';
@@ -40,7 +42,13 @@ const SelectText = ({ style, children }) => (
     style={style} />
 )
 
-function BookView({ textSize,exegesis, grammar, fetchMore, setMount, bookContent, startChapter, isPending }) {
+const dataProvider = new DataProvider((r1, r2) => {
+  console.log(r1, r2);
+  return r1.id !== r2.id;
+})
+
+function BookView({ textSize, exegesis, grammar, index, fetchMore, refreshing, setMount, bookContent, startChapter, isPending }) {
+  const [data,setData] = React.useState()
   const styles = StyleSheet.create({
     view: {
       width: '100%',
@@ -111,18 +119,18 @@ function BookView({ textSize,exegesis, grammar, fetchMore, setMount, bookContent
     }
   });
   const flatListRef = React.useRef();
-  const [layoutMap, setLayout] = React.useState([]);
-  const [data, setData] = React.useState(bookToElements(bookContent, grammar))
-  React.useEffect(() => {
-    setData(bookToElements(bookContent, grammar))
-  }, [bookContent])
 
   React.useEffect(() => {
     delay(1000).then(() => {
       setMount(true)
     })
   }, [])
-
+  React.useEffect(() => {
+    console.log(bookContent);
+    setData(dataProvider.cloneWithRows(
+      bookToElements( bookContent,grammar)
+    ))
+  }, [bookContent])
 
   const renderText = (item, index) => {
     if (item.type === 'bookName') {
@@ -173,50 +181,69 @@ function BookView({ textSize,exegesis, grammar, fetchMore, setMount, bookContent
     return <></>
   }
 
-  React.useEffect(
-    () => {
-      const index = data.findIndex((item) => item.type === 'chapter' && item.value === startChapter);
-      if (index !== -1 && flatListRef.current && flatListRef.current.scrollToIndex) {
-        flatListRef.current.scrollToIndex({
-          animated: false,
-          index: index
-        });
-      }
-    }
-    , [startChapter])
+  // React.useEffect(
+  //   () => {
+  //     const index = data.findIndex((item) => item.type === 'chapter' && item.value === startChapter);
+  //     if (index !== -1 && flatListRef.current && flatListRef.current.scrollToIndex) {
+  //       flatListRef.current.scrollToIndex({
+  //         animated: false,
+  //         index: index
+  //       });
+  //     }
+  //   }
+  //   , [startChapter])
 
   return (
 
     <Background>
-      {isPending ? <View style={styles.spinnerContainer}>
-        <Spinner />
-      </View> : <FlatList
-          keyExtractor={(key,index)=> index.toString()}
-          initialNumToRender={7}
-          onEndReached={fetchMore}
-          onEndReachedThreshold={0.5}
-          onScrollToIndexFailed={() => { }}
-          getItemLayout={(data, index) => {
-            return { length: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5, offset: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5 * index, index }
-          }}
+      {/* <FlatList
 
-          ref={flatListRef} style={styles.view} data={data} renderItem={({ item, index }) => {
-            return (<View key={index} onLayout={({ nativeEvent: { layout } }) => {
-              // const newLayout = layoutMap;
-              // newLayout[index] = layout;
-              // setLayout([...newLayout])
+refreshing={x}
+        onEndReachedThreshold={0.9}
+        onEndReached={() => {
+          console.log('aaa');
+          setX(true)
 
-            }}>
-              {renderText(item, index)}
-            </View>)
+          fetchMore()
+        }
+        }
+        getItemLayout={(data, index) => {
+          return { length: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5, offset: (5 - Dimensions.get('window').width / Dimensions.get('window').height) * 15.5 * index, index }
+        }}
+        renderScrollComponent={props => <InfiniteScrollView {...props} />}
 
-          }} />}
+        ref={flatListRef}
+        keyExtractor={(date, index) => String(index)}
+        style={styles.view}
+        data={bookToElements(bookContent)} renderItem={renderItem} /> */}
+  <RecyclerListView
+             style={{ flex: 1 }}
+             contentContainerStyle={{ margin: 3 }}
+             onEndReached={fetchMore}
+             renderAheadOffset={0}
 
+             dataProvider={data}
+             layoutProvider={ new LayoutProvider(
+              index => {
+                  return index;
+              },
+              (type, dimension) => {
+                  dimension.height = 100;
+                  dimension.width = 360;
+              }
+          )}
+             rowRenderer={renderItem}
+            />
 
     </Background>
   )
 }
 
+const renderItem = ({ item, index }) => {
+  return (
+    <Text>aaaaa</Text>
+  )
+}
 
 
 export const removeGrammar = (content) => {
@@ -224,6 +251,7 @@ export const removeGrammar = (content) => {
 }
 
 export const removeTag = (content) => {
+
   return content.replace(RegExp('<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>'), '')
 }
 
@@ -235,4 +263,4 @@ export const removeBoldTag = (content) => {
   return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')
 }
 
-export default optimizeHeavyScreen(BookView,PlaceHolder);
+export default BookView

@@ -91,4 +91,4 @@ const styles = StyleSheet.create({
     }
 });
 
- export default  optimizeHeavyScreen(ExploreTreeView,PlaceHolder);
+ export default  ExploreTreeView;

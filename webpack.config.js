@@ -52,6 +52,7 @@ module.exports = async function (env, argv) {
             return rule;
         }
     });
+    
     config.module.rules.push({
         test: /postMock.html$/,
         use: {
