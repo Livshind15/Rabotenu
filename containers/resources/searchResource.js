@@ -50,7 +50,6 @@ const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll,editPara
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }} onPress={onRemoveAll}>נקה הכל</ClickButton></View>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }} onPress={() => {
                             navigation.navigate('groupResource', { screen: 'edit',params:editParams });
-
                         }}>הגדר קבוצה חדשה</ClickButton></View>
                     </View>
                 </View>

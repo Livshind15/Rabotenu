@@ -13,6 +13,7 @@ import axios from "axios";
 import ErrorModel from '../../component/modalError/modalError';
 import { flatten, isEqual, difference } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
+import { SearchContext } from '../../contexts/searchContext';
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
@@ -97,11 +98,9 @@ export const addCheckForResources = (resources, check) => {
 const Resources = ({ navigation }) => {
     const [allResourceToggle, setResourceToggle] = React.useState(true);
     const { data, error, isPending } = useAsync({ promiseFn: getGroups })
-
-    const [resources, setResources] = React.useState([]);
+    const { setResourcesGroups, resourcesGroups, resources, setResources } = React.useContext(SearchContext);
     const [showErrorModel, setShowErrorModel] = React.useState(false);
     const [selectedGroup, setSelectedGroup] = React.useState('');
-    const [groups, setGroups] = React.useState({});
 
     React.useEffect(() => {
         if (error) {
@@ -130,8 +129,8 @@ const Resources = ({ navigation }) => {
     }, [resources]);
 
     React.useEffect(() => {
-        if (!selectedGroup.length && groups[selectedGroup]) {
-            setGroups({ ...{ ...groups, [selectedGroup]: { groupName: groups[selectedGroup].groupName, resources: resources } } });
+        if (!selectedGroup.length && resourcesGroups[selectedGroup]) {
+            setResourcesGroups({ ...{ ...resourcesGroups, [selectedGroup]: { groupName: resourcesGroups[selectedGroup].groupName, resources: resources } } });
         }
     }, [resources]);
 
@@ -144,7 +143,7 @@ const Resources = ({ navigation }) => {
     const resourcesSearch = (props) => <ResourcesSearch editParams={{
         edit: true, resources: resources, groupName: "", onSave: ({ resources, groupName, groupId }) => {
 
-            setGroups({ ...groups, [groupId]: { groupName, resources: resources } });
+            setResourcesGroups({ ...resourcesGroups, [groupId]: { groupName, resources: resources } });
 
             setResources(resources)
             setSelectedGroup(groupId)
@@ -158,20 +157,20 @@ const Resources = ({ navigation }) => {
     }} {...props} resources={getAllBooksFromGroups(resources)}
     />
 
-    const resourcesGroups = (props) => <ResourcesGroups onSave={({ resources, groupName, groupId }) => {
+    const resourcesGroupsView = (props) => <ResourcesGroups onSave={({ resources, groupName, groupId }) => {
 
-        setGroups({ ...groups, [groupId]: { groupName, resources: resources } });
+        setResourcesGroups({ ...resourcesGroups, [groupId]: { groupName, resources: resources } });
 
         setResources(resources)
         setSelectedGroup(groupId)
 
-    }} currResources={resources} groups={groups} removeGroup={(id) => {
-        const newGroups = groups;
+    }} currResources={resources} groups={resourcesGroups} removeGroup={(id) => {
+        const newGroups = resourcesGroups;
         delete newGroups[id]
-        setGroups({ ...newGroups })
+        setResourcesGroups({ ...newGroups })
     }} selectedGroup={selectedGroup} onGroupSelect={(id) => {
         setSelectedGroup(id);
-        setResources(groups[id].resources)
+        setResources(resourcesGroups[id].resources)
 
     }} {...props} />
 
@@ -188,7 +187,7 @@ const Resources = ({ navigation }) => {
                     </View>
                     <View style={styles.body}>
                         <Navigator initialRouteName='SearchResource' tabBar={props => <TopTabBar {...props} />}>
-                            <Screen name='groupResource' component={resourcesGroups} />
+                            <Screen name='groupResource' component={resourcesGroupsView} />
                             <Screen name='SearchResource' component={resourcesSearch} />
                             <Screen name='TreeResource' component={resourcesTreeView} />
                         </Navigator>

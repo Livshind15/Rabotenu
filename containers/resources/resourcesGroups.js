@@ -11,8 +11,8 @@ import GroupEdit from './groupEdit';
 const Stack = createStackNavigator();
 
 
-const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, currResources, onSave,removeGroup }) => {
-    
+const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, currResources, onSave, removeGroup }) => {
+
     return (
         <Background>
             <View style={styles.page}>
@@ -34,11 +34,11 @@ const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, cur
 
                                 <View style={styles.resourceContainerEnd} >
                                     <TouchableOpacity onPress={() => {
-                                        navigation.push('edit', { edit: false, resources: groups[groupId].resources, groupName: groups[groupId].groupName,groupId, onSave: onSave })
+                                        navigation.push('edit', { edit: false, resources: groups[groupId].resources, groupName: groups[groupId].groupName, groupId, onSave: onSave })
                                     }} underlayColor="#ffffff00">
                                         <IconEvilIcons color={'#B4B4B4'} name={'pencil'} size={40}></IconEvilIcons>
                                     </TouchableOpacity>
-                                    <TouchableOpacity  underlayColor="#ffffff00">
+                                    <TouchableOpacity underlayColor="#ffffff00">
                                         <Text onPress={() => onGroupSelect(groupId)} style={[styles.viewText, groupId !== selectedGroup ? styles.viewTextDisable : '']}>{"בחר"}</Text>
                                     </TouchableOpacity>
 

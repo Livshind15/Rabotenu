@@ -70,10 +70,10 @@ const SearchView = ({ navigation, route }) => {
                                         {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
                                         {content.map(splitContent => {
                                             if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
-                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
+                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{' ' + splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text></>
                                             }
                                             if (RegExp(`<\s*/\s*em>(.*?)<\s*em[^>]*>`).test(splitContent)) {
-                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{splitContent.match(/<\/em>(.*?)<em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
+                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{splitContent.match(/<\/em>(.*?)<em>/g).map((val) => val.replace(/<\/?em>/g, '').trim()) }</Text></>
                                             }
                                             if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                                                 grayText = true;
