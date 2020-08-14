@@ -33,7 +33,7 @@ export default function App() {
   }, [fontsLoaded, isDelay]);
   setTimeout(() => {
     setDelay(true)
-  }, 500);
+  }, 1500);
 
  
   return (

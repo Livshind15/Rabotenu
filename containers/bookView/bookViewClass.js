@@ -160,6 +160,7 @@ class Item extends React.Component {
         if (item.type === 'verse') {
             let grayText = false;
             let boldText = false;
+            let smallText = false;
             return <TouchableOpacity onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
                 <Text key={Math.random()} style={styles.pasok}>{item.index}</Text>
 
@@ -173,6 +174,16 @@ class Item extends React.Component {
                     }
                     if (grayText) {
                         return <Text key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
+                    }
+                    if (RegExp(`<\s*קטן[^>]*>(.*?)`).test(splitContent)) {
+                        smallText = true;
+                    }
+                    if (RegExp(`(.*?)<\s*/\s*קטן>`).test(splitContent)) {
+                        smallText = false;
+                        return <Text key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>
+                    }
+                    if (smallText) {
+                        return <Text key={Math.random()} style={styles.pasokContentSmall}>{removeBoldTag(removeSmallTag(splitContent))}</Text>
                     }
                     if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
                         boldText = true;
@@ -246,6 +257,12 @@ const getStyles = (textSize) => {
             alignSelf: 'center',
             fontSize: 12 + (textSize * 50),
         },
+        pasokContentSmall:{
+            color: '#455253',
+            fontFamily: "Hebrew",
+            textAlign: 'right',
+            fontSize: 14 + (textSize * 50),
+        },
         pasokContentGray: {
             color: '#CBD4D3',
             fontFamily: "Hebrew",
@@ -260,6 +277,8 @@ const getStyles = (textSize) => {
         },
         pasokContainer: {
             flexWrap: 'wrap',
+            alignItems: 'center',
+             justifyContent: 'flex-start',
             flexDirection: 'row-reverse',
 
         },
@@ -282,7 +301,9 @@ export const removeTag = (content) => {
 export const removeGrayTag = (content) => {
     return content.replace(new RegExp(/<.כתיב./, 'g'), '').replace(/<\/?כתיב>/g, '')
 }
-
+export const removeSmallTag = (content) => {
+    return content.replace(new RegExp(/<.קטן./, 'g'), '').replace(/<\/?קטן>/g, '')
+}
 export const removeBoldTag = (content) => {
     return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')
 }
