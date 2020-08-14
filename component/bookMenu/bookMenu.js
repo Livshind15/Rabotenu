@@ -11,24 +11,22 @@ import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../placeHolder/placeHolder';
 
 const BookMenu = ({ data, onBookSelect, navigation,isPending }) => {
-
-
     return (
         <Background>
 
             <View style={styles.page}>
-                {!isPending && data ? <ScrollView style={styles.pageScroll}>
-                    <Accordian header={'מפרשים'} >
-                        {flatten(data.map((item, key) => (
-                            (item || []).map((book, index) => (
+                {!isPending && data  && data.child? <ScrollView style={styles.pageScroll}>
+                    <Accordian initExpanded={true}  header={'מפרשים'} >
+                        {flatten(data.child.map((item, key) => (
+                         
                                 <TouchableOpacity onPress={() => {
-                                    onBookSelect(book.bookId)
+                                    onBookSelect(item.bookId,data.info)
                                     navigation.navigate('View')
                                 }} key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
-                                    <Text style={styles.resultText}>{book.groupName}</Text>
+                                    <Text style={styles.resultText}>{item.groupName.replace('_','"')}</Text>
                                     <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
                                 </TouchableOpacity>
-                            )))))}
+                            )))}
 
                     </Accordian>
                 </ScrollView> : <View style={styles.spinnerContainer}>

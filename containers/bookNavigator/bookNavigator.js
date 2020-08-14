@@ -24,15 +24,36 @@ const getBookTree = async ([booksIds]) => {
     return data || [];
 }
 
-
-const getBookContent = async ([bookId, index]) => {
-    const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?lteIndex=${((index + 1) * 50)}&gteIndex=${(index * 50)}`);
-    return data || [];
-}
-
-const getSubBooks = async ([bookId]) => {
-    const { data } = await axios.get(`${config.serverUrl}/mapping/groups/childBooks/${bookId}`);
-    return data || [];
+const getSubBooks = async ([bookId, section, chapter, verse]) => {
+    let url = `${config.serverUrl}/mapping/groups/childBooks/${bookId}`;
+    let params = '';
+    console.log(bookId, section, chapter, verse);
+    if (section) {
+        if (params.length) {
+            params += `&section=${section}`
+        }
+        else {
+            params += `?section=${section}`
+        }
+    }
+    if (chapter) {
+        if (params.length) {
+            params += `&chapter=${chapter}`
+        }
+        else {
+            params += `?chapter=${chapter}`
+        }
+    }
+    if (verse) {
+        if (params.length) {
+            params += `&verse=${verse}`
+        }
+        else {
+            params += `?verse=${verse}`
+        }
+    }
+    const { data } = await axios.get(url + params);
+    return { child: data, info: { section, chapter, verse } } || [];
 }
 
 const BookNavigator = ({ navigation, route }) => {
@@ -52,7 +73,6 @@ const BookNavigator = ({ navigation, route }) => {
     const subBooks = useAsync({ deferFn: getSubBooks })
     React.useEffect(() => {
         subBooks.run(currBook)
-
     }, [currBook])
 
     const treeFunc = useAsync({ deferFn: getBookTree, onResolve: setTree, booksIds })
@@ -68,6 +88,15 @@ const BookNavigator = ({ navigation, route }) => {
             verse={verse}
             section={section}
             chapter={chapter}
+            onTextSelected={(text) => {
+                console.log(text);
+                const { bookId, section, chapter, verse } = text.original;
+                // setChapter(chapter)
+                // setVerse(verse)
+                // setSection(section)
+                subBooks.run(bookId, section, chapter, verse)
+
+            }}
             textSize={textSize}
             exegesis={exegesis}
             grammar={grammar} />
@@ -88,26 +117,30 @@ const BookNavigator = ({ navigation, route }) => {
             isPending={treeFunc.isPending} />
     }, [booksIds, currBook, tree])
     const bookDisplay = React.useCallback((props) => {
-        return  <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
+        return <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
             setTextSide(textSize);
             setGrammar(grammar);
             setExegesis(exegesis);
             setFlavors(flavors);
-        }} setting={{ textSize, grammar, exegesis, flavors }}/>
+        }} setting={{ textSize, grammar, exegesis, flavors }} />
     }, [textSize, grammar, exegesis, flavors])
     const bookCopy = React.useCallback((props) => {
-        return  <Copy {...props} onSave={() => { }}></Copy>
+        return <Copy {...props} onSave={() => { }}></Copy>
     }, [])
     const bookMenu = React.useCallback((props) => {
-        return  <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book) => {
-            setChapter('')
+        return <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book, info) => {
+            const { section, chapter, verse } = info
+            setChapter(chapter)
+            setVerse(verse)
+            setSection(section)
+            console.log(info);
             if (!booksIds.includes(book)) {
                 setBooksIds([...booksIds, book])
             }
             setCurrBook(book)
-        }} bookId={currBook}/>
-    }, [booksIds,currBook,subBooks])
-   
+        }} bookId={currBook} />
+    }, [booksIds, currBook, subBooks])
+
 
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>

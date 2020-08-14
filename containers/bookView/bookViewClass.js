@@ -54,17 +54,17 @@ class BookViewClass extends React.Component {
         return bookContent.reduce((elements, content) => {
             if (!this.bookName.includes(content.bookName)) {
                 this.bookName = [...this.bookName, content.bookName]
-                elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName })
+                elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName,original: content})
             }
             if (!this.section.includes(content.section)) {
                 this.section = [...this.section, content.section]
-                elements.push({ id: elements.length + 1, type: "section", value: content.section })
+                elements.push({ id: elements.length + 1, type: "section", value: content.section,original: content })
             }
             if (this.chapter !== content.chapter) {
                 this.chapter = content.chapter
-                elements.push({ id: elements.length + 1, type: "chapter", value: content.chapter })
+                elements.push({ id: elements.length + 1, type: "chapter", value: content.chapter,original: content })
             }
-            elements.push({ id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
+            elements.push({original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
             return elements
 
         }, []);
@@ -106,7 +106,9 @@ class BookViewClass extends React.Component {
 
     renderItem({ item, index }) {
         return (
-            <Item indexPress={(pressIndex) => { this.setState({ highlightIndex: pressIndex }) }} highlightIndex={this.state.highlightIndex} item={item} styles={this.styles} index={index} textSize={this.props.textSize} exegesis={this.props.exegesis}></Item>
+            <Item indexPress={(pressIndex) => { 
+                this.props.onTextSelected(this.state.data[pressIndex]);
+                this.setState({ highlightIndex: pressIndex }) }} highlightIndex={this.state.highlightIndex} item={item} styles={this.styles} index={index} textSize={this.props.textSize} exegesis={this.props.exegesis}></Item>
         )
     }
 
