@@ -48,26 +48,12 @@ const BookNavigator = ({ navigation, route }) => {
     const [chapter, setChapter] = React.useState(selectedChapter || '');
     const [verse, setVerse] = React.useState('');
     const [section, setSection] = React.useState('');
-    
-    // const onBookContentResolved = React.useCallback((data) => {
-    //     setBookContent([...bookContent, ...data])
-    //     setRefreshing(false);
-    // },[bookContent])
-    // const { error, isPending, run } = useAsync({ deferFn: getBookContent, initialValue: bookContent, onResolve: onBookContentResolved });
 
-    // React.useEffect(() => {
-    //     setIndex(0)
-    //     run(currBook, index);
-    // }, [])
     const subBooks = useAsync({ deferFn: getSubBooks })
     React.useEffect(() => {
         subBooks.run(currBook)
 
     }, [currBook])
-    // React.useEffect(() => {
-    //     run(currBook, index);
-    // }, [index])
-
 
     const treeFunc = useAsync({ deferFn: getBookTree, onResolve: setTree, booksIds })
     React.useEffect(() => {
@@ -85,29 +71,43 @@ const BookNavigator = ({ navigation, route }) => {
             textSize={textSize}
             exegesis={exegesis}
             grammar={grammar} />
-    },[currBook,chapter,textSize,exegesis,grammar])
-
-    const bookList = (props) => <BookList onSelectBook={(book) => {
-        if (!booksIds.includes(book)) {
-            setBooksIds([...booksIds, book])
-        }
-        setChapter('')
-        setCurrBook(book)
-    }} bookId={currBook} {...props} onSelectChapter={setChapter} tree={tree || {}} isPending={treeFunc.isPending} />
-    const bookDisplay = (props) => <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
-        setTextSide(textSize);
-        setGrammar(grammar);
-        setExegesis(exegesis);
-        setFlavors(flavors);
-    }} setting={{ textSize, grammar, exegesis, flavors }}></BookDisplay>
-    const bookCopy = (props) => <Copy {...props} onSave={() => { }}></Copy>
-    const bookMenu = (props) => <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book) => {
-        setChapter('')
-        if (!booksIds.includes(book)) {
-            setBooksIds([...booksIds, book])
-        }
-        setCurrBook(book)
-    }} bookId={currBook}></BookMenu>
+    }, [currBook, chapter, textSize, exegesis, grammar])
+    const bookList = React.useCallback((props) => {
+        return <BookList
+            onSelectBook={(book) => {
+                if (!booksIds.includes(book)) {
+                    setBooksIds([...booksIds, book])
+                }
+                setChapter('')
+                setCurrBook(book)
+            }}
+            bookId={currBook}
+            {...props}
+            onSelectChapter={setChapter}
+            tree={tree || {}}
+            isPending={treeFunc.isPending} />
+    }, [booksIds, currBook, tree])
+    const bookDisplay = React.useCallback((props) => {
+        return  <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
+            setTextSide(textSize);
+            setGrammar(grammar);
+            setExegesis(exegesis);
+            setFlavors(flavors);
+        }} setting={{ textSize, grammar, exegesis, flavors }}/>
+    }, [textSize, grammar, exegesis, flavors])
+    const bookCopy = React.useCallback((props) => {
+        return  <Copy {...props} onSave={() => { }}></Copy>
+    }, [])
+    const bookMenu = React.useCallback((props) => {
+        return  <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book) => {
+            setChapter('')
+            if (!booksIds.includes(book)) {
+                setBooksIds([...booksIds, book])
+            }
+            setCurrBook(book)
+        }} bookId={currBook}/>
+    }, [booksIds,currBook,subBooks])
+   
 
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
@@ -176,4 +176,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default optimizeHeavyScreen(BookNavigator,PlaceHolder);
+export default optimizeHeavyScreen(BookNavigator, PlaceHolder);

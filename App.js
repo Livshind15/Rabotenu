@@ -21,6 +21,8 @@ export default function App() {
   const [fontsLoaded] = useFonts({
     'OpenSansHebrew': require('./assets/fonts/OpenSansHebrew-Regular.ttf'),
     'OpenSansHebrewBold': require('./assets/fonts/OpenSansHebrew-Bold.ttf'),
+    'Hebrew': require('./assets/fonts/hebrew.ttf'),
+
   });
   const [isDelay, setDelay] = React.useState(false)
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Background from '../../component/background/background';
-import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native';
+import { View, FlatList, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
 import axios from "axios";
 import config from "../../config/config";
 import { delay } from '../../utils/helpers';
@@ -18,12 +18,14 @@ class BookViewClass extends React.Component {
 
         this.state = {
             data: [],
-            end:false,
+            end: false,
             index: 0,
             loading: false,
-            bookId: this.props.bookId,
-            textSize: this.props.textSize
+            highlightIndex: null,
+            bookId: this.props.bookId
         }
+        this.styles = getStyles(this.props.textSize);
+
         this.bookName = [];
         this.section = [];
         this.chapter = '';
@@ -38,9 +40,6 @@ class BookViewClass extends React.Component {
     }
 
     async componentWillReceiveProps(nextProps) {
-        if (nextProps.textSize !== this.props.textSize) {
-            this.setState({ textSize: textSize });
-        }
         if (nextProps.section !== this.props.section ||
             nextProps.chapter !== this.props.chapter ||
             nextProps.verse !== this.props.verse ||
@@ -100,85 +99,97 @@ class BookViewClass extends React.Component {
         if (this.state.loading) {
             this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar)).then(content => {
 
-                this.setState({end:!content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
+                this.setState({ end: !content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
         }
     }
 
     renderItem({ item, index }) {
         return (
-            <View key={index} >
-                {this.renderText(item, index)}
-            </View>
+            <Item indexPress={(pressIndex) => { this.setState({ highlightIndex: pressIndex }) }} highlightIndex={this.state.highlightIndex} item={item} styles={this.styles} index={index} textSize={this.props.textSize} exegesis={this.props.exegesis}></Item>
         )
     }
 
-    renderText(item, index) {
-        const styles = getStyles(this.state.textSize);
-        const { exegesis } = this.props;
+
+
+    render() {
+        return (
+            <Background>
+                {this.state.data.length ? <FlatList
+                    onEndReachedThreshold={10}
+                    initialNumToRender={2}
+                    onEndReached={() => {
+                        if (!this.state.end) {
+                            this.setState({ loading: true }, () => this.fetchMore());
+                        }
+                    }}
+                    keyExtractor={(date, index) => String(index)}
+                    style={this.styles.view}
+                    refreshing={this.state.loading}
+                    data={this.state.data}
+                    renderItem={this.renderItem.bind(this)} /> : <View style={this.styles.spinnerContainer}>
+                        <Spinner />
+                    </View>}
+            </Background>
+        )
+    }
+}
+
+class Item extends React.PureComponent {
+    constructor(props) {
+        super(props);
+    }
+    shouldComponentUpdate(nextProps, nextState) {
+        if (nextProps.highlightIndex !== this.props.index && this.props.index !== this.props.highlightIndex) {
+            return false;
+        }
+        return true;
+    }
+
+    render() {
+        const { item, highlightIndex, index, styles, exegesis, indexPress } = this.props;
         if (item.type === 'bookName') {
-            return <Text selectable style={styles.book}>{item.value}</Text>
+            return <Text style={styles.book}>{item.value}</Text>
         }
         if (item.type === 'section') {
-            return <Text selectable style={styles.parsa}>{item.value}</Text>
+            return <Text style={styles.parsa}>{item.value}</Text>
         }
         if (item.type === 'chapter') {
-            return <Text selectable style={styles.chapter}>{item.value}</Text>
+            return <Text style={styles.chapter}>{item.value}</Text>
         }
         if (item.type === 'verse') {
             let grayText = false;
             let boldText = false;
-            return <View key={Math.random()} selectable style={styles.pasokContainer}>
-                <Text selectable key={Math.random()} style={styles.pasok}>{item.index}</Text>
+            return <TouchableOpacity onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
+                <Text key={Math.random()} style={styles.pasok}>{item.index}</Text>
+
                 {item.value.split(' ').map(((splitContent, index) => {
                     if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                         grayText = true;
                     }
                     if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
                         grayText = false;
-                        return <Text selectable key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
+                        return <Text key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
                     }
                     if (grayText) {
-                        return <Text selectable key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
+                        return <Text key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
                     }
                     if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
                         boldText = true;
                     }
                     if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
                         boldText = false;
-                        return <Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
+                        return <Text key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
                     }
                     if (boldText) {
-                        return <Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
+                        return <Text key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
                     }
-                    return <Text selectable key={Math.random()} style={styles.pasokContent}> {splitContent}</Text>
+                    return <Text key={Math.random()} style={styles.pasokContent}> {splitContent}</Text>
                 }))}
-                {item.parsaTag && !exegesis ? <Text selectable key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}
-            </View>
+                {item.parsaTag && !exegesis ? <Text key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}
+            </TouchableOpacity>
         }
         return <></>
-    }
-
-    render() {
-        const styles = getStyles(this.state.textSize);
-        return (
-            <Background>
-                {this.state.data.length ? <FlatList
-                    onEndReachedThreshold={10}
-                    onEndReached={() => { 
-                        if(!this.state.end){
-                            this.setState({ loading: true }, () => this.fetchMore());
-                        }
-                     }}
-                    keyExtractor={(date, index) => String(index)}
-                    style={styles.view}
-                    refreshing={this.state.loading}
-                    data={this.state.data}
-                    renderItem={this.renderItem.bind(this)} />: <View style={styles.spinnerContainer}>
-                    <Spinner />
-                </View>}
-            </Background>
-        )
     }
 }
 
@@ -224,32 +235,36 @@ const getStyles = (textSize) => {
         },
         pasokContentBold: {
             color: '#455253',
-            fontFamily: "Arial,Helvetica Neue,Helvetica,sans-serif",
+            fontFamily: "Hebrew",
             textAlign: 'right',
             fontSize: 21 + (textSize * 50),
         },
         pasokLink: {
             color: '#11AFC2',
-            fontFamily: "Arial,Helvetica Neue,Helvetica,sans-serif",
+            fontFamily: "Hebrew",
             textAlign: 'right',
             alignSelf: 'center',
             fontSize: 12 + (textSize * 50),
         },
         pasokContentGray: {
             color: '#CBD4D3',
-            fontFamily: "Arial,Helvetica Neue,Helvetica,sans-serif",
+            fontFamily: "Hebrew",
             textAlign: 'right',
             fontSize: 17 + (textSize * 50),
         },
         pasokContent: {
             color: '#455253',
-            fontFamily: "Arial,Helvetica Neue,Helvetica,sans-serif",
+            fontFamily: "Hebrew",
             textAlign: 'right',
             fontSize: 20 + (textSize * 50),
         },
         pasokContainer: {
             flexWrap: 'wrap',
             flexDirection: 'row-reverse',
+
+        },
+        pasokContainerHighlight: {
+            backgroundColor: "#11afc02F"
 
         }
     });
@@ -272,4 +287,4 @@ export const removeBoldTag = (content) => {
     return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')
 }
 
-export default optimizeHeavyScreen(BookViewClass,PlaceHolder)
+export default optimizeHeavyScreen(BookViewClass, PlaceHolder)
