@@ -45,6 +45,8 @@
     "modal-enhanced-react-native-web": "^0.2.0",
     "modal-react-native-web": "^0.2.0",
     "nachos-ui": "^0.2.0-beta.1",
+    "preact": "^10.4.7",
+    "preact-responder-event-plugin": "^1.0.16",
     "react": "16.11.0",
     "react-async": "^10.0.1",
     "react-dom": "16.11.0",

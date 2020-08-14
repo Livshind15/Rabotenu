@@ -1,22 +1,23 @@
 {
   "files": {
-    "app.js": "/static/js/app.e2bc500e.chunk.js",
-    "app.js.map": "/static/js/app.e2bc500e.chunk.js.map",
+    "app.js": "/static/js/app.d2bc6f88.chunk.js",
+    "app.js.map": "/static/js/app.d2bc6f88.chunk.js.map",
     "runtime~app.js": "/static/js/runtime~app.2e9f1821.js",
     "runtime~app.js.map": "/static/js/runtime~app.2e9f1821.js.map",
-    "static/js/2.43cca4c9.chunk.js": "/static/js/2.43cca4c9.chunk.js",
-    "static/js/2.43cca4c9.chunk.js.map": "/static/js/2.43cca4c9.chunk.js.map",
+    "static/js/2.0ec97b9f.chunk.js": "/static/js/2.0ec97b9f.chunk.js",
+    "static/js/2.0ec97b9f.chunk.js.map": "/static/js/2.0ec97b9f.chunk.js.map",
     "fonts/AntDesign.ttf": "/./fonts/AntDesign.ttf",
     "fonts/Entypo.ttf": "/./fonts/Entypo.ttf",
     "fonts/Feather.ttf": "/./fonts/Feather.ttf",
     "fonts/MaterialIcons.ttf": "/./fonts/MaterialIcons.ttf",
+    "fonts/hebrew.ttf": "/./fonts/hebrew.ttf",
     "favicon-16.png": "/favicon-16.png",
     "favicon-32.png": "/favicon-32.png",
     "favicon.ico": "/favicon.ico",
     "index.html": "/index.html",
     "manifest.json": "/manifest.json",
     "serve.json": "/serve.json",
-    "static/js/2.43cca4c9.chunk.js.LICENSE.txt": "/static/js/2.43cca4c9.chunk.js.LICENSE.txt",
+    "static/js/2.0ec97b9f.chunk.js.LICENSE.txt": "/static/js/2.0ec97b9f.chunk.js.LICENSE.txt",
     "static/media/back-icon-mask.png": "/static/media/back-icon-mask.fae3c934.png",
     "static/media/back-icon.png": "/static/media/back-icon.c733a880.png",
     "static/media/background.png": "/static/media/background.d5efb26b.png",
@@ -25,7 +26,7 @@
   },
   "entrypoints": [
     "static/js/runtime~app.2e9f1821.js",
-    "static/js/2.43cca4c9.chunk.js",
-    "static/js/app.e2bc500e.chunk.js"
+    "static/js/2.0ec97b9f.chunk.js",
+    "static/js/app.d2bc6f88.chunk.js"
   ]
 }
