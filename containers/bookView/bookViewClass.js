@@ -4,16 +4,21 @@ import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native';
 import axios from "axios";
 import config from "../../config/config";
 import { delay } from '../../utils/helpers';
+import { isEmpty } from 'lodash';
+import { Spinner } from '@ui-kitten/components';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 
 const DefaultScrollSize = 250;
 
-export default class BookViewClass extends React.Component {
+class BookViewClass extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             data: [],
+            end:false,
             index: 0,
             loading: false,
             bookId: this.props.bookId,
@@ -25,20 +30,25 @@ export default class BookViewClass extends React.Component {
     }
 
     async componentDidMount() {
-
         delay(1000).then(() => {
             this.props.setMount(true)
         })
-        this.setState({ loading: true }, () => this.fetchMore());
+        const index = await this.getContentIndex(this.props.bookId, this.props.section, this.props.chapter, this.props.verse);
+        this.setState({ loading: true, index: index }, () => this.fetchMore());
     }
 
-    componentWillReceiveProps(nextProps) {
+    async componentWillReceiveProps(nextProps) {
         if (nextProps.textSize !== this.props.textSize) {
             this.setState({ textSize: textSize });
         }
-        if (nextProps.bookId !== this.props.bookId) {
-            this.setState({ bookId: bookId, index: 0 });
+        if (nextProps.section !== this.props.section ||
+            nextProps.chapter !== this.props.chapter ||
+            nextProps.verse !== this.props.verse ||
+            nextProps.bookId !== this.props.bookId) {
+            const index = await this.getContentIndex(nextProps.bookId, nextProps.section, nextProps.chapter, nextProps.verse);
+            this.setState({ bookId: nextProps.bookId, loading: true, index: index }, () => this.fetchMore());
         }
+
     }
 
     bookToElements(bookContent, grammar) {
@@ -68,13 +78,31 @@ export default class BookViewClass extends React.Component {
         return data || [];
     }
 
-    async fetchMore() {
-        console.log(this.state.loading);
-        if (this.state.loading) {
-            const content = await this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar))
-            this.setState({ data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
+    async getContentIndex(bookId, section, chapter, verse) {
+        let url = `${config.serverUrl}/book/content/${bookId}?size=1`;
+        if (section) {
+            url += `&section=${section}`
         }
+        if (chapter) {
+            url += `&chapter=${chapter}`
+        }
+        if (verse) {
+            url += `&verse=${verse}`
+        }
+        const { data } = await axios.get(url);
+        if (isEmpty(data)) {
+            return 0;
+        }
+        return data[0].index || 0
+    }
 
+    async fetchMore() {
+        if (this.state.loading) {
+            this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar)).then(content => {
+
+                this.setState({end:!content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
+            })
+        }
     }
 
     renderItem({ item, index }) {
@@ -132,18 +160,23 @@ export default class BookViewClass extends React.Component {
     }
 
     render() {
-
         const styles = getStyles(this.state.textSize);
         return (
             <Background>
-                {this.state.data.length && <FlatList
-                    onEndReachedThreshold={0.9}
-                    onEndReached={() => {   this.setState({ loading: true }, () => this.fetchMore()); }}
+                {this.state.data.length ? <FlatList
+                    onEndReachedThreshold={10}
+                    onEndReached={() => { 
+                        if(!this.state.end){
+                            this.setState({ loading: true }, () => this.fetchMore());
+                        }
+                     }}
                     keyExtractor={(date, index) => String(index)}
                     style={styles.view}
                     refreshing={this.state.loading}
                     data={this.state.data}
-                    renderItem={this.renderItem.bind(this)} />}
+                    renderItem={this.renderItem.bind(this)} />: <View style={styles.spinnerContainer}>
+                    <Spinner />
+                </View>}
             </Background>
         )
     }
@@ -239,3 +272,4 @@ export const removeBoldTag = (content) => {
     return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')
 }
 
+export default optimizeHeavyScreen(BookViewClass,PlaceHolder)

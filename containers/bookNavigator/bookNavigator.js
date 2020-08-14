@@ -12,6 +12,8 @@ import Copy from '../copy/copy';
 import BookMenu from '../../component/bookMenu/bookMenu';
 import BookViewTest from '../bookView/bookViewTest';
 import BookViewClass from '../bookView/bookViewClass';
+import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
@@ -41,12 +43,12 @@ const BookNavigator = ({ navigation, route }) => {
     const [grammar, setGrammar] = React.useState(false);
     const [exegesis, setExegesis] = React.useState(false);
     const [flavors, setFlavors] = React.useState(true);
-    const [bookContent, setBookContent] = React.useState([]);
     const [bookListMount, setBookListMount] = React.useState(false);
-    const [initChapter, setChapter] = React.useState(selectedChapter || '');
     const [tree, setTree] = React.useState([])
-    const [index, setIndex] = React.useState(0);
-    const [refreshing, setRefreshing] = React.useState(false);
+    const [chapter, setChapter] = React.useState(selectedChapter || '');
+    const [verse, setVerse] = React.useState('');
+    const [section, setSection] = React.useState('');
+    
     // const onBookContentResolved = React.useCallback((data) => {
     //     setBookContent([...bookContent, ...data])
     //     setRefreshing(false);
@@ -77,11 +79,13 @@ const BookNavigator = ({ navigation, route }) => {
             {...props}
             bookId={currBook}
             setMount={setBookListMount}
-            startChapter={initChapter}
+            verse={verse}
+            section={section}
+            chapter={chapter}
             textSize={textSize}
             exegesis={exegesis}
             grammar={grammar} />
-    },[currBook,initChapter,textSize,exegesis,grammar])
+    },[currBook,chapter,textSize,exegesis,grammar])
 
     const bookList = (props) => <BookList onSelectBook={(book) => {
         if (!booksIds.includes(book)) {
@@ -172,4 +176,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default BookNavigator;
+export default optimizeHeavyScreen(BookNavigator,PlaceHolder);
