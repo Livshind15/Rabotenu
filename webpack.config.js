@@ -10,10 +10,6 @@ module.exports = async function (env, argv) {
                     'react-native': 'react-native-web',
                     'react-native-svg': 'react-native-svg-web',
                     'react-native-webview': 'react-native-web-webview',
-                    react$: 'preact/compat',
-                    'react-dom$': 'preact/compat',
-                    // Fix the responder system which react-native-web depends on
-                    'react-dom/unstable-native-dependencies$': 'preact-responder-event-plugin',
             }
         }
     }, argv);

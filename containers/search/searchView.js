@@ -13,8 +13,8 @@ import _ from 'lodash';
 import { SearchContext } from '../../contexts/searchContext';
 import ErrorModel from '../../component/modalError/modalError';
 import Accordian from '../../component/accordian/accordian';
-import { removeTag, removeBoldTag, removeGrayTag } from '../bookView/bookView';
 import { isEmpty } from 'lodash';
+import { removeTag, removeBoldTag, removeGrayTag } from '../bookView/bookViewClass';
 
 
 const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => {
@@ -184,42 +184,3 @@ const styles = StyleSheet.create({
 });
 
 export default SearchView;
-
-// /*
-//    {res.pevVerses && res.pevVerses.map(content => {
-//                                             return (
-//                                                 <>
-//                                                     {content.verse ? <Text style={styles.pasok}>{content.verse} </Text> : <></>}
-//                                                     {content.content.split(' ').map(splitContent => {
-//                                                         if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
-//                                                             grayText = true;
-//                                                         }
-//                                                         if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
-//                                                             grayText = false;
-//                                                             return <Text style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
-//                                                         }
-//                                                         if (grayText) {
-//                                                             return <Text style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
-//                                                         }
-//                                                         if (RegExp(/<\/?דה>/g).test(splitContent)) {
-//                                                             boldCenter = true;
-//                                                         }
-
-//                                                         if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
-//                                                             return <><Text style={styles.pasokContentMark}>{splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text><Text> </Text> </>
-//                                                         }
-//                                                         if (RegExp(/<.דה./g).test(splitContent) || RegExp(/<\/?דה>/g).test(splitContent)) {
-//                                                             boldCenter = false;
-
-//                                                             return <><Text style={styles.pasokContentBold}>{splitContent.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')}</Text><Text> </Text> </>
-
-//                                                         }
-//                                                         if (boldCenter) {
-//                                                             return <><Text style={styles.pasokContentBold}>{splitContent.replace(/<\/?דה>/g, '')}</Text><Text> </Text> </>
-
-//                                                         }
-
-//                                                         return <><Text style={styles.pasokContent}>{splitContent.replace(RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`), '')}</Text><Text> </Text></>
-//                                                     })}                                                </>)
-
-//                                         })}*/
