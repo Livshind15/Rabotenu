@@ -135,7 +135,7 @@ class BookViewClass extends React.Component {
     }
 }
 
-class Item extends React.PureComponent {
+class Item extends React.Component {
     constructor(props) {
         super(props);
     }
