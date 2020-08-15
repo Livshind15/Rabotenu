@@ -68,7 +68,7 @@ const SearchView = ({ navigation, route }) => {
                                 }} style={styles.contentContainer}>
                                     <View style={styles.pasokContainer}>
                                         {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
-                                        {content.map(splitContent => {
+                                        {content.map(splitContdent => {
                                             if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
                                                 return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{' ' + splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text></>
                                             }
