@@ -51,8 +51,8 @@ class BookViewClass extends React.Component {
     }
 
     bookToElements(bookContent, grammar) {
-        return bookContent.reduce((elements, content, index) => {
 
+        return bookContent.reduce((elements, content, index) => {
             if (!this.bookName.includes(content.bookName)) {
                 this.bookName = [...this.bookName, content.bookName]
                 elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName, original: content })
@@ -65,7 +65,13 @@ class BookViewClass extends React.Component {
                 this.chapter = content.chapter
                 elements.push({ id: elements.length + 1, type: "chapter", value: content.chapter, original: content })
             }
-          
+
+            if (content.verse.length && elements[elements.length - 1] && elements[elements.length - 1].index && elements[elements.length - 1].index === content.verse) {
+                elements[elements.length - 1] = { ...elements[elements.length - 1],parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag :RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: grammar ? removeGrammar(removeTag(elements[elements.length - 1].value + content.content)) : removeTag(elements[elements.length - 1].value + content.content) }
+                return elements
+            }
+            // if(content.content.length){
+            // }
             elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
             return elements
 
@@ -100,7 +106,7 @@ class BookViewClass extends React.Component {
     async fetchMore() {
         if (this.state.loading) {
             this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar)).then(content => {
-                console.log({content});
+                console.log({ content });
                 this.setState({ end: !content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
         }
@@ -190,10 +196,10 @@ class Item extends React.Component {
                     if (smallText) {
                         return <Text key={Math.random()} style={styles.pasokContentSmall}>{removeBoldTag(removeSmallTag(splitContent))}</Text>
                     }
-                    if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
+                    if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)|| RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(splitContent)) {
                         boldText = true;
                     }
-                    if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
+                    if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)||RegExp(`(.*?)<\s*/\s*הדגשה>`).test(splitContent)) {
                         boldText = false;
                         return <Text key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
                     }
@@ -252,8 +258,9 @@ const getStyles = (textSize) => {
         pasokContentBold: {
             color: '#455253',
             fontFamily: "Hebrew",
+            fontWeight: "bold",
             textAlign: 'right',
-            fontSize: 21 + (textSize * 50),
+            fontSize: 20+ (textSize * 50),
         },
         pasokLink: {
             color: '#11AFC2',
@@ -310,7 +317,7 @@ export const removeSmallTag = (content) => {
     return content.replace(new RegExp(/<.קטן./, 'g'), '').replace(/<\/?קטן>/g, '')
 }
 export const removeBoldTag = (content) => {
-    return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '')
+    return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '').replace(new RegExp(/<.הדגשה./, 'g'), '').replace(/<\/?הדגשה>/g, '')
 }
 
 export default optimizeHeavyScreen(BookViewClass, PlaceHolder)
