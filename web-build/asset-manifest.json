@@ -1,0 +1,31 @@
+{
+  "files": {
+    "app.js": "/static/js/app.acd3b21a.chunk.js",
+    "app.js.map": "/static/js/app.acd3b21a.chunk.js.map",
+    "runtime~app.js": "/static/js/runtime~app.2e9f1821.js",
+    "runtime~app.js.map": "/static/js/runtime~app.2e9f1821.js.map",
+    "static/js/2.b0c8e8ce.chunk.js": "/static/js/2.b0c8e8ce.chunk.js",
+    "static/js/2.b0c8e8ce.chunk.js.map": "/static/js/2.b0c8e8ce.chunk.js.map",
+    "fonts/AntDesign.ttf": "/./fonts/AntDesign.ttf",
+    "fonts/Entypo.ttf": "/./fonts/Entypo.ttf",
+    "fonts/Feather.ttf": "/./fonts/Feather.ttf",
+    "fonts/MaterialIcons.ttf": "/./fonts/MaterialIcons.ttf",
+    "favicon-16.png": "/favicon-16.png",
+    "favicon-32.png": "/favicon-32.png",
+    "favicon.ico": "/favicon.ico",
+    "index.html": "/index.html",
+    "manifest.json": "/manifest.json",
+    "serve.json": "/serve.json",
+    "static/js/2.b0c8e8ce.chunk.js.LICENSE.txt": "/static/js/2.b0c8e8ce.chunk.js.LICENSE.txt",
+    "static/media/back-icon-mask.png": "/static/media/back-icon-mask.fae3c934.png",
+    "static/media/back-icon.png": "/static/media/back-icon.c733a880.png",
+    "static/media/background.png": "/static/media/background.d5efb26b.png",
+    "static/media/logo.png": "/static/media/logo.591fa927.png",
+    "static/media/splash.logo.png": "/static/media/splash.logo.591fa927.png"
+  },
+  "entrypoints": [
+    "static/js/runtime~app.2e9f1821.js",
+    "static/js/2.b0c8e8ce.chunk.js",
+    "static/js/app.acd3b21a.chunk.js"
+  ]
+}

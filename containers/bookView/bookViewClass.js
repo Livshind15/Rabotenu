@@ -70,8 +70,9 @@ class BookViewClass extends React.Component {
                 elements[elements.length - 1] = { ...elements[elements.length - 1],parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag :RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: grammar ? removeGrammar(removeTag(elements[elements.length - 1].value + content.content)) : removeTag(elements[elements.length - 1].value + content.content) }
                 return elements
             }
-            // if(content.content.length){
-            // }
+           if(elements[elements.length - 1].type === 'chapter' && !content.content.length){
+               return elements
+           }
             elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
             return elements
 
