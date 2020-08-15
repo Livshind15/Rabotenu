@@ -51,20 +51,22 @@ class BookViewClass extends React.Component {
     }
 
     bookToElements(bookContent, grammar) {
-        return bookContent.reduce((elements, content) => {
+        return bookContent.reduce((elements, content, index) => {
+
             if (!this.bookName.includes(content.bookName)) {
                 this.bookName = [...this.bookName, content.bookName]
-                elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName,original: content})
+                elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName, original: content })
             }
             if (!this.section.includes(content.section)) {
                 this.section = [...this.section, content.section]
-                elements.push({ id: elements.length + 1, type: "section", value: content.section,original: content })
+                elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
             }
             if (this.chapter !== content.chapter) {
                 this.chapter = content.chapter
-                elements.push({ id: elements.length + 1, type: "chapter", value: content.chapter,original: content })
+                elements.push({ id: elements.length + 1, type: "chapter", value: content.chapter, original: content })
             }
-            elements.push({original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
+          
+            elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
             return elements
 
         }, []);
@@ -98,7 +100,7 @@ class BookViewClass extends React.Component {
     async fetchMore() {
         if (this.state.loading) {
             this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar)).then(content => {
-
+                console.log({content});
                 this.setState({ end: !content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
         }
@@ -106,9 +108,10 @@ class BookViewClass extends React.Component {
 
     renderItem({ item, index }) {
         return (
-            <Item indexPress={(pressIndex) => { 
+            <Item indexPress={(pressIndex) => {
                 this.props.onTextSelected(this.state.data[pressIndex]);
-                this.setState({ highlightIndex: pressIndex }) }} highlightIndex={this.state.highlightIndex} item={item} styles={this.styles} index={index} textSize={this.props.textSize} exegesis={this.props.exegesis}></Item>
+                this.setState({ highlightIndex: pressIndex })
+            }} highlightIndex={this.state.highlightIndex} item={item} styles={this.styles} index={index} textSize={this.props.textSize} exegesis={this.props.exegesis}></Item>
         )
     }
 
@@ -259,7 +262,7 @@ const getStyles = (textSize) => {
             alignSelf: 'center',
             fontSize: 12 + (textSize * 50),
         },
-        pasokContentSmall:{
+        pasokContentSmall: {
             color: '#455253',
             fontFamily: "Hebrew",
             textAlign: 'right',
@@ -280,7 +283,7 @@ const getStyles = (textSize) => {
         pasokContainer: {
             flexWrap: 'wrap',
             alignItems: 'center',
-             justifyContent: 'flex-start',
+            justifyContent: 'flex-start',
             flexDirection: 'row-reverse',
 
         },
