@@ -322,7 +322,7 @@ const getStyles = (textSize) => {
             fontSize: 14 + (textSize * 50),
         },
         pasokContentComment: {
-            color: '#43a047',
+            color: '#00701a',
             fontFamily: "Hebrew",
             textAlign: 'right',
             fontSize: 14 + (textSize * 50),
