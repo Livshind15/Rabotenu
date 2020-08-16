@@ -178,7 +178,7 @@ class Item extends React.Component {
             let boldText = false;
             let smallText = false;
             let comment = { enable: true, id: '', char: '' };
-            return <TouchableOpacity onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
+            return <TouchableOpacity  selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
                 <Text key={Math.random()} style={styles.pasok}>{item.index}</Text>
 
                 {item.value.split(' ').reduce((elements, splitContent, index) => {
@@ -233,11 +233,11 @@ class Item extends React.Component {
                     }
                     if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
                         grayText = false;
-                        elements.push(<Text key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>)
                         return elements
                     }
                     if (grayText) {
-                        elements.push(<Text key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>)
                         return elements
                     }
                     if (RegExp(`<\s*קטן[^>]*>(.*?)`).test(splitContent)) {
@@ -245,11 +245,11 @@ class Item extends React.Component {
                     }
                     if (RegExp(`(.*?)<\s*/\s*קטן>`).test(splitContent)) {
                         smallText = false;
-                        elements.push(<Text key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>)
                         return elements
                     }
                     if (smallText) {
-                        elements.push(<Text key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>)
                         return elements
                     }
                     if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent) || RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(splitContent)) {
@@ -257,15 +257,15 @@ class Item extends React.Component {
                     }
                     if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent) || RegExp(`(.*?)<\s*/\s*הדגשה>`).test(splitContent)) {
                         boldText = false;
-                        elements.push(<Text key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>)
                         return elements
                     }
                     if (boldText) {
-                        elements.push(<Text key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>)
                         return elements
                     }
 
-                    elements.push(<Text key={Math.random()} style={styles.pasokContent}> {splitContent.replace(/(.*?)<\/(הערה)[^>]*>/,'').replace(/<(הערה)[^>]*/,'').replace(/תו="([^"]+)"/,'').replace(/>/,'')}</Text>)
+                    elements.push(<Text selectable key={Math.random()} style={styles.pasokContent}> {splitContent.replace(/(.*?)<\/(הערה)[^>]*>/,'').replace(/<(הערה)[^>]*/,'').replace(/תו="([^"]+)"/,'').replace(/>/,'')}</Text>)
                     return elements
                 }, [])}
                 {item.parsaTag && !exegesis ? <Text key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}
