@@ -71,10 +71,10 @@ class BookViewClass extends React.Component {
                 elements[elements.length - 1] = { ...elements[elements.length - 1], parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag : RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: grammar ? removeGrammar(removeTag(elements[elements.length - 1].value + content.content)) : removeTag(elements[elements.length - 1].value + content.content) }
                 return elements
             }
-            if (elements[elements.length - 1].type === 'chapter' && !content.content.length) {
+            if (elements[elements.length - 1] && elements[elements.length - 1].type === 'chapter' && !content.content.length) {
                 return elements
             }
-            if (elements[elements.length - 1].type === 'section' && !content.content.length) {
+            if (elements[elements.length - 1] &&elements[elements.length - 1].type === 'section' && !content.content.length) {
                 return elements
             }
             elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
@@ -182,33 +182,47 @@ class Item extends React.Component {
                 <Text key={Math.random()} style={styles.pasok}>{item.index}</Text>
 
                 {item.value.split(' ').reduce((elements, splitContent, index) => {
-                    if (RegExp(/<(הערה)[^>]*/).test(splitContent)) {
+                    if (RegExp(/<(הערה)[^>]*/).test(splitContent) ) {
                         comment.enable = true;
+                        {/* const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
+                        if (char) {
+                            comment.char = char[1];
+                        }
+                        const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
+                        if (id) {
+                            comment.id = id[1];
+                        } */}
                         return elements
 
                     }
-                    if (comment.enable) {
-                        const char = (RegExp(/תו="(.[^"]+)"/).exec(splitContent));
+                    if (comment.enable ) {
+                      
+                        const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
+                        console.log(char)
                         if (char) {
                             comment.char = char[1];
-                            return elements
+                            {/* return elements */}
 
                         }
                         const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
                         if (id) {
                             comment.id = id[1];
-                            return elements
+                            {/* return elements */}
 
                         }
 
                     }
-                    if (RegExp(/<\/(הערה)[^>]*>/).test(splitContent)) {
+                    if (RegExp(/(.*?)<\/(הערה)[^>]*>/).test(splitContent)) {
+                        const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
+                        if (char) {comment.char = char[1];}
+                        const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
+                        if (id) {comment.id = id[1]; }
                         if (comment.char.length) {
                             elements.push(
                                 <TouchableOpacity>
-                                <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char}</Text>
+                                <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char} </Text>
                                 </TouchableOpacity>)
-                            return elements
+                            {/* return elements */}
                         }
                         comment.enable = false;
                         comment.id = '';
@@ -251,7 +265,7 @@ class Item extends React.Component {
                         return elements
                     }
 
-                    elements.push(<Text key={Math.random()} style={styles.pasokContent}> {splitContent}</Text>)
+                    elements.push(<Text key={Math.random()} style={styles.pasokContent}> {splitContent.replace(/(.*?)<\/(הערה)[^>]*>/,'').replace(/<(הערה)[^>]*/,'').replace(/תו="([^"]+)"/,'').replace(/>/,'')}</Text>)
                     return elements
                 }, [])}
                 {item.parsaTag && !exegesis ? <Text key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}

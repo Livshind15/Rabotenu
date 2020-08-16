@@ -60,7 +60,25 @@ function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
             }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
           </View>
           <View style={styles.inputWrapper}>
-            <Input value={input} isLoading={isLoading} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+            <Input value={input} isLoading={isLoading} onChange={async (text)=>{
+              setInput(text)
+              if (!isLoading) {
+                setLoading(true)
+                const newInput = replaceInput.reduce((input,currReplace)=>{
+                  input = input.replace(currReplace.srcInput,currReplace.desInput)
+                  return input;
+                },text)
+                const addInputs =  addInput.reduce((addInput, inputToAdd)=> {
+                  if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
+                    addInput.push(inputToAdd.desInput)
+                  }
+                  return addInput;
+                }, [])
+                const result = await getBooksByByBookName([newInput,...addInputs]);
+                setResult(result)
+                setLoading(false)
+              }
+              }} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
           </View>
         </View>
         <View style={styles.resultCountWrapper}>
@@ -82,7 +100,7 @@ function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
                   </CheckBox>
                 </View>
                 <View style={styles.resultTitleWrapper}>
-                  <Text style={styles.resultTitle}>{`${result.groupName}, ${result.bookName}`}</Text>
+                  <Text style={styles.resultTitle}>{`${result.groupName.replace('_','"')}, ${result.bookName.replace('_','"')}`}</Text>
                 </View>
               </TouchableOpacity>
             )}

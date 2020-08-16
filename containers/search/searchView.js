@@ -62,7 +62,14 @@ const SearchView = ({ navigation, route }) => {
 
                             let grayText = false;
                             let boldText = false;
-                            return (<Accordian initExpanded={true} header={`${item.groupName}, ${item.bookName}, ${item.chapter}, פסוק ${item.verse}`} >
+                            let header = `${item.groupName.replace('_','"')}, ${item.bookName.replace('_','"')}`;
+                            if(item.chapter){
+                                header += `, ${item.chapter}`
+                            }
+                            if(item.verse){
+                                header += `, פסוק ${item.verse}`
+                            }
+                            return (<Accordian initExpanded={true} header={header} >
                                 <TouchableOpacity onPress={() => {
                                     navigation.push('Result', { selectedChapter: item.chapter, selectedBooks: [{ bookId: item.bookId }] })
                                 }} style={styles.contentContainer}>

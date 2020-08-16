@@ -15,7 +15,7 @@ const getSubBookInGroup = (group) => {
 const Tree = ({navigation, results, deep = 0 }) => (
     <>
         {results.map((result, index) => (
-            <Accordian customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.groupName} additionalComponent={
+            <Accordian customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.groupName.replace('_','"')} additionalComponent={
                 <View style={styles.endContainer}>
                     <View style={styles.showButtonWrapper}>
                         <TouchableOpacity
@@ -37,7 +37,7 @@ const Tree = ({navigation, results, deep = 0 }) => (
                         <View style={styles.bookContainer}>
                             <View style={styles.bookName}>
                                 <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
-                                <Text style={styles.resultText}>{book.bookName}</Text>
+                                <Text style={styles.resultText}>{book.bookName.replace('_','"')}</Text>
                             </View>
                             <View style={styles.endContainer}>
                                 <View style={styles.showButtonWrapper}>

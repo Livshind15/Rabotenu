@@ -54,7 +54,7 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                                     </View>
                                 </View>
                                 <View style={styles.toggleAndText}>
-                                    <Text style={[styles.title, styles.font]}>{`${book.groupName}, ${book.bookName}`}</Text>
+                                    <Text style={[styles.title, styles.font]}>{`${book.groupName.replace('_','"')}, ${book.bookName.replace('_','"')}`}</Text>
                                 </View>
 
                             </TouchableOpacity>
