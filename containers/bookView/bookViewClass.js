@@ -8,6 +8,7 @@ import { isEmpty } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
+import { log } from 'react-native-reanimated';
 
 
 const DefaultScrollSize = 250;
@@ -67,15 +68,15 @@ class BookViewClass extends React.Component {
             }
 
             if (content.verse.length && elements[elements.length - 1] && elements[elements.length - 1].index && elements[elements.length - 1].index === content.verse) {
-                elements[elements.length - 1] = { ...elements[elements.length - 1],parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag :RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: grammar ? removeGrammar(removeTag(elements[elements.length - 1].value + content.content)) : removeTag(elements[elements.length - 1].value + content.content) }
+                elements[elements.length - 1] = { ...elements[elements.length - 1], parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag : RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: grammar ? removeGrammar(removeTag(elements[elements.length - 1].value + content.content)) : removeTag(elements[elements.length - 1].value + content.content) }
                 return elements
             }
-           if(elements[elements.length - 1].type === 'chapter' && !content.content.length){
-               return elements
-           }
-           if(elements[elements.length - 1].type === 'section' && !content.content.length){
-            return elements
-        }
+            if (elements[elements.length - 1].type === 'chapter' && !content.content.length) {
+                return elements
+            }
+            if (elements[elements.length - 1].type === 'section' && !content.content.length) {
+                return elements
+            }
             elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
             return elements
 
@@ -176,42 +177,83 @@ class Item extends React.Component {
             let grayText = false;
             let boldText = false;
             let smallText = false;
+            let comment = { enable: true, id: '', char: '' };
             return <TouchableOpacity onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
                 <Text key={Math.random()} style={styles.pasok}>{item.index}</Text>
 
-                {item.value.split(' ').map(((splitContent, index) => {
+                {item.value.split(' ').reduce((elements, splitContent, index) => {
+                    if (RegExp(/<(הערה)[^>]*/).test(splitContent)) {
+                        comment.enable = true;
+                        return elements
+
+                    }
+                    if (comment.enable) {
+                        const char = (RegExp(/תו="(.[^"]+)"/).exec(splitContent));
+                        if (char) {
+                            comment.char = char[1];
+                            return elements
+
+                        }
+                        const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
+                        if (id) {
+                            comment.id = id[1];
+                            return elements
+
+                        }
+
+                    }
+                    if (RegExp(/<\/(הערה)[^>]*>/).test(splitContent)) {
+                        if (comment.char.length) {
+                            elements.push(
+                                <TouchableOpacity>
+                                <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char}</Text>
+                                </TouchableOpacity>)
+                            return elements
+                        }
+                        comment.enable = false;
+                        comment.id = '';
+                        comment.char = '';
+                    }
                     if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                         grayText = true;
                     }
                     if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
                         grayText = false;
-                        return <Text key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
+                        elements.push(<Text key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>)
+                        return elements
                     }
                     if (grayText) {
-                        return <Text key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
+                        elements.push(<Text key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>)
+                        return elements
                     }
                     if (RegExp(`<\s*קטן[^>]*>(.*?)`).test(splitContent)) {
                         smallText = true;
                     }
                     if (RegExp(`(.*?)<\s*/\s*קטן>`).test(splitContent)) {
                         smallText = false;
-                        return <Text key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>
+                        elements.push(<Text key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>)
+                        return elements
                     }
                     if (smallText) {
-                        return <Text key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>
+                        elements.push(<Text key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>)
+                        return elements
                     }
-                    if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)|| RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(splitContent)) {
+                    if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent) || RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(splitContent)) {
                         boldText = true;
                     }
-                    if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)||RegExp(`(.*?)<\s*/\s*הדגשה>`).test(splitContent)) {
+                    if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent) || RegExp(`(.*?)<\s*/\s*הדגשה>`).test(splitContent)) {
                         boldText = false;
-                        return <Text key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
+                        elements.push(<Text key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>)
+                        return elements
                     }
                     if (boldText) {
-                        return <Text key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
+                        elements.push(<Text key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>)
+                        return elements
                     }
-                    return <Text key={Math.random()} style={styles.pasokContent}> {splitContent}</Text>
-                }))}
+
+                    elements.push(<Text key={Math.random()} style={styles.pasokContent}> {splitContent}</Text>)
+                    return elements
+                }, [])}
                 {item.parsaTag && !exegesis ? <Text key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}
             </TouchableOpacity>
         }
@@ -264,7 +306,7 @@ const getStyles = (textSize) => {
             fontFamily: "Hebrew",
             fontWeight: "bold",
             textAlign: 'right',
-            fontSize: 20+ (textSize * 50),
+            fontSize: 20 + (textSize * 50),
         },
         pasokLink: {
             color: '#11AFC2',
@@ -275,6 +317,12 @@ const getStyles = (textSize) => {
         },
         pasokContentSmall: {
             color: '#455253',
+            fontFamily: "Hebrew",
+            textAlign: 'right',
+            fontSize: 14 + (textSize * 50),
+        },
+        pasokContentComment: {
+            color: '#43a047',
             fontFamily: "Hebrew",
             textAlign: 'right',
             fontSize: 14 + (textSize * 50),
