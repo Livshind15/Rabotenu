@@ -198,7 +198,7 @@ class Item extends React.Component {
                         return <Text key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>
                     }
                     if (smallText) {
-                        return <Text key={Math.random()} style={styles.pasokContentSmall}>{removeBoldTag(removeSmallTag(splitContent))}</Text>
+                        return <Text key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>
                     }
                     if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)|| RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(splitContent)) {
                         boldText = true;
@@ -318,7 +318,7 @@ export const removeGrayTag = (content) => {
     return content.replace(new RegExp(/<.כתיב./, 'g'), '').replace(/<\/?כתיב>/g, '')
 }
 export const removeSmallTag = (content) => {
-    return content.replace(new RegExp(/<.קטן./, 'g'), '').replace(/<\/?קטן>/g, '')
+    return content.replace(new RegExp(/<קטן>/, 'g'), '').replace(/<\/?קטן>/g, '')
 }
 export const removeBoldTag = (content) => {
     return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '').replace(new RegExp(/<.הדגשה./, 'g'), '').replace(/<\/?הדגשה>/g, '')
