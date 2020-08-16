@@ -1,7 +1,7 @@
 self.__precacheManifest = [
   {
-    "revision": "433b2a1a3b054c58221c",
-    "url": "/static/js/app.679e7de3.chunk.js"
+    "revision": "3228b8e36483c8cdf479",
+    "url": "/static/js/app.e2314e4e.chunk.js"
   },
   {
     "revision": "66090dc4495d4ce3dfb9",
@@ -52,7 +52,7 @@ self.__precacheManifest = [
     "url": "/expo-service-worker.js"
   },
   {
-    "revision": "2085ee045e781df82d950972fbf5cda3",
+    "revision": "5a20731bf0b639399c30dcc42042eeea",
     "url": "/index.html"
   },
   {

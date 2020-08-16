@@ -11,7 +11,7 @@ import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { log } from 'react-native-reanimated';
 
 
-const DefaultScrollSize = 250;
+const DefaultScrollSize = 50;
 
 class BookViewClass extends React.Component {
     constructor(props) {
