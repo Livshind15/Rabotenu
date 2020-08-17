@@ -30,8 +30,8 @@ console.log({books,groups});
     "content": content,
     "type": !isEmpty(tableInput) ? searchType || 'exact' : 'exact',
     "table": tableInput,
-    "books":[],
-    "groups":[]
+    "books":books,
+    "groups":groups
   });
   return data;
 }
