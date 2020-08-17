@@ -5,17 +5,28 @@ import OctIcons from "react-native-vector-icons/Octicons";
 import Accordian from '../../component/accordian/accordian';
 import Feather from 'react-native-vector-icons/Feather';
 
-const BookListTree = ({ results, bookId, deep = 0, onSelect = () => { } }) => {
+const getParentBook=(result) =>{
+    if(result.id){
+        return result.id;
+    }
+    else if(result.parent){
+        return getParentBook(result.parent)
+    }
+    return '';
+}
+
+const BookListTree = ({ results, bookId, parent,deep = 0, onSelect = () => { } }) => {
     return <>
         {results.map((result, index) => (
             <Accordian onExpanded={() => {
 
                 if (!result.tree ) {
                     onSelect({
-                        'chapter': result.text
+                        'chapter': result.text,
+                        'bookId': getParentBook(parent)
                     })
                 }
-            }} shouldExpanded={!!result.tree} customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId}, ${result.text}` : result.text} additionalComponent={
+            }} shouldExpanded={!!result.tree} customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId.replace('_','"')}, ${result.text.replace('_','"')}` : result.text.replace('_','"')} additionalComponent={
                 result.isBook ? <View style={styles.endContainer}>
                     <TouchableOpacity onPress={() => {
                     if(bookId !== result.id){
@@ -31,7 +42,7 @@ const BookListTree = ({ results, bookId, deep = 0, onSelect = () => { } }) => {
             }>
 
                 <View >
-                    {result.tree && <BookListTree bookId={bookId} onSelect={onSelect} results={result.tree} deep={deep + 1} />}
+                    {result.tree && <BookListTree parent={{...result,parent:parent}} bookId={bookId} onSelect={onSelect} results={result.tree} deep={deep + 1} />}
                 </View>
 
             </Accordian>

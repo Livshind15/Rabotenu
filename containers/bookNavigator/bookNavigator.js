@@ -14,6 +14,7 @@ import BookViewTest from '../bookView/bookViewTest';
 import BookViewClass from '../bookView/bookViewClass';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
+import { RabotenuContext } from '../../contexts/applicationContext';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
@@ -27,7 +28,6 @@ const getBookTree = async ([booksIds]) => {
 const getSubBooks = async ([bookId, section, chapter, verse]) => {
     let url = `${config.serverUrl}/mapping/groups/childBooks/${bookId}`;
     let params = '';
-    console.log(bookId, section, chapter, verse);
     if (section) {
         if (params.length) {
             params += `&section=${section}`
@@ -58,8 +58,10 @@ const getSubBooks = async ([bookId, section, chapter, verse]) => {
 
 const BookNavigator = ({ navigation, route }) => {
     const { selectedBooks, selectedChapter,selectedIndex } = route.params;
-    const [booksIds, setBooksIds] = React.useState((selectedBooks || []).map(book => book.bookId));
-    const [currBook, setCurrBook] = React.useState(booksIds[0])
+   
+    const {booksIds, setBooksIds} = React.useContext(RabotenuContext);
+    
+    const [currBook, setCurrBook] = React.useState(selectedBooks[0].bookId)
     const [textSize, setTextSide] = React.useState(0.15);
     const [initIndex, setInitIndex] = React.useState(selectedIndex||0);
 
@@ -75,6 +77,10 @@ const BookNavigator = ({ navigation, route }) => {
     const [section, setSection] = React.useState('');
 
     const subBooks = useAsync({ deferFn: getSubBooks })
+    React.useEffect(()=>{
+        setBooksIds((selectedBooks || []).map(book => book.bookId));
+
+    },[selectedBooks])
     React.useEffect(() => {
         subBooks.run(currBook)
     }, [currBook])
@@ -141,8 +147,6 @@ const BookNavigator = ({ navigation, route }) => {
             setVerse(verse)
             setSection(section)
             setInitIndex(0)
-
-            console.log(info);
             if (!booksIds.includes(book)) {
                 setBooksIds([...booksIds, book])
             }

@@ -8,7 +8,6 @@ import { isEmpty } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
-import { log } from 'react-native-reanimated';
 
 
 const DefaultScrollSize = 50;
@@ -89,7 +88,6 @@ class BookViewClass extends React.Component {
     }
 
     async getBookContent([bookId, index]) {
-        console.log({ bookId, index });
 
         const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?lteIndex=${index + DefaultScrollSize}&gteIndex=${index}`);
         return data || [];
@@ -116,7 +114,6 @@ class BookViewClass extends React.Component {
     async fetchMore() {
         if (this.state.loading) {
             this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar,this.props.punctuation)).then(content => {
-                console.log({ content });
                 this.setState({ end: !content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
         }

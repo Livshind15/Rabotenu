@@ -71,7 +71,6 @@ const SearchView = ({ navigation, route }) => {
                             }
                             return (<Accordian initExpanded={true} header={header} >
                                 <TouchableOpacity onPress={() => {
-                                    console.log(item)
                                     navigation.push('Result', {selectedIndex:item.index, selectedChapter: item.chapter, selectedBooks: [{ bookId: item.bookId }] })
                                 }} style={styles.contentContainer}>
                                     <View style={styles.pasokContainer}>
