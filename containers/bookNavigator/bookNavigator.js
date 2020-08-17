@@ -57,6 +57,14 @@ const getSubBooks = async ([bookId, section, chapter, verse]) => {
 }
 
 const BookNavigator = ({ navigation, route }) => {
+    const { showBack ,setShowBack} = React.useContext(RabotenuContext);
+    React.useEffect(() => {
+        setShowBack({enable:true,navigation})
+        return () => {
+            setShowBack({enable:false,navigation:null})
+        }
+    }, [])
+
     const { selectedBooks, selectedChapter,selectedIndex } = route.params;
    
     const {booksIds, setBooksIds} = React.useContext(RabotenuContext);

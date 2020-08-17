@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as eva from '@eva-design/eva';
 import 'react-native-gesture-handler';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useFonts } from '@use-expo/font';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ApplicationProvider } from '@ui-kitten/components';
 import { myTheme } from './custom-theme';
@@ -13,6 +13,7 @@ import Splash from './containers/splash/splash';
 import Logo from './component/logo/logo';
 import MainNavigator from './containers/mainNavigator/mainNavigator';
 import { RabotenuProvider, RabotenuContext } from './contexts/applicationContext';
+import Icons from "react-native-vector-icons/MaterialIcons";
 
 const Stack = createStackNavigator();
 
@@ -35,9 +36,9 @@ export default function App() {
     setDelay(true)
   }, 1500);
 
- 
+
   return (
-    <ApplicationProvider {...eva} theme={{...eva.light,...myTheme}}>
+    <ApplicationProvider {...eva} theme={{ ...eva.light, ...myTheme }}>
       <NavigationContainer>
         <RabotenuProvider>
           {isInitialized ? <Routes /> : <Splash />}
@@ -47,13 +48,25 @@ export default function App() {
   );
 }
 
-const Routes = () => {
-  const {title} = React.useContext(RabotenuContext);
+const Routes = (props) => {
+  const { title, showBack } = React.useContext(RabotenuContext);
+
   return (
     <>
       <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE' }}>
         <Stack.Screen name="Home" options={{ headerShown: false, title }} component={Home} />
-        <Stack.Screen name="Main" options={{ ...screenOptions, title }} component={MainNavigator} />
+        <Stack.Screen name="Main" options={(props) => {
+          return {
+            ...screenOptions,
+            headerRight: () => showBack.enable ? <TouchableOpacity style={{marginRight:12}}  onPress={() => {
+              if (showBack.navigation) {
+                showBack.navigation.goBack()
+              }
+            }} ><Icons name={'keyboard-arrow-right'} size={35} color={'#00AABE'} /></TouchableOpacity> : <></>,
+
+            title,
+          }
+        }} component={MainNavigator} />
       </Stack.Navigator>
     </>
   )
@@ -77,7 +90,8 @@ const styles = StyleSheet.create({
 const screenOptions = {
   headerTitleStyle: styles.headerTitle,
   headerLeft: ({ onPress }) => <Logo options={{ marginLeft: 12 }} onPress={onPress} />,
-  headerRight: () => (<></>),
+
+
   headerStyle: {
     elevation: 0,
     shadowOpacity: 0,

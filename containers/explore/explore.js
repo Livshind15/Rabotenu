@@ -14,6 +14,7 @@ import ExploreTreeView from './exploreTreeView'
 import ExploreAddReplace from './exploreAddReplace';
 import BookNavigator from '../bookNavigator/bookNavigator'
 import config from "../../config/config";
+import { RabotenuContext } from '../../contexts/applicationContext';
 
 
 const Stack = createStackNavigator();
@@ -28,6 +29,7 @@ export const getBooksByByBookName = async (booksNames) => {
 }
 
 export default function Explore(props) {
+  
   return (
     <Stack.Navigator initialRouteName="ExplorePages" >
       <Stack.Screen name="ExplorePages" options={{ headerShown: false,title:'רבותינו' }} component={ExplorePages} />
@@ -54,6 +56,7 @@ const TopTabBar = ({ navigation, state }) => (
 
 const SearchExploreRoutes = () => {
   const [add, setAdd] = React.useState([{ srcInput: "", desInput: "" }]);
+
   const [replace, setReplace] = React.useState([{ srcInput: "", desInput: "" }]);
   const exploreAddReplace = (props) => <ExploreAddReplace initReplace={replace} initAdds={add} onSave={({ replace, add }) => {
     setAdd(add);
@@ -61,7 +64,7 @@ const SearchExploreRoutes = () => {
   }} {...props} />
   const exploreMain = (props) => <ExploreMain replaceInput={replace} addInput={add}  {...props} />
   const exploreResultView = (props) => <ExploreResultView replaceInput={replace} addInput={add} {...props} />
-
+ 
   return (
     <Stack.Navigator initialRouteName="Main" >
       <Stack.Screen name="ResultView" options={{ headerShown: false ,title:'רבותינו'}} component={exploreResultView} />
