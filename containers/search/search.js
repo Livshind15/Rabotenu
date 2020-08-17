@@ -24,12 +24,14 @@ import PlaceHolder from '../../component/placeHolder/placeHolder';
 const Stack = createStackNavigator();
 
 
-export const getBooksByContent = async (content, searchType, tableInput) => {
-
+export const getBooksByContent = async (content, searchType, tableInput,books,groups) => {
+console.log({books,groups});
   const { data } = await axios.post(`${config.serverUrl}/book/search/books/`, {
     "content": content,
     "type": !isEmpty(tableInput) ? searchType || 'exact' : 'exact',
-    "table": tableInput
+    "table": tableInput,
+    "books":[],
+    "groups":[]
   });
   return data;
 }
@@ -37,7 +39,7 @@ export const getBooksByContent = async (content, searchType, tableInput) => {
 
 
 export default function Search() {
-  const { setTableInput, setBookResult, setSearchType } = React.useContext(SearchContext);
+  const { setTableInput, setBookResult, setSearchType ,notSearchGroupAndBooks} = React.useContext(SearchContext);
   const [tableInit] = React.useState([[{ value: "" }]])
   const tableSearch = (props) => <TableSearch tableInit={tableInit} {...props} onSave={async (table, navigation) => {
     const tablesInput = table.map(or => {
@@ -48,7 +50,8 @@ export default function Search() {
         }
       })
     })
-    const result = await getBooksByContent("", "table", tablesInput);
+    const resources  = notSearchGroupAndBooks();
+    const result = await getBooksByContent("", "table", tablesInput,resources.books,resources.groups);
     setTableInput(tablesInput)
     setBookResult(result);
     navigation.push('SearchResultView', { onSearch: getBooksByContent })
@@ -82,7 +85,7 @@ const SearchMain = ({ navigation }) => {
   const [isLoading, setLoading] = React.useState(false);
   const [showOptionsSearch, setShowOptionsSearch] = React.useState(false);
   const [showSearchType, setShowSearchType] = React.useState(false);
-  const { searchInput, setSearchInput, setBookResult, setSearchType, searchType, tableInput, setTableInput } = React.useContext(SearchContext);
+  const { searchInput, setSearchInput, setBookResult,notSearchGroupAndBooks, setSearchType, searchType, tableInput, setTableInput } = React.useContext(SearchContext);
 
 
   return (
@@ -108,8 +111,9 @@ const SearchMain = ({ navigation }) => {
           <View style={styles.buttonWrapper}>
             <ClickButton onPress={async () => {
               if (!isLoading) {
-                setLoading(true)
-                const result = await getBooksByContent(searchInput, searchType, tableInput);
+                setLoading(true);
+                const resources  = notSearchGroupAndBooks();
+                const result = await getBooksByContent(searchInput, searchType, tableInput,resources.books,resources.groups);
                 setLoading(false)
                 setBookResult(result);
                 navigation.push('SearchResultView', { onSearch: getBooksByContent })

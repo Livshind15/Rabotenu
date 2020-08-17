@@ -14,39 +14,63 @@ import Logo from './component/logo/logo';
 import MainNavigator from './containers/mainNavigator/mainNavigator';
 import { RabotenuProvider, RabotenuContext } from './contexts/applicationContext';
 import Icons from "react-native-vector-icons/MaterialIcons";
+import { SearchContext, SearchProvider } from './contexts/searchContext';
+import config from "./config/config";
+import { useAsync } from "react-async";
+import axios from "axios";
+import { addCheckForResources } from './containers/resources/resources';
 
 const Stack = createStackNavigator();
+export const getGroups = async () => {
+  const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
+  return data || [];
+}
 
 
-export default function App() {
+function App() {
   const [fontsLoaded] = useFonts({
     'OpenSansHebrew': require('./assets/fonts/OpenSansHebrew-Regular.ttf'),
     'OpenSansHebrewBold': require('./assets/fonts/OpenSansHebrew-Bold.ttf'),
 
   });
   const [isDelay, setDelay] = React.useState(false)
+  const {  setResources,setData,allResourceToggle } = React.useContext(SearchContext);
+  const { data, error, isPending } = useAsync({ promiseFn: getGroups })
 
   const [isInitialized, setInitialized] = React.useState(false)
   React.useEffect(() => {
-    if (fontsLoaded && isDelay) {
+    if (fontsLoaded && isDelay && !isPending) {
       setInitialized(true);
     }
-  }, [fontsLoaded, isDelay]);
+  }, [fontsLoaded, isDelay,isPending]);
   setTimeout(() => {
     setDelay(true)
   }, 1500);
+  React.useEffect(() => {
+    if (data && data.length) {
+      if(allResourceToggle){
+        setResources(addCheckForResources(data, true))
+      }
+      setData(data)
+    }
+  }, [data]);
 
 
   return (
     <ApplicationProvider {...eva} theme={{ ...eva.light, ...myTheme }}>
       <NavigationContainer>
-        <RabotenuProvider>
-          {isInitialized ? <Routes /> : <Splash />}
-        </RabotenuProvider>
+        {isInitialized ? <Routes /> : <Splash />}
       </NavigationContainer>
     </ApplicationProvider>
   );
 }
+export default () =>
+  <SearchProvider>
+    <RabotenuProvider>
+      <App />
+    </RabotenuProvider>
+  </SearchProvider>
+
 
 const Routes = (props) => {
   const { title, showBack } = React.useContext(RabotenuContext);
@@ -58,7 +82,7 @@ const Routes = (props) => {
         <Stack.Screen name="Main" options={(props) => {
           return {
             ...screenOptions,
-            headerRight: () => showBack.enable ? <TouchableOpacity style={{marginRight:12}}  onPress={() => {
+            headerRight: () => showBack.enable ? <TouchableOpacity style={{ marginRight: 12 }} onPress={() => {
               if (showBack.navigation) {
                 showBack.navigation.goBack()
               }

@@ -12,7 +12,7 @@ import PlaceHolder from '../../component/placeHolder/placeHolder';
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 
-const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll,editParams }) => {
+const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll, editParams }) => {
     return (
         <Background>
             <View style={styles.page}>
@@ -44,12 +44,14 @@ const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll,editPara
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttonsContainerRow}>
                         <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} optionsText={{ fontSize: 22 }}>חפש תוצאות</ClickButton></View>
-                        <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }}>חזרה</ClickButton></View>
+                        <View style={styles.buttonWrapper}><ClickButton outline={true} onPress={() => {
+                            navigation.goBack()
+                        }} optionsText={{ fontSize: 22 }}>חזרה</ClickButton></View>
                     </View>
                     <View style={styles.buttonsContainerRow}>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }} onPress={onRemoveAll}>נקה הכל</ClickButton></View>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} optionsText={{ fontSize: 22 }} onPress={() => {
-                            navigation.navigate('groupResource', { screen: 'edit',params:editParams });
+                            navigation.navigate('groupResource', { screen: 'edit', params: editParams });
                         }}>הגדר קבוצה חדשה</ClickButton></View>
                     </View>
                 </View>

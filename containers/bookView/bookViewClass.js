@@ -2,6 +2,8 @@ import * as React from 'react';
 import Background from '../../component/background/background';
 import { View, FlatList, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
 import axios from "axios";
+import {  Tooltip } from '@ui-kitten/components';
+
 import config from "../../config/config";
 import { delay } from '../../utils/helpers';
 import { isEmpty } from 'lodash';
@@ -10,7 +12,7 @@ import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 
-const DefaultScrollSize = 50;
+const DefaultScrollSize = 5;
 
 class BookViewClass extends React.Component {
     constructor(props) {
@@ -121,6 +123,7 @@ class BookViewClass extends React.Component {
 
     renderItem({ item, index }) {
         return (
+            
             <Item indexPress={(pressIndex) => {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
@@ -141,6 +144,7 @@ class BookViewClass extends React.Component {
                     }}
                     keyExtractor={(date, index) => String(index)}
                     style={this.styles.view}
+                    removeClippedSubviews={false}
                     refreshing={this.state.loading}
                     data={this.state.data}
                     renderItem={this.renderItem.bind(this)} /> : <View style={this.styles.spinnerContainer}>
@@ -178,8 +182,10 @@ class Item extends React.Component {
             let boldText = false;
             let smallText = false;
             let comment = { enable: true, id: '', char: '' };
-            return <TouchableOpacity selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
-                <Text key={Math.random()} style={styles.pasok}>{item.index}</Text>
+            return <TouchableOpacity onLongPress={()=>{
+
+            }} selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
+                <Text key={Math.random()} key={Math.random()} style={styles.pasok}>{item.index}</Text>
                 {item.value.split(' ').reduce((elements, splitContent, index) => {
                     if (RegExp(/<(הערה)[^>]*/).test(splitContent)) {
                         comment.enable = true;
@@ -248,7 +254,7 @@ class Item extends React.Component {
                         return elements
                     }
 
-                    elements.push(<Text selectable key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(splitContent,exegesis,punctuation,grammar)}</Text>)
+                    elements.push(<Text selectable={true} key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(splitContent,exegesis,punctuation,grammar)}</Text>)
                     return elements
                 }, [])}
                 {item.parsaTag && !exegesis ? <Text key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}

@@ -15,16 +15,17 @@ const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 
 const SearchResultView = ({ navigation, route }) => {
-    const [allResourceToggle, setResourceToggle] = React.useState(true);
     const { onSearch } = route.params;
-    const { searchInput, bookResult, setSearchInput, setBookResult, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
+    const { searchInput, bookResult, allResourceToggle, setResourceToggle, setSearchInput, setBookResult, notSearchGroupAndBooks, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
     const searchResult = (props) => <SearchResult {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-        const result = await onSearch(input, searchType, tableInput);
+        const resources = notSearchGroupAndBooks();
+        const result = await onSearch(input, searchType, tableInput, resources.books, resources.groups);
         setBookResult(result);
 
     }} result={bookResult} />
     const searchTree = (props) => <SearchTree {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-        const result = await onSearch(input, searchType, tableInput);
+        const resources = notSearchGroupAndBooks();
+        const result = await onSearch(input, searchType, tableInput, resources.books, resources.groups);
         setBookResult(result);
 
     }} result={bookResult} />
@@ -32,7 +33,12 @@ const SearchResultView = ({ navigation, route }) => {
     return (
         <View style={styles.page}>
             <View style={styles.header}>
-                <Toggle checked={allResourceToggle} onChange={setResourceToggle} />
+                <Toggle checked={allResourceToggle} onChange={(status)=>{
+                    setResourceToggle(status)
+                    if(!status){
+                        navigation.push('Resources')
+                    }
+                    }} />
                 <Text style={styles.headerText}>חפש בכל המאגרים</Text>
             </View>
             <View style={styles.body}>
@@ -87,4 +93,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default optimizeHeavyScreen(SearchResultView,PlaceHolder);;
+export default optimizeHeavyScreen(SearchResultView, PlaceHolder);;

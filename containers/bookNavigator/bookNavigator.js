@@ -2,7 +2,6 @@ import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Tabs from '../../component/tabs/tabs'
-import BookView, { bookToElements } from '../bookView/bookView'
 import BookList from '../bookList/bookList';
 import { useAsync } from "react-async";
 import axios from "axios";
@@ -10,7 +9,6 @@ import config from "../../config/config";
 import BookDisplay from '../bookDisplay/bookDisplay';
 import Copy from '../copy/copy';
 import BookMenu from '../../component/bookMenu/bookMenu';
-import BookViewTest from '../bookView/bookViewTest';
 import BookViewClass from '../bookView/bookViewClass';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';

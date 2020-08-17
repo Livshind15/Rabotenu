@@ -7,9 +7,7 @@ import TabButton from '../../component/tabButton/tabButton';
 import ResourcesSearch from './searchResource';
 import ResourcesTreeView from './resourcesTree';
 import ResourcesGroups from './resourcesGroups';
-import config from "../../config/config";
-import { useAsync } from "react-async";
-import axios from "axios";
+
 import ErrorModel from '../../component/modalError/modalError';
 import { flatten, isEqual, difference } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
@@ -18,7 +16,7 @@ import { SearchContext } from '../../contexts/searchContext';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-const getBooksInGroup = (groups, allGroups) => {
+export const getBooksInGroup = (groups, allGroups) => {
     return groups.reduce((groups, group) => {
         let removeResource = { booksId: [], groupIds: '' }
         removeResource.booksId = (group.books || []).reduce((books, book) => {
@@ -42,10 +40,6 @@ const getBooksInGroup = (groups, allGroups) => {
 }
 
 
-const getGroups = async () => {
-    const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
-    return data || [];
-}
 
 export const getAllBooksFromGroups = (groups) => {
     return groups.reduce((resources, group) => {
@@ -96,37 +90,17 @@ export const addCheckForResources = (resources, check) => {
 }
 
 const Resources = ({ navigation }) => {
-    const [allResourceToggle, setResourceToggle] = React.useState(true);
-    const { data, error, isPending } = useAsync({ promiseFn: getGroups })
-    const { setResourcesGroups, resourcesGroups, resources, setResources } = React.useContext(SearchContext);
+    const {selectedGroup, setSelectedGroup, allResourceToggle, setResourceToggle, setResourcesGroups, resourcesGroups, resourcesData, resources, setRemoveResources, setResources } = React.useContext(SearchContext);
     const [showErrorModel, setShowErrorModel] = React.useState(false);
-    const [selectedGroup, setSelectedGroup] = React.useState('');
+    console.log({ resources, resourcesGroups })
 
-    React.useEffect(() => {
-        if (error) {
-            setShowErrorModel(true);
-        }
-    }, [error]);
-    React.useEffect(() => {
-        if (data && data.length) {
-            setResources(addCheckForResources(data, true))
-        }
-    }, [data]);
-    React.useEffect(() => {
-        if (allResourceToggle) {
-            if (data && data.length) {
-                setResources(addCheckForResources(data, true))
-                setSelectedGroup('')
-            }
-        }
-    }, [allResourceToggle]);
+    // React.useEffect(() => {
+    //     if (error) {
+    //         setShowErrorModel(true);
+    //     }
+    // }, [error]);
 
-    React.useEffect(() => {
-        const allBooks = flatten(getBooksInGroup(resources, true).map(resource => resource.booksId));
-        const books = flatten(getBooksInGroup(resources, false).map(resource => resource.booksId));
-        const isAllResource = isEqual(allBooks, difference(allBooks, books))
-        setResourceToggle(isAllResource);
-    }, [resources]);
+   
 
     React.useEffect(() => {
         if (!selectedGroup.length && resourcesGroups[selectedGroup]) {
@@ -135,25 +109,23 @@ const Resources = ({ navigation }) => {
     }, [resources]);
 
 
-    const resourcesTreeView = (props) => <ResourcesTreeView resources={resources} onRemoveResources={(allBooks, groups, books, resourceTree) => {
+    const resourcesTreeView = (props) => <ResourcesTreeView resources={resources} onRemoveResources={(removeResources, resourceTree) => {
         setResources(resourceTree)
+        setRemoveResources(removeResources)
         setResourceToggle(false)
     }} {...props} />
 
     const resourcesSearch = (props) => <ResourcesSearch editParams={{
         edit: true, resources: resources, groupName: "", onSave: ({ resources, groupName, groupId }) => {
-
             setResourcesGroups({ ...resourcesGroups, [groupId]: { groupName, resources: resources } });
-
             setResources(resources)
             setSelectedGroup(groupId)
-
         }
     }} onRemove={(keys) => {
         setResources(removeResourceFromTree(resources, keys))
 
     }} onRemoveAll={() => {
-        setResources(addCheckForResources(data, false))
+        setResources(addCheckForResources(resourcesData, false))
     }} {...props} resources={getAllBooksFromGroups(resources)}
     />
 
@@ -177,7 +149,7 @@ const Resources = ({ navigation }) => {
 
     return (
         <>
-            {!isPending && data && data.length ?
+            {resourcesData && resourcesData.length ?
                 <View style={styles.page}>
                     <ErrorModel errorMsg={"שגיאה בבקשה מהשרת של המאגרים"} errorTitle={'שגיאה'} visible={showErrorModel} setVisible={setShowErrorModel} />
 

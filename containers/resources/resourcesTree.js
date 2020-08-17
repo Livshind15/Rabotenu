@@ -16,10 +16,10 @@ const ResourcesTreeView = ({ navigation,resources,onRemoveResources=()=>{} }) =>
             
                <ScrollView style={styles.scroll}>
                     <ResourceTree navigation={navigation} onChange={(removeResources,resourceTree)=>{
-                      const allBooks =  flatten(removeResources.map(resource => resource.booksId));
-                      const groups = removeResources.filter(resource => !!resource.groupIds).map(resource => resource.groupIds)
-                      const books = flatten(removeResources.filter(resource => !resource.groupIds).map(resource => resource.booksId))
-                      onRemoveResources(allBooks,groups,books,resourceTree)
+                    //   const allBooks =  flatten(removeResources.map(resource => resource.booksId));
+                    //   const groups = removeResources.filter(resource => !!resource.groupIds).map(resource => resource.groupIds)
+                    //   const books = flatten(removeResources.filter(resource => !resource.groupIds).map(resource => resource.booksId))
+                      onRemoveResources(removeResources,resourceTree)
                     }} groups={resources} />
                 </ScrollView>
             </View>
