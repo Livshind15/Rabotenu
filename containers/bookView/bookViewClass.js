@@ -168,7 +168,7 @@ class Item extends React.Component {
     render() {
         const { item, highlightIndex, index,punctuation, styles, exegesis, indexPress,grammar } = this.props;
         if (item.type === 'bookName') {
-            return <Text style={styles.book}>{item.value}</Text>
+            return <Text style={styles.book}>{item.value.replace('_','"')}</Text>
         }
         if (item.type === 'section') {
             return <Text style={styles.parsa}>{item.value}</Text>
