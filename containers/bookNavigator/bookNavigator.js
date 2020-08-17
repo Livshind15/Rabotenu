@@ -57,12 +57,16 @@ const getSubBooks = async ([bookId, section, chapter, verse]) => {
 }
 
 const BookNavigator = ({ navigation, route }) => {
-    const { selectedBooks, selectedChapter } = route.params;
+    const { selectedBooks, selectedChapter,selectedIndex } = route.params;
     const [booksIds, setBooksIds] = React.useState((selectedBooks || []).map(book => book.bookId));
     const [currBook, setCurrBook] = React.useState(booksIds[0])
     const [textSize, setTextSide] = React.useState(0.15);
+    const [initIndex, setInitIndex] = React.useState(selectedIndex||0);
+
     const [grammar, setGrammar] = React.useState(false);
     const [exegesis, setExegesis] = React.useState(false);
+    const [punctuation, setPunctuation] = React.useState(false);
+
     const [flavors, setFlavors] = React.useState(true);
     const [bookListMount, setBookListMount] = React.useState(false);
     const [tree, setTree] = React.useState([])
@@ -86,11 +90,11 @@ const BookNavigator = ({ navigation, route }) => {
             bookId={currBook}
             setMount={setBookListMount}
             verse={verse}
+            index={initIndex}
             section={section}
             chapter={chapter}
             onTextSelected={(text) => {
-                console.log(text);
-                const { bookId, section, chapter, verse } = text.original;
+                 const { bookId, section, chapter, verse } = text.original;
                 // setChapter(chapter)
                 // setVerse(verse)
                 // setSection(section)
@@ -99,8 +103,9 @@ const BookNavigator = ({ navigation, route }) => {
             }}
             textSize={textSize}
             exegesis={exegesis}
+            punctuation={punctuation}
             grammar={grammar} />
-    }, [currBook, chapter, textSize, exegesis, grammar])
+    }, [currBook, chapter, textSize, exegesis, grammar,punctuation,initIndex])
     const bookList = React.useCallback((props) => {
         return <BookList
             onSelectBook={(book) => {
@@ -108,6 +113,7 @@ const BookNavigator = ({ navigation, route }) => {
                     setBooksIds([...booksIds, book])
                 }
                 setChapter('')
+                setInitIndex(0)
                 setCurrBook(book)
             }}
             bookId={currBook}
@@ -117,13 +123,14 @@ const BookNavigator = ({ navigation, route }) => {
             isPending={treeFunc.isPending} />
     }, [booksIds, currBook, tree])
     const bookDisplay = React.useCallback((props) => {
-        return <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors }) => {
+        return <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors,punctuation }) => {
             setTextSide(textSize);
             setGrammar(grammar);
             setExegesis(exegesis);
             setFlavors(flavors);
-        }} setting={{ textSize, grammar, exegesis, flavors }} />
-    }, [textSize, grammar, exegesis, flavors])
+            setPunctuation(punctuation)
+        }} setting={{ textSize, grammar, exegesis, flavors,punctuation }} />
+    }, [textSize, grammar, exegesis, flavors,punctuation])
     const bookCopy = React.useCallback((props) => {
         return <Copy {...props} onSave={() => { }}></Copy>
     }, [])
@@ -133,6 +140,8 @@ const BookNavigator = ({ navigation, route }) => {
             setChapter(chapter)
             setVerse(verse)
             setSection(section)
+            setInitIndex(0)
+
             console.log(info);
             if (!booksIds.includes(book)) {
                 setBooksIds([...booksIds, book])

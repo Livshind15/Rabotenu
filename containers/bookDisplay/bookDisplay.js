@@ -14,6 +14,7 @@ const BookDisplay = ({ onSave, navigation, setting }) => {
     const [grammar, setGrammar] = React.useState(setting.grammar);
     const [exegesis, setExegesis] = React.useState(setting.exegesis);
     const [flavors, setFlavors] = React.useState(setting.flavors);
+    const [punctuation, setPunctuation] = React.useState(setting.punctuation);
 
 
     return (
@@ -22,7 +23,9 @@ const BookDisplay = ({ onSave, navigation, setting }) => {
                 <ScrollView style={styles.optionContainer}>
                     {/* <Option key={Math.random()} checked={flavors} onChange={setFlavors} customStyle={{ option: { borderTopWidth: 0 } }}>אל תציג טעמים בכל המאגרים</Option> */}
                     <Option key={Math.random()} checked={grammar} onChange={setGrammar}>אל תציג ניקוד בכל המאגרים</Option>
+
                     <Option key={Math.random()} checked={exegesis} onChange={setExegesis}>אל תציג ציוני מפרשים והערות</Option>
+                    <Option key={Math.random()} checked={punctuation} onChange={setPunctuation}> אל תציג סימני פיסוק</Option>
                     <View style={styles.sliderContainer}>
                         <Text style={styles.optionTextSlider}>גודל תצוגה:</Text>
                         <View style={styles.sliderWrapperAndText}>
@@ -51,7 +54,7 @@ const BookDisplay = ({ onSave, navigation, setting }) => {
                         <TouchableOpacity
                             style={styles.button}
                             onPress={() => {
-                                onSave({ textSize, grammar, exegesis, flavors })
+                                onSave({ textSize, grammar, exegesis, flavors,punctuation })
                                 navigation.navigate('View')
                             }}
                             underlayColor="#ffffff00" >

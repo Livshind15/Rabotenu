@@ -36,8 +36,14 @@ class BookViewClass extends React.Component {
         delay(1000).then(() => {
             this.props.setMount(true)
         })
-        const index = await this.getContentIndex(this.props.bookId, this.props.section, this.props.chapter, this.props.verse);
-        this.setState({ loading: true, index: index }, () => this.fetchMore());
+        if(this.props.index === 0 ||  this.props.section||this.props.chapter|| this.props.verse) {
+            const index = await this.getContentIndex(this.props.bookId, this.props.section, this.props.chapter, this.props.verse);
+            this.setState({ loading: true, index: index }, () => this.fetchMore());
+        }else{
+            this.setState({ loading: true, index: this.props.index }, () => this.fetchMore());
+
+        }
+       
     }
 
     async componentWillReceiveProps(nextProps) {
@@ -51,8 +57,7 @@ class BookViewClass extends React.Component {
 
     }
 
-    bookToElements(bookContent, grammar) {
-
+    bookToElements(bookContent) {
         return bookContent.reduce((elements, content, index) => {
             if (!this.bookName.includes(content.bookName)) {
                 this.bookName = [...this.bookName, content.bookName]
@@ -68,16 +73,16 @@ class BookViewClass extends React.Component {
             }
 
             if (content.verse.length && elements[elements.length - 1] && elements[elements.length - 1].index && elements[elements.length - 1].index === content.verse) {
-                elements[elements.length - 1] = { ...elements[elements.length - 1], parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag : RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: grammar ? removeGrammar(removeTag(elements[elements.length - 1].value + content.content)) : removeTag(elements[elements.length - 1].value + content.content) }
+                elements[elements.length - 1] = { ...elements[elements.length - 1], parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag : RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: elements[elements.length - 1].value + content.content}
                 return elements
             }
             if (elements[elements.length - 1] && elements[elements.length - 1].type === 'chapter' && !content.content.length) {
                 return elements
             }
-            if (elements[elements.length - 1] &&elements[elements.length - 1].type === 'section' && !content.content.length) {
+            if (elements[elements.length - 1] && elements[elements.length - 1].type === 'section' && !content.content.length) {
                 return elements
             }
-            elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: grammar ? removeGrammar(removeTag(content.content)) : removeTag(content.content) })
+            elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value:content.content })
             return elements
 
         }, []);
@@ -110,7 +115,7 @@ class BookViewClass extends React.Component {
 
     async fetchMore() {
         if (this.state.loading) {
-            this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar)).then(content => {
+            this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar,this.props.punctuation)).then(content => {
                 console.log({ content });
                 this.setState({ end: !content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
@@ -122,11 +127,9 @@ class BookViewClass extends React.Component {
             <Item indexPress={(pressIndex) => {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
-            }} highlightIndex={this.state.highlightIndex} item={item} styles={this.styles} index={index} textSize={this.props.textSize} exegesis={this.props.exegesis}></Item>
+            }} highlightIndex={this.state.highlightIndex} item={item} punctuation={this.props.punctuation} styles={this.styles} index={index} textSize={this.props.textSize} grammar={this.props.grammar} exegesis={this.props.exegesis}></Item>
         )
     }
-
-
 
     render() {
         return (
@@ -163,7 +166,7 @@ class Item extends React.Component {
     }
 
     render() {
-        const { item, highlightIndex, index, styles, exegesis, indexPress } = this.props;
+        const { item, highlightIndex, index,punctuation, styles, exegesis, indexPress,grammar } = this.props;
         if (item.type === 'bookName') {
             return <Text style={styles.book}>{item.value}</Text>
         }
@@ -178,51 +181,34 @@ class Item extends React.Component {
             let boldText = false;
             let smallText = false;
             let comment = { enable: true, id: '', char: '' };
-            return <TouchableOpacity  selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
+            return <TouchableOpacity selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
                 <Text key={Math.random()} style={styles.pasok}>{item.index}</Text>
-
                 {item.value.split(' ').reduce((elements, splitContent, index) => {
-                    if (RegExp(/<(הערה)[^>]*/).test(splitContent) ) {
+                    if (RegExp(/<(הערה)[^>]*/).test(splitContent)) {
                         comment.enable = true;
-                        {/* const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
-                        if (char) {
-                            comment.char = char[1];
-                        }
-                        const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
-                        if (id) {
-                            comment.id = id[1];
-                        } */}
                         return elements
-
                     }
-                    if (comment.enable ) {
-                      
+                    if (comment.enable) {
                         const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
-                        console.log(char)
                         if (char) {
                             comment.char = char[1];
-                            {/* return elements */}
-
                         }
                         const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
                         if (id) {
                             comment.id = id[1];
-                            {/* return elements */}
-
                         }
 
                     }
                     if (RegExp(/(.*?)<\/(הערה)[^>]*>/).test(splitContent)) {
                         const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
-                        if (char) {comment.char = char[1];}
+                        if (char) { comment.char = char[1]; }
                         const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
-                        if (id) {comment.id = id[1]; }
+                        if (id) { comment.id = id[1]; }
                         if (comment.char.length) {
                             elements.push(
                                 <TouchableOpacity>
-                                <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char} </Text>
+                                    <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char} </Text>
                                 </TouchableOpacity>)
-                            {/* return elements */}
                         }
                         comment.enable = false;
                         comment.id = '';
@@ -265,7 +251,7 @@ class Item extends React.Component {
                         return elements
                     }
 
-                    elements.push(<Text selectable key={Math.random()} style={styles.pasokContent}> {splitContent.replace(/(.*?)<\/(הערה)[^>]*>/,'').replace(/<(הערה)[^>]*/,'').replace(/תו="([^"]+)"/,'').replace(/>/,'')}</Text>)
+                    elements.push(<Text selectable key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(splitContent,exegesis,punctuation,grammar)}</Text>)
                     return elements
                 }, [])}
                 {item.parsaTag && !exegesis ? <Text key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}
@@ -274,6 +260,12 @@ class Item extends React.Component {
         return <></>
     }
 }
+
+
+const removeNotNeedContent = (content,exegesis,punctuation,grammar) => {
+    return removeTag(  punctuation?  removePunctuation((grammar? removeGrammar(content):content)):(grammar? removeGrammar(content):content))
+}
+
 
 
 const getStyles = (textSize) => {
@@ -371,9 +363,17 @@ export const removeGrammar = (content) => {
     return content.replace(/[^א-ת\s,;.-]/g, '')
 }
 
-export const removeTag = (content) => {
+export const removePunctuation = (content) => {
+    return ([...content]||[]).reduce((newString, char, index) => {
+        if (!['?', '!', ',', ".", ":"].includes(char) || [...content].length - 1 === index) {
+            newString += char;
+        }
+        return newString;
+    },'')
+}
 
-    return content.replace(RegExp('<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>'), '')
+export const removeTag = (content) => {
+    return content.replace(RegExp('<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>'), '').replace(/(.*?)<\/(הערה)[^>]*>/, '').replace(/<(הערה)[^>]*/, '').replace(/תו="([^"]+)"/, '').replace(/>/, '')
 }
 
 export const removeGrayTag = (content) => {
