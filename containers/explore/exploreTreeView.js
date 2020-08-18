@@ -15,33 +15,49 @@ import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 function removeNulls(obj) {
     var isArray = obj instanceof Array;
     for (var k in obj) {
-      if (obj[k] === null) isArray ? obj.splice(k, 1) : delete obj[k];
-      else if (typeof obj[k] == "object") removeNulls(obj[k]);
-      if (isArray && obj.length == k) removeNulls(obj);
+        if (obj[k] === null) isArray ? obj.splice(k, 1) : delete obj[k];
+        else if (typeof obj[k] == "object") removeNulls(obj[k]);
+        if (isArray && obj.length == k) removeNulls(obj);
     }
     return obj;
-  }
+}
+const getBookTree = async (booksIds) => {
+    const data = await Promise.all(booksIds.map(bookId => {
+        return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
+    }))
+    return data || [];
+}
 const getGroups = async () => {
     const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
-    return  JSON.parse(JSON.stringify(data))||[]
-    return data || [];
+    return JSON.parse(JSON.stringify(data)) || []
 }
 
 const ExploreTreeView = ({ navigation }) => {
     const { data, error, isPending } = useAsync({ promiseFn: getGroups })
     const [showErrorModel, setShowErrorModel] = React.useState(false);
-    React.useEffect(()=>{
-        if(error){
+    const cache = {};
+    const getBookInfo = async (bookId) => {
+        console.log({bookId});
+        if (cache[bookId]) {
+            return cache[bookId]
+        }
+        const res = await getBookTree([bookId]);
+        cache[bookId] = res;
+        return res;
+    }
+    React.useEffect(() => {
+        if (error) {
             setShowErrorModel(true);
         }
-    },[error])
+    }, [error])
+    console.log(data);
     return (
         <Background>
             <ErrorModel errorMsg={"שגיאה בבקשה מהשרת של תצוגת עץ"} errorTitle={'שגיאה'} visible={showErrorModel} setVisible={setShowErrorModel} />
 
             <View style={styles.page}>
-                {!isPending &&data&& data.length ? <ScrollView style={styles.scroll}>
-                    <ExploreTree navigation={navigation} groups={data} />
+                {!isPending && data && data.length ? <ScrollView style={styles.scroll}>
+                    <ExploreTree getBookInfo={getBookInfo} navigation={navigation} groups={data} />
                 </ScrollView> : <View style={styles.spinnerContainer}>
                         <Spinner />
                     </View>}
@@ -91,4 +107,4 @@ const styles = StyleSheet.create({
     }
 });
 
- export default  ExploreTreeView;
+export default ExploreTreeView;

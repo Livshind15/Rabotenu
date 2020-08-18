@@ -3,16 +3,49 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import OctIcons from "react-native-vector-icons/Octicons";
 import Icon from "react-native-vector-icons/Entypo";
 import Accordian from '../accordian/accordian';
+import { useAsync } from "react-async";
+import { isEmpty } from 'lodash';
 
-const ExploreTree = ({ navigation, groups = [], deep = 0 }) => {
-    return (groups || []).map((group, index) => <Accordian customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={group.groupName.replace('_','"')||''} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
+const ExploreTree = ({ getBookInfo, navigation, groups = [], deep = 0 }) => {
+    return (groups || []).map((group, index) => <Accordian customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={group.groupName.replace('_', '"') || ''} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
         {group.subGroups && group.subGroups && group.subGroups.length || group.books.length ? <View style={styles.innerScroll}>
-            {group.subGroups &&  group.subGroups.length ? <ExploreTree navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
-            {group.books.length ? ((group.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} onPress={() => { navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] }) }} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
-                <Text style={styles.resultText}>{book.bookName.replace('_','"')}</Text>
-                <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
-            </TouchableOpacity>) : <></>}
+            {group.subGroups && group.subGroups.length ? <ExploreTree getBookInfo={getBookInfo} navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
+            {group.books.length ? ((group.books) || []).map((book, index) => {
+                const [info, setInfo] = React.useState([]);
+                {/* const { data, error, isPending } = useAsync({ promiseFn: getBookInfo, bookId: book.bookId }) */ }
+                {/* getBookInfo(book.bookId).then(book =>{ */ }
+                {/* setInfo(book) */ }
+                {/* })  */ }
+                {/* const [info,setInfo] = React.useState();
+                {/* const { data, error, isPending } = useAsync({ promiseFn: getBookInfo, bookId: book.bookId }) */}
+                {/* getBookInfo(book.bookId).then(book =>{ */ }
+                {/* setInfo(book) */ }
+                {/* })  */ }
+                const [expanded, setExpanded] = React.useState(false);
+                return <Accordian
+                    initExpanded={expanded}
+                    onExpanded={ (state) => {
+                        if (state) {
+                            getBookInfo(book.bookId).then(infoRes => {
+                                setInfo(infoRes[0]||[])
+                                if(isEmpty(infoRes[0].tree)){
+                                    navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })
+                                }
+                                else{
+                                    setExpanded(true);
+                                }
+                            })
+                        }
+                        // navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })
+                    }}
+                    shouldExpanded={!isEmpty(info)&&!isEmpty(info.tree)}
+                    additionalComponent={
+                        <TouchableOpacity onPress={() => navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })} underlayColor="#ffffff00">
+                            <OctIcons style={{ paddingRight: 25, paddingLeft: 5 }} name={'book'} size={22} color={'#9AD3CE'} />
+                        </TouchableOpacity>} endToggle={true} header={book.bookName.replace('_', '"')}  ></Accordian>
+            }) : <></>}
         </View> : <></>}
+        
     </Accordian>)
 }
 
@@ -37,7 +70,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderColor: '#E4E4E4'
     },
-   
+
     innerScroll: {
         flex: 1,
         width: '100%',

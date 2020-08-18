@@ -35,7 +35,6 @@ const BookList = ({ tree,isPending,navigation,onSelectChapter,onSelectBook,bookI
 }
 
 const styles = StyleSheet.create({
-
     page: {
         flex: 1,
         width: '100%',

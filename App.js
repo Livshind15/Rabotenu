@@ -82,7 +82,7 @@ const Routes = (props) => {
         <Stack.Screen name="Main" options={(props) => {
           return {
             ...screenOptions,
-            headerRight: () => showBack.enable ? <TouchableOpacity style={{ marginRight: 12 }} onPress={() => {
+            headerRight: () => showBack.enable ? <TouchableOpacity  underlayColor="#ffffff00" style={{ marginRight: 12 }} onPress={() => {
               if (showBack.navigation) {
                 showBack.navigation.goBack()
               }
