@@ -17,18 +17,15 @@ export const SearchProvider = ({ children }) => {
     const [tableInput, setTableInput] = React.useState([[]]);
     const [allResourceToggle, setResourceToggle] = React.useState(false);
     const [selectedGroup, setSelectedGroup] = React.useState('');
+    const [notSearchGroups,setNotSearchGroups]= React.useState({});
+    const [notSearchBooks,setNotSearchBooks]= React.useState({});
 
     const [resourcesGroups, setResourcesGroups] = React.useState({});
     const [resources, setResources] = React.useState([]);
     const [removeResources, setRemoveResources] = React.useState([]);
 
     const [resourcesData, setData] = React.useState([]);
-    React.useEffect(() => {
-        const allBooks = flatten(getBooksInGroup(resources, true).map(resource => resource.booksId));
-        const books = flatten(getBooksInGroup(resources, false).map(resource => resource.booksId));
-        const isAllResource = isEqual(allBooks, difference(allBooks, books))
-        setResourceToggle(isAllResource);
-    }, []);
+   
     React.useEffect(() => {
         if (allResourceToggle) {
             if (resourcesData && resourcesData.length) {
@@ -51,13 +48,17 @@ export const SearchProvider = ({ children }) => {
         }
         setResourceToggle(isAllResource);
     }, [resources]);
+
+    React.useEffect(() => {
+        const books = flatten(getBooksInGroup(resources, false).map(resource => resource.booksId));
+        const groups = flatten(getBooksInGroup(resources, false).filter(resource => !!resource.groupIds).map(resource => resource.groupIds))
+
+        setNotSearchGroups(groups)
+        setNotSearchBooks(books)
+    }, [removeResources,resources]);
     
 
-    const notSearchGroupAndBooks = () => {
-        const groups = removeResources.filter(resource => !!resource.groupIds).map(resource => resource.groupIds)
-        const books = flatten(removeResources.filter(resource => !resource.groupIds).map(resource => resource.booksId))
-        return { groups, books }
-    }
+    
 
     React.useEffect(() => {
         console.log(resources, resourcesGroups);
@@ -146,7 +147,7 @@ export const SearchProvider = ({ children }) => {
     }, [resourcesGroups])
 
     return (
-        <SearchContext.Provider value={{ searchInput,selectedGroup, setSelectedGroup, removeResources,allResourceToggle, setResourceToggle, notSearchGroupAndBooks, setRemoveResources, setResourcesGroups, resourcesData, setData, resourcesGroups, resources, setResources, searchType, setSearchType, tableInput, setTableInput, searchType, bookResult, setSearchInput, setSearchType, setBookResult }}>
+        <SearchContext.Provider value={{ searchInput,selectedGroup, setSelectedGroup,notSearchBooks, removeResources,allResourceToggle, setResourceToggle, notSearchGroups, setRemoveResources, setResourcesGroups, resourcesData, setData, resourcesGroups, resources, setResources, searchType, setSearchType, tableInput, setTableInput, searchType, bookResult, setSearchInput, setSearchType, setBookResult }}>
             {children}
         </SearchContext.Provider>
     )

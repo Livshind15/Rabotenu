@@ -39,7 +39,7 @@ console.log({books,groups});
 
 
 export default function Search() {
-  const { setTableInput, setBookResult, setSearchType ,notSearchGroupAndBooks} = React.useContext(SearchContext);
+  const { setTableInput, setBookResult, setSearchType ,notSearchBooks,notSearchGroups} = React.useContext(SearchContext);
   const [tableInit] = React.useState([[{ value: "" }]])
   const tableSearch = (props) => <TableSearch tableInit={tableInit} {...props} onSave={async (table, navigation) => {
     const tablesInput = table.map(or => {
@@ -50,8 +50,7 @@ export default function Search() {
         }
       })
     })
-    const resources  = notSearchGroupAndBooks();
-    const result = await getBooksByContent("", "table", tablesInput,resources.books,resources.groups);
+    const result = await getBooksByContent("", "table", tablesInput,notSearchBooks,notSearchGroups);
     setTableInput(tablesInput)
     setBookResult(result);
     navigation.push('SearchResultView', { onSearch: getBooksByContent })
@@ -85,7 +84,7 @@ const SearchMain = ({ navigation }) => {
   const [isLoading, setLoading] = React.useState(false);
   const [showOptionsSearch, setShowOptionsSearch] = React.useState(false);
   const [showSearchType, setShowSearchType] = React.useState(false);
-  const { searchInput, setSearchInput, setBookResult,notSearchGroupAndBooks, setSearchType, searchType, tableInput, setTableInput } = React.useContext(SearchContext);
+  const { searchInput, setSearchInput, setBookResult,notSearchGroups,notSearchBooks, setSearchType, searchType, tableInput, setTableInput } = React.useContext(SearchContext);
 
 
   return (
@@ -112,8 +111,7 @@ const SearchMain = ({ navigation }) => {
             <ClickButton onPress={async () => {
               if (!isLoading) {
                 setLoading(true);
-                const resources  = notSearchGroupAndBooks();
-                const result = await getBooksByContent(searchInput, searchType, tableInput,resources.books,resources.groups);
+                const result = await getBooksByContent(searchInput, searchType, tableInput,notSearchBooks,notSearchGroups);
                 setLoading(false)
                 setBookResult(result);
                 navigation.push('SearchResultView', { onSearch: getBooksByContent })

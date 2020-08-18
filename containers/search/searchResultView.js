@@ -16,16 +16,14 @@ const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 const SearchResultView = ({ navigation, route }) => {
     const { onSearch } = route.params;
-    const { searchInput, bookResult, allResourceToggle, setResourceToggle, setSearchInput, setBookResult, notSearchGroupAndBooks, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
+    const { searchInput, bookResult, allResourceToggle, setResourceToggle, setSearchInput, setBookResult, notSearchBooks,notSearchGroups, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
     const searchResult = (props) => <SearchResult {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-        const resources = notSearchGroupAndBooks();
-        const result = await onSearch(input, searchType, tableInput, resources.books, resources.groups);
+        const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups);
         setBookResult(result);
 
     }} result={bookResult} />
     const searchTree = (props) => <SearchTree {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-        const resources = notSearchGroupAndBooks();
-        const result = await onSearch(input, searchType, tableInput, resources.books, resources.groups);
+        const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups);
         setBookResult(result);
 
     }} result={bookResult} />
