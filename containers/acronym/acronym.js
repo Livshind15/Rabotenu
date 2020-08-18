@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-
+import { useAsync } from "react-async";
+import axios from "axios";
+import config from "../../config/config";
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import Background from '../../component/background/background';
@@ -13,24 +15,42 @@ const Stack = createStackNavigator();
 export default function Acronym() {
   return (
     <Stack.Navigator initialRouteName="Main" >
-      <Stack.Screen name="Acronym" options={{ headerShown: false,title:'רבותינו' }} component={AcronymMain} />
-      <Stack.Screen name="AcronymResult" options={{ headerShown: false,title:'רבותינו' }} component={AcronymResult} />
+      <Stack.Screen name="Acronym" options={{ headerShown: false, title: 'רבותינו' }} component={AcronymMain} />
+      <Stack.Screen name="AcronymResult" options={{ headerShown: false, title: 'רבותינו' }} component={AcronymResult} />
     </Stack.Navigator>
   )
 }
 
+const getAcronym = async (content,searchType) => {
+
+  return axios.post(`${config.serverUrl}/acronyms`, {
+    content: content,
+    type: searchType,
+    size: 50
+  }).then(res => res.data);
+
+}
+const searchTypes = ['exeat','close','exeat']
+
 const AcronymMain = ({ navigation }) => {
-  const [showModal, setShowModal] = React.useState(false)
+  const [showModal, setShowModal] = React.useState(false);
+  const [input, setInput] = React.useState('');
+  const [isLoading, setLoading] = React.useState(false);
+  const [searchType,setSearchType] = React.useState('exeat');
+  const [selectedOptions,onOptionsSelected] = React.useState(0);
+  React.useEffect(()=>{
+    setSearchType(searchTypes[selectedOptions])
+  },[selectedOptions])
   return (
     <Background>
-      <AcronymModal visible={showModal} setVisible={setShowModal} />
+      <AcronymModal onOptionsSelected={onOptionsSelected} selectedOptions={selectedOptions} visible={showModal} setVisible={setShowModal} />
       <View style={styles.page}>
         <View style={styles.container}>
           <View style={styles.textWrapper}>
             <Text style={styles.text}>הקלד ראשי תיבות שתרצה לאתר</Text>
           </View>
           <View style={styles.input}>
-            <Input onChange={() => { }} placeholder={'חפש'} />
+            <Input isLoading={isLoading} value={input} onChange={setInput} placeholder={'חפש'} />
           </View>
           <View style={styles.buttonsWrapper}>
             <View style={styles.buttonWrapper}>
@@ -38,19 +58,22 @@ const AcronymMain = ({ navigation }) => {
             </View>
             <View style={styles.buttonWrapper}>
               <ClickButton onPress={async () => {
-                navigation.push('AcronymResult');
+                setLoading(true);
+                const results = await getAcronym(input,searchType);
+                setLoading(false);
+                navigation.push('AcronymResult', { results });
               }} outline={false} optionsButton={{ paddingVertical: 6 }} >חיפוש</ClickButton>
             </View>
           </View>
-     
+
         </View>
       </View>
       <View style={styles.addButtonContainer}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.addButton}
           underlayColor="#ffffff00" >
           <Text style={styles.addButtonText} >הוסף ראשי תיבות למילון</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </Background>
   );

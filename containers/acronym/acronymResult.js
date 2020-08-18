@@ -2,26 +2,37 @@ import * as React from 'react';
 import { StyleSheet, View, ScrollView, Text } from 'react-native';
 
 import Background from '../../component/background/background';
-import results from './acronymResult.mock';
+import { FlatList } from 'react-native-gesture-handler';
+// import results from './acronymResult.mock';
 
-export default function AcronymResult({ }) {
+export default function AcronymResult({ route }) {
+    const { results } = route.params;
+
     return (
         <Background>
             <View style={styles.page}>
-                <ScrollView style={styles.scroll}>
-                    {results.map((result, index) => (
+                <FlatList
+                    data={results}
+                    keyExtractor={(key, index) => index.toString()}
+                    initialNumToRender={7}
+                    onScrollToIndexFailed={() => { }}
+                    getItemLayout={(data, index) => {
+                        return { length: 80, offset: 80 * index, index }
+                    }}
+                    style={styles.scroll}
+                    renderItem={({ item, index }) => (
                         <>
                             <View style={styles.header} key={index}>
-                                <Text style={styles.headerText}>{result.acronym}</Text>
+                                <Text style={styles.headerText}>{item.key}</Text>
                             </View>
-                            {result.meanings.map((meaning ,index)=> (
+                            {item.values.map((meaning, index) => (
                                 <View style={styles.meaningContainer} key={index}>
                                     <Text style={styles.headerText}>{meaning}</Text>
                                 </View>
                             ))}
                         </>
-                    ))}
-                </ScrollView>
+                    )}
+                />
             </View>
         </Background>
     );
@@ -33,17 +44,17 @@ const styles = StyleSheet.create({
         fontFamily: "OpenSansHebrew",
         color: '#818383',
     },
-    meaningContainer:{
+    meaningContainer: {
         width: '100%',
         height: 40,
-        paddingHorizontal:20,
+        paddingHorizontal: 20,
         justifyContent: 'center',
     },
     header: {
         width: '100%',
         height: 40,
         justifyContent: 'center',
-        paddingHorizontal:20,
+        paddingHorizontal: 20,
         shadowOffset: {
             width: 0,
             height: 1,

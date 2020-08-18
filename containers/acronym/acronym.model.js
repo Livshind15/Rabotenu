@@ -6,16 +6,15 @@ import Modal from 'modal-enhanced-react-native-web';
 import ClickButton from '../../component/clickButton/clickButton';
 import { Radio } from '@ui-kitten/components';
 import MobileModal from 'react-native-modal'
-import optionsList from './acronym.model.mock';
+import optionsList from './acronym.model.options';
 
 
-export default function AcronymModal({ visible, setVisible }) {
-    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent setVisible={setVisible} options={optionsList} /></Modal> :
-        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent setVisible={setVisible} options={optionsList} /></MobileModal>
+export default function AcronymModal({ visible, setVisible,onOptionsSelected,selectedOptions }) {
+    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent onOptionsSelected={onOptionsSelected} selectedOptions={selectedOptions} setVisible={setVisible} options={optionsList} /></Modal> :
+        <MobileModal onOptionsSelected={onOptionsSelected} selectedOptions={selectedOptions} onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent setVisible={setVisible} options={optionsList} /></MobileModal>
 }
 
-const ModelContent = ({ options, setVisible }) => {
-    const [selectedOptions, setSelectedOptions] = React.useState(0);
+const ModelContent = ({ options, setVisible,onOptionsSelected,selectedOptions }) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -25,9 +24,9 @@ const ModelContent = ({ options, setVisible }) => {
             </View>
             <View style={styles.options}>
                 {options.map((option, key) => (
-                    <TouchableOpacity underlayColor="#ffffff00" onPress={() => setSelectedOptions(key)}>
+                    <TouchableOpacity underlayColor="#ffffff00" onPress={() => onOptionsSelected(key)}>
                         <View key={key} style={styles.option}>
-                            <Radio onChange={() => setSelectedOptions(key)} checked={selectedOptions === key} />
+                            <Radio onChange={() => onOptionsSelected(key)} checked={selectedOptions === key} />
                             <Text style={styles.optionText}>{option.text}</Text>
                         </View>
                     </TouchableOpacity>
@@ -44,7 +43,7 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: 'flex-end',
         paddingHorizontal: 15,
-        flex: 0.2
+        flex: 0.28
     },
     options: {
         paddingVertical: 8,
@@ -73,12 +72,12 @@ const styles = StyleSheet.create({
     },
     buttonWrapper: {
         width: 95,
-        flex: 0.35
+        flex: 0.4
     },
     container: {
         alignItems: 'center',
         borderRadius: 20,
-        height: 265,
+        height: 230,
         width: 380,
         backgroundColor: '#F9F9F9'
     },
