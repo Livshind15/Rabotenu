@@ -2,7 +2,7 @@ import * as React from 'react';
 import Background from '../../component/background/background';
 import { View, FlatList, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
 import axios from "axios";
-import {  Tooltip } from '@ui-kitten/components';
+import { Tooltip } from '@ui-kitten/components';
 
 import config from "../../config/config";
 import { delay } from '../../utils/helpers';
@@ -10,9 +10,10 @@ import { isEmpty } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
+import ErrorModel from '../../component/modalError/modalError';
 
 
-const DefaultScrollSize = 5;
+const DefaultScrollSize = 20;
 
 class BookViewClass extends React.Component {
     constructor(props) {
@@ -24,6 +25,7 @@ class BookViewClass extends React.Component {
             index: 0,
             loading: false,
             highlightIndex: null,
+            showCopyModal: false,
             bookId: this.props.bookId
         }
         this.styles = getStyles(this.props.textSize);
@@ -37,14 +39,14 @@ class BookViewClass extends React.Component {
         delay(1000).then(() => {
             this.props.setMount(true)
         })
-        if(this.props.index === 0 ||  this.props.section||this.props.chapter|| this.props.verse) {
+        if (this.props.index === 0 || this.props.section || this.props.chapter || this.props.verse) {
             const index = await this.getContentIndex(this.props.bookId, this.props.section, this.props.chapter, this.props.verse);
             this.setState({ loading: true, index: index }, () => this.fetchMore());
-        }else{
+        } else {
             this.setState({ loading: true, index: this.props.index }, () => this.fetchMore());
 
         }
-       
+
     }
 
     async componentWillReceiveProps(nextProps) {
@@ -74,7 +76,7 @@ class BookViewClass extends React.Component {
             }
 
             if (content.verse.length && elements[elements.length - 1] && elements[elements.length - 1].index && elements[elements.length - 1].index === content.verse) {
-                elements[elements.length - 1] = { ...elements[elements.length - 1], parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag : RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: elements[elements.length - 1].value + content.content}
+                elements[elements.length - 1] = { ...elements[elements.length - 1], parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag : RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: elements[elements.length - 1].value + content.content }
                 return elements
             }
             if (elements[elements.length - 1] && elements[elements.length - 1].type === 'chapter' && !content.content.length) {
@@ -83,7 +85,7 @@ class BookViewClass extends React.Component {
             if (elements[elements.length - 1] && elements[elements.length - 1].type === 'section' && !content.content.length) {
                 return elements
             }
-            elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value:content.content })
+            elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: content.content })
             return elements
 
         }, []);
@@ -115,7 +117,7 @@ class BookViewClass extends React.Component {
 
     async fetchMore() {
         if (this.state.loading) {
-            this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar,this.props.punctuation)).then(content => {
+            this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
                 this.setState({ end: !content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
         }
@@ -123,8 +125,8 @@ class BookViewClass extends React.Component {
 
     renderItem({ item, index }) {
         return (
-            
-            <Item indexPress={(pressIndex) => {
+
+            <Item showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
             }} highlightIndex={this.state.highlightIndex} item={item} punctuation={this.props.punctuation} styles={this.styles} index={index} textSize={this.props.textSize} grammar={this.props.grammar} exegesis={this.props.exegesis}></Item>
@@ -134,6 +136,8 @@ class BookViewClass extends React.Component {
     render() {
         return (
             <Background>
+                <ErrorModel errorMsg={"הפיסקה עותקה בהצלחה"} errorTitle={'העתקת תוכן'} visible={this.state.showCopyModal} setVisible={(state) => { this.setState({ showCopyModal: state }) }} />
+
                 {this.state.data.length ? <FlatList
                     onEndReachedThreshold={10}
                     initialNumToRender={2}
@@ -167,9 +171,9 @@ class Item extends React.Component {
     }
 
     render() {
-        const { item, highlightIndex, index,punctuation, styles, exegesis, indexPress,grammar } = this.props;
+        const { item, highlightIndex,indexLongPress, index, punctuation, styles, exegesis, indexPress, grammar } = this.props;
         if (item.type === 'bookName') {
-            return <Text style={styles.book}>{item.value.replace('_','"')}</Text>
+            return <Text style={styles.book}>{item.value.replace('_', '"')}</Text>
         }
         if (item.type === 'section') {
             return <Text style={styles.parsa}>{item.value}</Text>
@@ -182,8 +186,11 @@ class Item extends React.Component {
             let boldText = false;
             let smallText = false;
             let comment = { enable: true, id: '', char: '' };
-            return <TouchableOpacity onLongPress={()=>{
-
+            return <TouchableOpacity onLongPress={async () => {
+                await indexLongPress(index);
+                if (highlightIndex === index) {
+                    this.props.showCopyModal();
+                }
             }} selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
                 <Text key={Math.random()} key={Math.random()} style={styles.pasok}>{item.index}</Text>
                 {item.value.split(' ').reduce((elements, splitContent, index) => {
@@ -254,7 +261,7 @@ class Item extends React.Component {
                         return elements
                     }
 
-                    elements.push(<Text selectable={true} key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(splitContent,exegesis,punctuation,grammar)}</Text>)
+                    elements.push(<Text selectable={true} key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(splitContent, exegesis, punctuation, grammar)}</Text>)
                     return elements
                 }, [])}
                 {item.parsaTag && !exegesis ? <Text key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}
@@ -265,8 +272,8 @@ class Item extends React.Component {
 }
 
 
-const removeNotNeedContent = (content,exegesis,punctuation,grammar) => {
-    return removeTag(  punctuation?  removePunctuation((grammar? removeGrammar(content):content)):(grammar? removeGrammar(content):content))
+export const removeNotNeedContent = (content, punctuation, grammar) => {
+    return removeTag(punctuation ? removePunctuation((grammar ? removeGrammar(content) : content)) : (grammar ? removeGrammar(content) : content))
 }
 
 
@@ -312,39 +319,33 @@ const getStyles = (textSize) => {
         },
         pasokContentBold: {
             color: '#455253',
-            fontFamily: "Hebrew",
             fontWeight: "bold",
             textAlign: 'right',
             fontSize: 20 + (textSize * 50),
         },
         pasokLink: {
             color: '#11AFC2',
-            fontFamily: "Hebrew",
             textAlign: 'right',
             alignSelf: 'center',
             fontSize: 12 + (textSize * 50),
         },
         pasokContentSmall: {
             color: '#455253',
-            fontFamily: "Hebrew",
             textAlign: 'right',
             fontSize: 14 + (textSize * 50),
         },
         pasokContentComment: {
             color: '#00701a',
-            fontFamily: "Hebrew",
             textAlign: 'right',
             fontSize: 14 + (textSize * 50),
         },
         pasokContentGray: {
             color: '#CBD4D3',
-            fontFamily: "Hebrew",
             textAlign: 'right',
             fontSize: 17 + (textSize * 50),
         },
         pasokContent: {
             color: '#455253',
-            fontFamily: "Hebrew",
             textAlign: 'right',
             fontSize: 20 + (textSize * 50),
         },
@@ -367,12 +368,12 @@ export const removeGrammar = (content) => {
 }
 
 export const removePunctuation = (content) => {
-    return ([...content]||[]).reduce((newString, char, index) => {
+    return ([...content] || []).reduce((newString, char, index) => {
         if (!['?', '!', ',', ".", ":"].includes(char) || [...content].length - 1 === index) {
             newString += char;
         }
         return newString;
-    },'')
+    }, '')
 }
 
 export const removeTag = (content) => {

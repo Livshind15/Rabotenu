@@ -35,7 +35,7 @@ const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll, editPar
                                 <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([item.bookId])}>
                                     <Icon color={'#47BBB2'} name={'close'} size={20} />
                                 </TouchableOpacity>
-                                <Text style={styles.resourceName}>{`${item.groupName}, ${item.bookName}`}</Text>
+                                <Text style={styles.resourceName}>{`${item.groupName.replace('_','"')}, ${item.bookName.replace('_','"')}`}</Text>
                             </View>
                         }}
                     />
@@ -43,7 +43,7 @@ const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll, editPar
                 </View>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttonsContainerRow}>
-                        <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} optionsText={{ fontSize: 22 }}>חפש תוצאות</ClickButton></View>
+                        <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} onPress={()=>navigation.goBack()} optionsText={{ fontSize: 22 }}>חפש תוצאות</ClickButton></View>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} onPress={() => {
                             navigation.goBack()
                         }} optionsText={{ fontSize: 22 }}>חזרה</ClickButton></View>

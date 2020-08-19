@@ -5,33 +5,79 @@ import OctIcons from "react-native-vector-icons/Octicons";
 import Accordian from '../../component/accordian/accordian';
 import Feather from 'react-native-vector-icons/Feather';
 
-const getParentBook=(result) =>{
-    if(result.id){
+const getParentBook = (result) => {
+    if (result.id) {
         return result.id;
     }
-    else if(result.parent){
+    else if (result.parent) {
         return getParentBook(result.parent)
     }
     return '';
 }
 
-const BookListTree = ({ results, bookId, parent,deep = 0, onSelect = () => { } }) => {
+const getParentChapter = (result) => {
+    if (result.type === 'chapter') {
+        return result.text;
+    }
+    else if (result.parent) {
+        return getParentBook(result.parent)
+    }
+    return '';
+}
+const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } }) => {
     return <>
         {results.map((result, index) => (
-            <Accordian onExpanded={() => {
-
-                if (!result.tree ) {
+            <Accordian onLongPress={() => {
+                if (result.type === 'section') {
+                    console.log({result})
+                    onSelect({
+                        'section': result.text,
+                        'bookId': getParentBook(parent)
+                    })
+                }
+                else if (result.type === 'chapter') {
                     onSelect({
                         'chapter': result.text,
                         'bookId': getParentBook(parent)
                     })
                 }
-            }} shouldExpanded={!!result.tree} customStyles={{ container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId.replace('_','"')}, ${result.text.replace('_','"')}` : result.text.replace('_','"')} additionalComponent={
+                else if (result.type === 'verse') {
+                    onSelect({
+                        'verse': result.text,
+                        'chapter': getParentChapter(parent),
+                        'bookId': getParentBook(parent)
+                    })
+                }
+            }} onExpanded={() => {
+                if (!result.tree) {
+                    if (result.type === 'section') {
+                        onSelect({
+                            'section': result.text,
+                            'bookId': getParentBook(parent)
+                        })
+                    }
+                   else if (result.type === 'chapter') {
+                        onSelect({
+                            'chapter': result.text,
+                            'bookId': getParentBook(parent)
+                        })
+                    }
+                    else if (result.type === 'verse') {
+                        onSelect({
+                            'verse': result.text,
+                            'chapter': getParentChapter(parent),
+                            'bookId': getParentBook(parent)
+                        })
+                    }
+
+                }
+            }} shouldExpanded={!!result.tree} customStyles={{ header: { paddingLeft: 0, paddingRight: result.tree ? 0 : (2 * deep) }, container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId.replace('_', '"')}, ${result.text.replace('_', '"')}` : result.text.replace('_', '"')} additionalComponent={
                 result.isBook ? <View style={styles.endContainer}>
                     <TouchableOpacity onPress={() => {
-                    if(bookId !== result.id){
-                        onSelect({ 'book': result.id })
-                    }}
+                        if (bookId !== result.id) {
+                            onSelect({ 'book': result.id })
+                        }
+                    }
                     } underlayColor="#ffffff00" >
                         <OctIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#0384AE' : '#A0A0A0'} size={30} name={'book'}></OctIcons>
                     </TouchableOpacity>
@@ -42,7 +88,7 @@ const BookListTree = ({ results, bookId, parent,deep = 0, onSelect = () => { } }
             }>
 
                 <View >
-                    {result.tree && <BookListTree parent={{...result,parent:parent}} bookId={bookId} onSelect={onSelect} results={result.tree} deep={deep + 1} />}
+                    {result.tree && <BookListTree parent={{ ...result, parent: parent }} bookId={bookId} onSelect={onSelect} results={result.tree} deep={deep + 1} />}
                 </View>
 
             </Accordian>

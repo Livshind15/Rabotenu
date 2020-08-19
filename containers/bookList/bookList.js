@@ -9,21 +9,39 @@ import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 
 
-const BookList = ({ tree,isPending,navigation,onSelectChapter,onSelectBook,bookId }) => {
+const BookList = ({ tree, isPending, navigation,onSelectSection, onSelectChapter,onSelectVerse, onSelectBook, bookId }) => {
     return (
         <Background>
             <View style={styles.page}>
                 <ScrollView style={styles.scroll}>
                     {!isPending && tree ? <BookListTree bookId={bookId} onSelect={(select => {
-                        console.log({select})
-                        if(select.chapter){
-                            if(select.bookId){
+                        console.log({ select })
+                        if (select.verse) {
+                            if (select.bookId) {
+                                onSelectBook(select.bookId)
+                            }
+                            if (select.chapter) {
+                                onSelectChapter(select.chapter)
+                            }
+                            onSelectVerse(select.verse)
+                            navigation.navigate('View')
+                        }
+                        else if (select.chapter) {
+                            if (select.bookId) {
                                 onSelectBook(select.bookId)
                             }
                             onSelectChapter(select.chapter)
                             navigation.navigate('View')
                         }
-                        if(select.book){
+                        else if (select.section) {
+                            if (select.bookId) {
+                                onSelectBook(select.bookId)
+                            }
+                            onSelectSection(select.section)
+                            navigation.navigate('View')
+
+                        }
+                        else if (select.book) {
                             onSelectBook(select.book)
                             navigation.navigate('View')
                         }
@@ -48,4 +66,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default optimizeHeavyScreen(BookList,PlaceHolder);
+export default optimizeHeavyScreen(BookList, PlaceHolder);

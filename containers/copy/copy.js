@@ -8,29 +8,33 @@ import { Radio } from '@ui-kitten/components';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 
+const godReplaceOption = ['יהוה', '"', "ה'", 'י-ה', 'ידוד']
 
+const Copy = ({ onSave, navigation,title,godOption }) => {
+    const [attachTitle, setAttachTitle] = React.useState(title.enable||false);
+    const [subTitleOption,setSubTitleOption] = React.useState(title.position||0);
+    const [subGodOption,setSubGodOption] = React.useState(godReplaceOption.findIndex(item => item === godOption)||0);
 
-const Copy = ({ onSave, navigation }) => {
-    const [attachTitle, setAttachTitle] = React.useState(false);
-    const [comments, setComments] = React.useState(false);
-    const [dontRemove, setDontRemove] = React.useState(false);
+    // const [comments, setComments] = React.useState(false);
+    // const [dontRemove, setDontRemove] = React.useState(false);
 
     return (
         <Background>
             <View style={styles.page}>
                 <ScrollView style={styles.optionContainer}>
-                    <Option withRadioOption={true} subOption={['לפני העתקה', 'אחרי העתקה']} customStyle={{ option: { borderWidth: 0 } }} onChange={setAttachTitle} checked={attachTitle}>הוסף כותרות להעתקה</Option>
-                    <Option withRadioOption={false} customStyle={{ option: { borderTopWidth: 0 } }} onChange={setComments} checked={comments}>אל תציג ציוני מפרשים והערות</Option>
-                    <Option showCheckBox={false} subOption={['רגיל', '"', "ה'", 'י-ה', 'ידוד']} title={'עיצוב שם הויה'} withRadioOption={true} customStyle={{ option: { borderWidth: 0 } }} checked={true} />
-                    <Option withRadioOption={false} customStyle={{ option: { borderWidth: 0 } }} onChange={setDontRemove} checked={dontRemove}>אל תסיר ציוני מפרשים והערות בהעתקה</Option>
+                    <Option subOptionsState={subTitleOption} setSelectedOptions={setSubTitleOption} withRadioOption={true} subOption={['לפני העתקה', 'אחרי העתקה']} customStyle={{ option: { borderWidth: 0 } }} onChange={setAttachTitle} checked={attachTitle}>הוסף כותרות להעתקה</Option>
+                    {/* <Option withRadioOption={false} customStyle={{ option: { borderTopWidth: 0 } }} onChange={setComments} checked={comments}>אל תציג ציוני מפרשים והערות</Option> */}
+                    <Option subOptionsState={subGodOption} setSelectedOptions={setSubGodOption} showCheckBox={false} subOption={['רגיל', '"', "ה'", 'י-ה', 'ידוד']} title={'עיצוב שם הויה'} withRadioOption={true} customStyle={{ option: { borderWidth: 0 } }} checked={true} />
+                    {/* <Option withRadioOption={false} customStyle={{ option: { borderWidth: 0 } }} onChange={setDontRemove} checked={dontRemove}>אל תסיר ציוני מפרשים והערות בהעתקה</Option> */}
 
                 </ScrollView>
                 <View style={styles.bottomContainer}>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
+                        
                             style={styles.button}
                             onPress={() => {
-                                onSave({ attachTitle, comments, exegesis, dontRemove })
+                                onSave({ attachTitle:{enable:attachTitle,position:subTitleOption},godReplace:godReplaceOption[subGodOption] })
                                 navigation.navigate('View')
                             }}
                             underlayColor="#ffffff00" >
@@ -51,8 +55,7 @@ const Copy = ({ onSave, navigation }) => {
 }
 
 
-const Option = ({ children, showCheckBox = true, checked, onChange, title, withRadioOption, subOption, customStyle = { option: {} } }) => {
-    const [selectedOptions, setSelectedOptions] = React.useState(0);
+const Option = ({ subOptionsState,setSelectedOptions, children, showCheckBox = true, checked, onChange, title, withRadioOption, subOption, customStyle = { option: {} } }) => {
     return (
         <View style={[styles.optionWrapper, customStyle.option]}>
             {title && <Text style={styles.optionTitle}>{title}</Text>}
@@ -73,7 +76,7 @@ const Option = ({ children, showCheckBox = true, checked, onChange, title, withR
             {withRadioOption && <View style={styles.radioOptionContainer}>
                 {subOption.map((option, key) => (<TouchableOpacity key={key} underlayColor="#ffffff00" onPress={() => checked && setSelectedOptions(key)}>
                     <View style={styles.optionRadio}>
-                        <Radio disabled={!checked} onChange={() => checked && setSelectedOptions(key)} checked={selectedOptions === key} />
+                        <Radio disabled={!checked} onChange={() => checked && setSelectedOptions(key)} checked={subOptionsState === key} />
                         <Text style={styles.optionRadioText}>{option}</Text>
                     </View>
                 </TouchableOpacity>))}
@@ -91,6 +94,7 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         paddingHorizontal: 30,
         paddingTop: 10,
+        
         fontSize: 19
     },
     optionRadioText: {
@@ -116,7 +120,8 @@ const styles = StyleSheet.create({
         color: '#5D5C5C',
         fontFamily: "OpenSansHebrewBold",
         textAlign: 'center',
-        paddingTop: 18,
+        paddingTop: 5 ,
+        paddingBottom:5,
         fontSize: 18,
     },
     button: {
@@ -130,12 +135,12 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         width: '100%',
-        height: 60,
+        height: 50,
         justifyContent: 'flex-start',
         alignItems: 'center',
     },
     bottomContainer: {
-        flex: 0.3,
+        flex: 0.26,
         width: "100%"
     },
     sliderWrapper: {

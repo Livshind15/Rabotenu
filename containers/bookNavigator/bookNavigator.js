@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Platform } from 'react-native';
+import Clipboard from '@react-native-community/clipboard'
+
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Tabs from '../../component/tabs/tabs'
 import BookList from '../bookList/bookList';
@@ -9,7 +11,7 @@ import config from "../../config/config";
 import BookDisplay from '../bookDisplay/bookDisplay';
 import Copy from '../copy/copy';
 import BookMenu from '../../component/bookMenu/bookMenu';
-import BookViewClass from '../bookView/bookViewClass';
+import BookViewClass, { removeNotNeedContent } from '../bookView/bookViewClass';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { RabotenuContext } from '../../contexts/applicationContext';
@@ -55,38 +57,49 @@ const getSubBooks = async ([bookId, section, chapter, verse]) => {
 }
 
 const BookNavigator = ({ navigation, route }) => {
-    const { showBack ,setShowBack} = React.useContext(RabotenuContext);
+    const {
+        showBack,
+        copyTitle,
+        setCopyTitle,
+        setGodReplace,
+        godReplace,
+        flavors,
+        setFlavors,
+        setShowBack,
+        textSize,
+        setTextSide,
+        grammar,
+        setGrammar,
+        exegesis,
+        setExegesis,
+        punctuation,
+        setPunctuation } = React.useContext(RabotenuContext);
     React.useEffect(() => {
-        setShowBack({enable:true,navigation})
+        setShowBack({ enable: true, navigation })
         return () => {
-            setShowBack({enable:false,navigation:null})
+            setShowBack({ enable: false, navigation: null })
         }
     }, [])
 
-    const { selectedBooks, selectedChapter,selectedIndex } = route.params;
-   
-    const {booksIds, setBooksIds} = React.useContext(RabotenuContext);
-    
+    const { selectedBooks, selectedChapter, selectedIndex, selectedVerse, selectedSection } = route.params;
+
+    const { booksIds, setBooksIds } = React.useContext(RabotenuContext);
+
     const [currBook, setCurrBook] = React.useState(selectedBooks[0].bookId)
-    const [textSize, setTextSide] = React.useState(0.15);
-    const [initIndex, setInitIndex] = React.useState(selectedIndex||0);
+    const [initIndex, setInitIndex] = React.useState(selectedIndex || 0);
 
-    const [grammar, setGrammar] = React.useState(false);
-    const [exegesis, setExegesis] = React.useState(false);
-    const [punctuation, setPunctuation] = React.useState(false);
 
-    const [flavors, setFlavors] = React.useState(true);
     const [bookListMount, setBookListMount] = React.useState(false);
     const [tree, setTree] = React.useState([])
     const [chapter, setChapter] = React.useState(selectedChapter || '');
-    const [verse, setVerse] = React.useState('');
-    const [section, setSection] = React.useState('');
+    const [verse, setVerse] = React.useState(selectedVerse || '');
+    const [section, setSection] = React.useState(selectedSection || '');
 
     const subBooks = useAsync({ deferFn: getSubBooks })
-    React.useEffect(()=>{
+    React.useEffect(() => {
         setBooksIds((selectedBooks || []).map(book => book.bookId));
 
-    },[selectedBooks])
+    }, [selectedBooks])
     React.useEffect(() => {
         subBooks.run(currBook)
     }, [currBook])
@@ -105,8 +118,38 @@ const BookNavigator = ({ navigation, route }) => {
             index={initIndex}
             section={section}
             chapter={chapter}
+            onTextLongPress={async (text) => {
+                const header = (`${text.original.groupName ? text.original.groupName.replace("_", '') + ' ' : '"'}${text.original.bookName ? text.original.bookName.replace("_", '"') + ' ' : ""}${text.original.section ? text.original.section + ' ' : ""}${text.original.chapter ? text.original.chapter + ' ' : ""}${text.original.verse ? text.original.verse + ' ' : ""} `)
+
+                if (Platform.OS === 'web') {
+                    if (navigator.clipboard) {
+                        if (copyTitle.enable) {
+                            if (copyTitle.position === 0) {
+                                navigator.clipboard.writeText(header + '\n' + removeNotNeedContent(text.value, punctuation, grammar).replace('יְהֹוָ֧ה', godReplace))
+
+                            } else {
+                                navigator.clipboard.writeText(removeNotNeedContent(text.value, punctuation, grammar).replace('יְהֹוָ֧ה', godReplace) + header + '\n')
+                            }
+                        } else {
+                            navigator.clipboard.writeText(removeNotNeedContent(text.value, punctuation, grammar).replace('יְהֹוָ֧ה', godReplace))
+                        }
+                    }
+                }
+                else {
+                    if (copyTitle.enable) {
+                        if (copyTitle.position === 0) {
+                            Clipboard.setString(header + '\n' + removeNotNeedContent(text.value, punctuation, grammar).replace('יְהֹוָ֧ה', godReplace))
+
+                        } else {
+                            Clipboard.setString(removeNotNeedContent(text.value, punctuation, grammar).replace('יְהֹוָ֧ה', godReplace) + header + '\n')
+                        }
+                    } else {
+                        Clipboard.setString(removeNotNeedContent(text.value, punctuation, grammar).replace('יְהֹוָ֧ה', godReplace))
+                    }
+                }
+            }}
             onTextSelected={(text) => {
-                 const { bookId, section, chapter, verse } = text.original;
+                const { bookId, section, chapter, verse } = text.original;
                 // setChapter(chapter)
                 // setVerse(verse)
                 // setSection(section)
@@ -117,7 +160,9 @@ const BookNavigator = ({ navigation, route }) => {
             exegesis={exegesis}
             punctuation={punctuation}
             grammar={grammar} />
-    }, [currBook, chapter, textSize, exegesis, grammar,punctuation,initIndex])
+    }, [currBook, chapter, section, copyTitle, verse, textSize, exegesis, grammar, punctuation, initIndex, godReplace
+
+    ])
     const bookList = React.useCallback((props) => {
         return <BookList
             onSelectBook={(book) => {
@@ -125,26 +170,33 @@ const BookNavigator = ({ navigation, route }) => {
                     setBooksIds([...booksIds, book])
                 }
                 setChapter('')
+                setSection('')
+                setVerse('')
                 setInitIndex(0)
                 setCurrBook(book)
             }}
             bookId={currBook}
             {...props}
+            onSelectSection={setSection}
+            onSelectVerse={setVerse}
             onSelectChapter={setChapter}
             tree={tree || {}}
             isPending={treeFunc.isPending} />
     }, [booksIds, currBook, tree])
     const bookDisplay = React.useCallback((props) => {
-        return <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors,punctuation }) => {
+        return <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors, punctuation }) => {
             setTextSide(textSize);
             setGrammar(grammar);
             setExegesis(exegesis);
             setFlavors(flavors);
             setPunctuation(punctuation)
-        }} setting={{ textSize, grammar, exegesis, flavors,punctuation }} />
-    }, [textSize, grammar, exegesis, flavors,punctuation])
+        }} setting={{ textSize, grammar, exegesis, flavors, punctuation }} />
+    }, [textSize, grammar, exegesis, flavors, punctuation])
     const bookCopy = React.useCallback((props) => {
-        return <Copy {...props} onSave={() => { }}></Copy>
+        return <Copy title={copyTitle} godOption={godReplace} {...props} onSave={({ attachTitle, godReplace }) => {
+            setGodReplace(godReplace);
+            setCopyTitle(attachTitle);
+        }}></Copy>
     }, [])
     const bookMenu = React.useCallback((props) => {
         return <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book, info) => {

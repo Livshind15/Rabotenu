@@ -26,11 +26,7 @@ const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => 
         "booksIds": booksIds
     });
     return Promise.all(data.map(async verse => {
-        // const nextVerses = await axios.get(`${config.serverUrl}/book/content/${verse.bookId}?gteIndex=${verse.index + 1}&lteIndex=${(verse.index + 10)}`).then(res => res.data.filter(content => content.chapter === verse.chapter));
-        // if (!nextVerses.length) {
-        //     const pevVerses = await axios.get(`${config.serverUrl}/book/content/${verse.bookId}?gteIndex=${verse.index - 10}&lteIndex=${(verse.index - 1)}`).then(res => res.data.filter(content => content.chapter === verse.chapter));
-        //     return { ...verse }
-        // }
+
         return { ...verse }
     }))
 }
