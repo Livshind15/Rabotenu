@@ -56,13 +56,7 @@ export const SearchProvider = ({ children }) => {
         setNotSearchGroups(groups)
         setNotSearchBooks(books)
     }, [removeResources,resources]);
-    
 
-    
-
-    React.useEffect(() => {
-        console.log(resources, resourcesGroups);
-    }, [resources])
 
     React.useEffect(() => {
         (async () => {
@@ -71,7 +65,6 @@ export const SearchProvider = ({ children }) => {
                 const jsonValue = value != null ? JSON.parse(value) : null;
                 if (jsonValue !== null) {
                     setSelectedGroup(jsonValue)
-                    console.log(resourcesGroups);
                     if(resourcesGroups[selectedGroup]){
                         setResources(resourcesGroups[selectedGroup].resources)
                     }

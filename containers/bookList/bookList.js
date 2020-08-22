@@ -15,7 +15,6 @@ const BookList = ({ tree, isPending, navigation,onSelectSection, onSelectChapter
             <View style={styles.page}>
                 <ScrollView style={styles.scroll}>
                     {!isPending && tree ? <BookListTree bookId={bookId} onSelect={(select => {
-                        console.log({ select })
                         if (select.verse) {
                             if (select.bookId) {
                                 onSelectBook(select.bookId)

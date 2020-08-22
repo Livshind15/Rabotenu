@@ -37,7 +37,6 @@ const ExploreTreeView = ({ navigation }) => {
     const [showErrorModel, setShowErrorModel] = React.useState(false);
     const cache = {};
     const getBookInfo = async (bookId) => {
-        console.log({bookId});
         if (cache[bookId]) {
             return cache[bookId]
         }
@@ -50,7 +49,6 @@ const ExploreTreeView = ({ navigation }) => {
             setShowErrorModel(true);
         }
     }, [error])
-    console.log(data);
     return (
         <Background>
             <ErrorModel errorMsg={"שגיאה בבקשה מהשרת של תצוגת עץ"} errorTitle={'שגיאה'} visible={showErrorModel} setVisible={setShowErrorModel} />

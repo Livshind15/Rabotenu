@@ -14,7 +14,7 @@ import { SearchContext } from '../../contexts/searchContext';
 import ErrorModel from '../../component/modalError/modalError';
 import Accordian from '../../component/accordian/accordian';
 import { isEmpty } from 'lodash';
-import { removeTag, removeBoldTag, removeGrayTag } from '../bookView/bookViewClass';
+import { removeTag, removeBoldTag, removeGrayTag, removeSmallTag } from '../bookView/bookViewClass';
 
 
 const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => {
@@ -58,6 +58,7 @@ const SearchView = ({ navigation, route }) => {
 
                             let grayText = false;
                             let boldText = false;
+                            let smallText = false;
                             let header = `${item.groupName.replace('_','"')}, ${item.bookName.replace('_','"')}`;
                             if(item.chapter){
                                 header += `, ${item.chapter}`
@@ -73,25 +74,35 @@ const SearchView = ({ navigation, route }) => {
                                         {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
                                         {content.map(splitContent => {
                                             if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
-                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{' ' + splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, '').trim())}</Text></>
+                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(' ' + splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, ''))).trim()}</Text></>
                                             }
                                             if (RegExp(`<\s*/\s*em>(.*?)<\s*em[^>]*>`).test(splitContent)) {
-                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{splitContent.match(/<\/em>(.*?)<em>/g).map((val) => val.replace(/<\/?em>/g, '').trim()) }</Text></>
+                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(splitContent.match(/<\/em>(.*?)<em>/g).map((val) => val.replace(/<\/?em>/g, ''))).trim() }</Text></>
                                             }
                                             if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                                                 grayText = true;
                                             }
                                             if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
                                                 grayText = false;
-                                                return <Text style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>
+                                                return <Text style={styles.pasokContentGray}> {removeTag(splitContent)}</Text>
                                             }
                                             if (grayText) {
-                                                return <Text style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>
+                                                return <Text style={styles.pasokContentGray}>{removeTag(splitContent)}</Text>
                                             }
-                                            if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent)) {
+                                            if (RegExp(`<\s*קטן[^>]*>(.*?)`).test(splitContent)) {
+                                                smallText = true;
+                                            }
+                                            if (RegExp(`(.*?)<\s*/\s*קטן>`).test(splitContent)) {
+                                                smallText = false;
+                                                return <Text style={styles.pasokContentSmall}> {removeTag(splitContent)}</Text>
+                                            }
+                                            if (smallText) {
+                                                return <Text style={styles.pasokContentSmall}> {removeTag(splitContent)}</Text>
+                                            }
+                                            if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent) || RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(splitContent)) {
                                                 boldText = true;
                                             }
-                                            if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent)) {
+                                            if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent) || RegExp(`(.*?)<\s*/\s*הדגשה>`).test(splitContent)) {
                                                 boldText = false;
                                                 return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
                                             }
@@ -129,6 +140,11 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         backgroundColor: 'yellow',
         fontSize: 20,
+    },
+    pasokContentSmall: {
+        color: '#455253',
+        textAlign: 'right',
+        fontSize: 14 ,
     },
     pasokContentBold: {
         color: '#455253',

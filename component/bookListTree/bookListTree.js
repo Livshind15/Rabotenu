@@ -4,6 +4,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import OctIcons from "react-native-vector-icons/Octicons";
 import Accordian from '../../component/accordian/accordian';
 import Feather from 'react-native-vector-icons/Feather';
+import { isEmpty } from 'lodash';
 
 const getParentBook = (result) => {
     if (result.id) {
@@ -29,7 +30,6 @@ const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } 
         {results.map((result, index) => (
             <Accordian onLongPress={() => {
                 if (result.type === 'section') {
-                    console.log({result})
                     onSelect({
                         'section': result.text,
                         'bookId': getParentBook(parent)
@@ -49,7 +49,7 @@ const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } 
                     })
                 }
             }} onExpanded={() => {
-                if (!result.tree) {
+                if ( isEmpty(result.tree)) {
                     if (result.type === 'section') {
                         onSelect({
                             'section': result.text,
@@ -71,7 +71,7 @@ const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } 
                     }
 
                 }
-            }} shouldExpanded={!!result.tree} customStyles={{ header: { paddingLeft: 0, paddingRight: result.tree ? 0 : (2 * deep) }, container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId.replace('_', '"')}, ${result.text.replace('_', '"')}` : result.text.replace('_', '"')} additionalComponent={
+            }} shouldExpanded={ !isEmpty(result.tree)} customStyles={{ header: { paddingLeft: 0, paddingRight: result.tree ? 0 : (2 * deep) }, container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId.replace('_', '"')}, ${result.text.replace('_', '"')}` : result.text.replace('_', '"')} additionalComponent={
                 result.isBook ? <View style={styles.endContainer}>
                     <TouchableOpacity onPress={() => {
                         if (bookId !== result.id) {

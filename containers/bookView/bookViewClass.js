@@ -115,6 +115,24 @@ class BookViewClass extends React.Component {
         return data[0].index || 0
     }
 
+    async getRefIndex(bookId, section, chapter, character ,id) {
+        let url = `${config.serverUrl}/mapping/groups/refs/${bookId}?character=${character.replace('.','')}`;
+        if (section) {
+            url += `&section=${section}`
+        }
+        if (chapter) {
+            url += `&chapter=${chapter}`
+        }
+        if(id){ 
+            url += `&id=${id}`
+        }
+        const { data } = await axios.get(url);
+        if (isEmpty(data)) {
+            return [];
+        }
+        return data[0]
+    }
+
     async fetchMore() {
         if (this.state.loading) {
             this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
@@ -123,13 +141,21 @@ class BookViewClass extends React.Component {
         }
     }
 
+    async onRefClick(index,id,char){
+        const original  = this.state.data[index].original;
+        const ref = await this.getRefIndex(original.bookId,original.section,original.chapter,char,id)
+        if(!isEmpty(ref)){
+            this.props.onBookSelect(ref.bookId,ref.index);
+        }
+     } 
+
     renderItem({ item, index }) {
         return (
 
-            <Item showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
+            <Item onRefClick={(index,id,char) => this.onRefClick(index,id,char)} showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
-            }} highlightIndex={this.state.highlightIndex} item={item} punctuation={this.props.punctuation} styles={this.styles} index={index} textSize={this.props.textSize} grammar={this.props.grammar} exegesis={this.props.exegesis}></Item>
+            }} highlightIndex={this.state.highlightIndex} item={item} punctuation={this.props.punctuation} styles={this.styles} index={index} itemIndex={index} textSize={this.props.textSize} grammar={this.props.grammar} exegesis={this.props.exegesis}></Item>
         )
     }
 
@@ -162,6 +188,7 @@ class BookViewClass extends React.Component {
 class Item extends React.Component {
     constructor(props) {
         super(props);
+        this.comments = {};
     }
     shouldComponentUpdate(nextProps, nextState) {
         if (nextProps.highlightIndex !== this.props.index && this.props.index !== this.props.highlightIndex) {
@@ -171,7 +198,7 @@ class Item extends React.Component {
     }
 
     render() {
-        const { item, highlightIndex,indexLongPress, index, punctuation, styles, exegesis, indexPress, grammar } = this.props;
+        const { item, highlightIndex, indexLongPress, index,itemIndex, punctuation,onRefClick, styles, exegesis, indexPress, grammar } = this.props;
         if (item.type === 'bookName') {
             return <Text style={styles.book}>{item.value.replace('_', '"')}</Text>
         }
@@ -194,74 +221,103 @@ class Item extends React.Component {
             }} selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
                 <Text key={Math.random()} key={Math.random()} style={styles.pasok}>{item.index}</Text>
                 {item.value.split(' ').reduce((elements, splitContent, index) => {
-                    if (RegExp(/<(הערה)[^>]*/).test(splitContent)) {
+                    let text = splitContent;
+                    if (RegExp('<הערה').test(text)) {
                         comment.enable = true;
-                        return elements
+                        text = text.replace('<הערה', '')
                     }
                     if (comment.enable) {
-                        const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
+                        const char = (RegExp(/תו="([^"]+)"/).exec(text));
                         if (char) {
+                            text = text.replace(/תו="([^"]+)"/g, '')
                             comment.char = char[1];
-                        }
-                        const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
-                        if (id) {
-                            comment.id = id[1];
-                        }
-
-                    }
-                    if (RegExp(/(.*?)<\/(הערה)[^>]*>/).test(splitContent)) {
-                        const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
-                        if (char) { comment.char = char[1]; }
-                        const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
-                        if (id) { comment.id = id[1]; }
-                        if (comment.char.length) {
+                            const id = (RegExp(/Id="([^"]+)"/).exec(item.value.split(' ')[index + 1]));
+                            if (id) {
+                                comment.id = id[1];
+                            }
+                            this.comments[index] ={...comment} 
                             elements.push(
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => { onRefClick(itemIndex,this.comments[index].id,this.comments[index].char) }}>
                                     <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char} </Text>
                                 </TouchableOpacity>)
+                            return elements
                         }
-                        comment.enable = false;
-                        comment.id = '';
-                        comment.char = '';
+                        text = text.replace(/Id="([^"]+)"/g, '')
                     }
-                    if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
+                    if (RegExp('</הערה').test(text)) {
+                        comment.enable = false;
+                        text = text.replace('</הערה', '')
+                    }
+                    // if (RegExp(/<(הערה)[^>]*/).test(splitContent)) {
+                    //     comment.enable = true;
+                    //     return elements
+                    // }
+                    // if (comment.enable) {
+                    //     const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
+                    //     if (char) {
+                    //         comment.char = char[1];
+                    //     }
+                    //     const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
+                    //     if (id) {
+                    //         comment.id = id[1];
+                    //     }
+
+                    // }
+                    // if (RegExp("/(.*?)<\/(הערה)[^>]*>/").test(splitContent)) {
+                    //     const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
+                    //     if (char) { comment.char = char[1]; }
+                    //     const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
+                    //     if (id) { comment.id = id[1]; }
+                    //     if (comment.char.length) {
+                    //         comments.push({ ...comment });
+                    //         elements.push(
+                    //             <TouchableOpacity onPress={() => { console.log(comments) }}>
+                    //                 <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char} </Text>
+                    //             </TouchableOpacity>)
+                    //     }
+                    //     comment.enable = false;
+                    //     comment.id = '';
+                    //     comment.char = '';
+                    // }
+                    if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(text)) {
                         grayText = true;
                     }
-                    if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
+                    if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(text)) {
                         grayText = false;
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(splitContent)}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(text)}</Text>)
                         return elements
                     }
                     if (grayText) {
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(splitContent)}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(text)}</Text>)
                         return elements
                     }
-                    if (RegExp(`<\s*קטן[^>]*>(.*?)`).test(splitContent)) {
+                    if (RegExp(`<\s*קטן[^>]*>(.*?)`).test(text)) {
                         smallText = true;
                     }
-                    if (RegExp(`(.*?)<\s*/\s*קטן>`).test(splitContent)) {
+                    if (RegExp(`(.*?)<\s*/\s*קטן>`).test(text)) {
                         smallText = false;
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(text))}</Text>)
                         return elements
                     }
                     if (smallText) {
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(splitContent))}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(text))}</Text>)
                         return elements
                     }
-                    if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent) || RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(splitContent)) {
+                    if (RegExp(`<\s*דה[^>]*>(.*?)`).test(text) || RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(text)) {
                         boldText = true;
                     }
-                    if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent) || RegExp(`(.*?)<\s*/\s*הדגשה>`).test(splitContent)) {
+                    if (RegExp(`(.*?)<\s*/\s*דה>`).test(text) || RegExp(`(.*?)<\s*/\s*הדגשה>`).test(text)) {
                         boldText = false;
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(text)}</Text>)
                         return elements
                     }
                     if (boldText) {
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>)
+                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(text)}</Text>)
                         return elements
                     }
 
-                    elements.push(<Text selectable={true} key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(splitContent, exegesis, punctuation, grammar)}</Text>)
+                    elements.push(<Text selectable={true} key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(text, exegesis, punctuation, grammar)}</Text>)
+
                     return elements
                 }, [])}
                 {item.parsaTag && !exegesis ? <Text key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}
@@ -377,7 +433,7 @@ export const removePunctuation = (content) => {
 }
 
 export const removeTag = (content) => {
-    return content.replace(RegExp('<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>'), '').replace(/(.*?)<\/(הערה)[^>]*>/, '').replace(/<(הערה)[^>]*/, '').replace(/תו="([^"]+)"/, '').replace(/>/, '')
+    return content.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig,'').replace('>','').replace('<','')
 }
 
 export const removeGrayTag = (content) => {

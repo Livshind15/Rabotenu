@@ -92,7 +92,6 @@ export const addCheckForResources = (resources, check) => {
 const Resources = ({ navigation }) => {
     const {selectedGroup, setSelectedGroup, allResourceToggle, setResourceToggle, setResourcesGroups, resourcesGroups, resourcesData, resources, setRemoveResources, setResources } = React.useContext(SearchContext);
     const [showErrorModel, setShowErrorModel] = React.useState(false);
-    console.log({ resources, resourcesGroups })
 
     // React.useEffect(() => {
     //     if (error) {

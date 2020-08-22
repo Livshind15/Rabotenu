@@ -25,7 +25,6 @@ const Stack = createStackNavigator();
 
 
 export const getBooksByContent = async (content, searchType, tableInput,books,groups) => {
-console.log({books,groups});
   const { data } = await axios.post(`${config.serverUrl}/book/search/books/`, {
     "content": content,
     "type": !isEmpty(tableInput) ? searchType || 'exact' : 'exact',

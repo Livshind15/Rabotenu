@@ -10,17 +10,30 @@ import { flatten } from 'lodash';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../placeHolder/placeHolder';
 
-const BookMenu = ({ data, onBookSelect, navigation,isPending }) => {
+const BookMenu = ({ childData,parentData, onBookSelect, navigation,isPending }) => {
     return (
         <Background>
 
             <View style={styles.page}>
-                {!isPending && data  && data.child? <ScrollView style={styles.pageScroll}>
-                    <Accordian initExpanded={true}  header={'מפרשים'} >
-                        {flatten(data.child.map((item, key) => (
+                {!isPending && childData  && childData.child && parentData && parentData.parent ? <ScrollView style={styles.pageScroll}>
+                    <Accordian initExpanded={false}  header={'מפרשים'} >
+                        {flatten(childData.child.map((item, key) => (
                          
                                 <TouchableOpacity onPress={() => {
-                                    onBookSelect(item.bookId,data.info)
+                                    onBookSelect(item.bookId,childData.info)
+                                    navigation.navigate('View')
+                                }} key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
+                                    <Text style={styles.resultText}>{item.groupName.replace('_','"')}</Text>
+                                    <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
+                                </TouchableOpacity>
+                            )))}
+
+                    </Accordian>
+                    <Accordian initExpanded={false}  header={'ספר אב'} >
+                        {flatten(parentData.parent.map((item, key) => (
+                         
+                                <TouchableOpacity onPress={() => {
+                                    onBookSelect(item.bookId,parentData.info)
                                     navigation.navigate('View')
                                 }} key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
                                     <Text style={styles.resultText}>{item.groupName.replace('_','"')}</Text>

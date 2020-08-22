@@ -56,6 +56,37 @@ const getSubBooks = async ([bookId, section, chapter, verse]) => {
     return { child: data, info: { section, chapter, verse } } || [];
 }
 
+const getParentBooks = async ([bookId, section, chapter, verse]) => {
+    let url = `${config.serverUrl}/mapping/groups/parentBook/${bookId}`;
+    let params = '';
+    if (section) {
+        if (params.length) {
+            params += `&section=${section}`
+        }
+        else {
+            params += `?section=${section}`
+        }
+    }
+    if (chapter) {
+        if (params.length) {
+            params += `&chapter=${chapter}`
+        }
+        else {
+            params += `?chapter=${chapter}`
+        }
+    }
+    if (verse) {
+        if (params.length) {
+            params += `&verse=${verse}`
+        }
+        else {
+            params += `?verse=${verse}`
+        }
+    }
+    const { data } = await axios.get(url + params);
+    return { parent: data, info: { section, chapter, verse } } || [];
+}
+
 const BookNavigator = ({ navigation, route }) => {
     const {
         showBack,
@@ -96,12 +127,16 @@ const BookNavigator = ({ navigation, route }) => {
     const [section, setSection] = React.useState(selectedSection || '');
 
     const subBooks = useAsync({ deferFn: getSubBooks })
+    const parentBooks = useAsync({ deferFn: getParentBooks })
+
     React.useEffect(() => {
         setBooksIds((selectedBooks || []).map(book => book.bookId));
 
     }, [selectedBooks])
     React.useEffect(() => {
         subBooks.run(currBook)
+        parentBooks.run(currBook)
+
     }, [currBook])
 
     const treeFunc = useAsync({ deferFn: getBookTree, onResolve: setTree, booksIds })
@@ -118,6 +153,13 @@ const BookNavigator = ({ navigation, route }) => {
             index={initIndex}
             section={section}
             chapter={chapter}
+            onBookSelect={(bookId,index) => {
+                setInitIndex(index)
+                if (!booksIds.includes(bookId)) {
+                    setBooksIds([...booksIds, bookId])
+                }
+                setCurrBook(bookId)
+            }}
             onTextLongPress={async (text) => {
                 const header = (`${text.original.groupName ? text.original.groupName.replace("_", '') + ' ' : '"'}${text.original.bookName ? text.original.bookName.replace("_", '"') + ' ' : ""}${text.original.section ? text.original.section + ' ' : ""}${text.original.chapter ? text.original.chapter + ' ' : ""}${text.original.verse ? text.original.verse + ' ' : ""} `)
 
@@ -154,13 +196,14 @@ const BookNavigator = ({ navigation, route }) => {
                 // setVerse(verse)
                 // setSection(section)
                 subBooks.run(bookId, section, chapter, verse)
+                parentBooks.run(bookId, section, chapter, verse)
 
             }}
             textSize={textSize}
             exegesis={exegesis}
             punctuation={punctuation}
             grammar={grammar} />
-    }, [currBook, chapter, section, copyTitle, verse, textSize, exegesis, grammar, punctuation, initIndex, godReplace
+    }, [currBook, chapter, section, copyTitle,booksIds, verse, textSize, exegesis, grammar, punctuation, initIndex, godReplace
 
     ])
     const bookList = React.useCallback((props) => {
@@ -199,7 +242,7 @@ const BookNavigator = ({ navigation, route }) => {
         }}></Copy>
     }, [])
     const bookMenu = React.useCallback((props) => {
-        return <BookMenu {...props} data={subBooks.data} isPending={subBooks.isPending} onBookSelect={(book, info) => {
+        return <BookMenu {...props} childData={subBooks.data} parentData={parentBooks.data} isPending={subBooks.isPending} onBookSelect={(book, info) => {
             const { section, chapter, verse } = info
             setChapter(chapter)
             setVerse(verse)
@@ -210,7 +253,7 @@ const BookNavigator = ({ navigation, route }) => {
             }
             setCurrBook(book)
         }} bookId={currBook} />
-    }, [booksIds, currBook, subBooks])
+    }, [booksIds, currBook, subBooks,parentBooks])
 
 
     return (
