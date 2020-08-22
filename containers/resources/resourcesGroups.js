@@ -22,7 +22,7 @@ const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, cur
                 <View style={styles.resourcesContainer}>
                     <ScrollView style={styles.resourcesContainerScroll}>
                         {Object.keys(groups || {}).map((groupId, index) => (
-                            <TouchableOpacity style={styles.resourceContainer}>
+                            <TouchableOpacity keys={index} style={styles.resourceContainer}>
                                 <View style={styles.resourceContainerStart} >
                                     <TouchableOpacity underlayColor="#ffffff00" onPress={() => {
                                         removeGroup(groupId)

@@ -5,7 +5,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Background from '../../component/background/background';
 import ClickButton from '../../component/clickButton/clickButton';
 import { ScrollView, FlatList } from 'react-native-gesture-handler';
-import { v4 } from 'uuid';
 import IconEvilIcons from "react-native-vector-icons/EvilIcons";
 import Input from '../../component/input/input';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
@@ -87,7 +86,7 @@ const GroupEdit = ({ navigation, route }) => {
                                 navigation.navigate('groupResource', { screen: 'main' });
                             }
                             if (!groupId) {
-                                onSave({ resources, groupName: name, groupId: v4() })
+                                onSave({ resources, groupName: name, groupId: Math.random() })
                                 navigation.navigate('groupResource', { screen: 'main' });
                             }
                         }

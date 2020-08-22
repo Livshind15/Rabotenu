@@ -49,7 +49,7 @@ class BookViewClass extends React.Component {
 
     }
 
-    async componentWillReceiveProps(nextProps) {
+    async componentDidUpdate(nextProps) {
         if (nextProps.section !== this.props.section ||
             nextProps.chapter !== this.props.chapter ||
             nextProps.verse !== this.props.verse ||

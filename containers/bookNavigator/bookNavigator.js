@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Platform } from 'react-native';
-import Clipboard from '@react-native-community/clipboard'
+import { StyleSheet, View, Text, TouchableOpacity, Platform,Clipboard  } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Tabs from '../../component/tabs/tabs'

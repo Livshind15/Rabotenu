@@ -10,7 +10,7 @@ import { Spinner } from '@ui-kitten/components';
 
 const ExploreTree = ({ getBookInfo, navigation, groups = [], deep = 0 }) => {
     return (groups || []).map((group, index) => {
-        return <Accordian customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={group.groupName.replace('_', '"') || ''} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
+        return <Accordian key={index} customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={group.groupName.replace('_', '"') || ''} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
             {group.subGroups && group.subGroups && group.subGroups.length || group.books.length ? <View style={styles.innerScroll}>
                 {group.subGroups && group.subGroups.length ? <ExploreTree getBookInfo={getBookInfo} navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
                 {group.books.length ? ((group.books) || []).map((book, index) => {
@@ -19,6 +19,7 @@ const ExploreTree = ({ getBookInfo, navigation, groups = [], deep = 0 }) => {
                     const [expanded, setExpanded] = React.useState(false);
                     return <Accordian
                         initExpanded={expanded}
+                        key={index}
                         onExpanded={(state) => {
                             if (state) {
                                 setLoading(true);

@@ -13,9 +13,8 @@ import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-
 const SearchResultView = ({ navigation, route }) => {
-    const { onSearch } = route.params;
+    const onSearch  = route.params.onSearch || (()=>{});
     const { searchInput, bookResult, allResourceToggle, setResourceToggle, setSearchInput, setBookResult, notSearchBooks,notSearchGroups, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
     const searchResult = (props) => <SearchResult {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
         const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups);
