@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import OctIcons from "react-native-vector-icons/Octicons";
 import Icon from "react-native-vector-icons/Entypo";
 import Accordian from '../accordian/accordian';
-import { useAsync } from "react-async";
 import BookListTree from '../bookListTree/bookListTree'
 import { isEmpty } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
@@ -38,7 +37,7 @@ const ExploreTree = ({ getBookInfo, navigation, groups = [], deep = 0 }) => {
                         }}
                         shouldExpanded={!isEmpty(info) && !isEmpty(info.tree)}
                         additionalComponent={
-                            <TouchableOpacity style={{ paddingRight: 25+ (10 * deep) , paddingLeft: 5 }} onPress={() => navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })} underlayColor="#ffffff00">
+                            <TouchableOpacity style={{ paddingRight: 25 + (10 * deep), paddingLeft: 5 }} onPress={() => navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })} underlayColor="#ffffff00">
                                 {isLoading ? <Spinner></Spinner> : <OctIcons name={'book'} size={22} color={'#9AD3CE'} />}
                             </TouchableOpacity>} endToggle={true} header={book.bookName.replace('_', '"')}  >
                         {!isEmpty(info) && !isEmpty(info.tree) ? <BookListTree onSelect={({ bookId, chapter, verse, section }) => {
