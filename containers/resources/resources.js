@@ -12,6 +12,7 @@ import ErrorModel from '../../component/modalError/modalError';
 import { flatten, isEqual, difference } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
 import { SearchContext } from '../../contexts/searchContext';
+import { RabotenuContext } from '../../contexts/applicationContext';
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
@@ -98,7 +99,15 @@ const Resources = ({ navigation }) => {
     //         setShowErrorModel(true);
     //     }
     // }, [error]);
-
+    const {
+        setShowBack,
+       } = React.useContext(RabotenuContext);
+    React.useEffect(() => {
+        setShowBack({ enable: true, navigation })
+        return () => {
+            setShowBack({ enable: false, navigation: null })
+        }
+    }, [])
    
 
     React.useEffect(() => {

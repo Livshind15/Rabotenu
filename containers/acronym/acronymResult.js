@@ -3,11 +3,20 @@ import { StyleSheet, View, ScrollView, Text } from 'react-native';
 
 import Background from '../../component/background/background';
 import { FlatList } from 'react-native-gesture-handler';
+import { RabotenuContext } from '../../contexts/applicationContext';
 // import results from './acronymResult.mock';
 
-export default function AcronymResult({ route }) {
+export default function AcronymResult({ route,navigation }) {
     const { results } = route.params;
-
+    const {
+        setShowBack,
+       } = React.useContext(RabotenuContext);
+    React.useEffect(() => {
+        setShowBack({ enable: true, navigation })
+        return () => {
+            setShowBack({ enable: false, navigation: null })
+        }
+    }, [])
     return (
         <Background>
             <View style={styles.page}>
