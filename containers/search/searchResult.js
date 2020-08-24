@@ -7,11 +7,12 @@ import ClickButton from '../../component/clickButton/clickButton';
 import { SearchContext } from '../../contexts/searchContext';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import { FlatList } from 'react-native-gesture-handler';
 
 const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
     const [searchInput, setInput] = React.useState(input);
     const [isLoading, setLoading] = React.useState(false);
-    const { setSearchType} = React.useContext(SearchContext);
+    const { setSearchType } = React.useContext(SearchContext);
 
     return (
         <Background>
@@ -34,8 +35,17 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                     <Text style={styles.titleResult}>שם הספר</Text>
                     <Text style={styles.titleResult}>תוצאות</Text>
                 </View>
-                <ScrollView style={styles.scroll}>
-                    {(result || []).map((book, index) => (
+                <FlatList
+                    data={result || []}
+                    style={styles.scroll}
+                    keyExtractor={(key, index) => index.toString()}
+                    initialNumToRender={7}
+                    onScrollToIndexFailed={() => { }}
+                    getItemLayout={(data, index) => {
+                        return { length: 120, offset: 120 * index, index }
+                    }}
+                    style={styles.scroll}
+                    renderItem={({ item, index }) => (
                         <View key={index}>
                             <TouchableOpacity underlayColor="#ffffff00" style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}]} >
                                 <View style={styles.additionalComponent}>
@@ -43,25 +53,27 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                                         <View style={styles.showButtonWrapper}>
                                             <TouchableOpacity
                                                 underlayColor="#ffffff00"
-                                                onPress={()=>navigation.push('SearchView',{booksIds:[book.bookId]})}
-                                                 >
+                                                onPress={() => navigation.push('SearchView', { booksIds: [item.bookId] })}
+                                            >
                                                 <Text style={styles.showButtonText}>צפייה</Text>
                                             </TouchableOpacity>
                                         </View>
                                         <View style={styles.countResultWrapper}>
-                                            <Text style={styles.countText}>{book.doc_count}</Text>
+                                            <Text style={styles.countText}>{item.doc_count}</Text>
                                         </View>
                                     </View>
                                 </View>
                                 <View style={styles.toggleAndText}>
-                                    <Text style={[styles.title, styles.font]}>{`${book.groupName.replace('_','"')}, ${book.bookName.replace('_','"')}`}</Text>
+                                    <Text style={[styles.title, styles.font]}>{`${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`}</Text>
                                 </View>
 
                             </TouchableOpacity>
                         </View>
-                    ))}
+                    )}
+                />
 
-                </ScrollView>
+
+               
             </View>
 
         </Background>
@@ -210,4 +222,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default optimizeHeavyScreen(SearchResult,PlaceHolder);
+export default optimizeHeavyScreen(SearchResult, PlaceHolder);

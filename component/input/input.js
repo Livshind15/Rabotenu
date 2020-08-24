@@ -3,7 +3,7 @@ import { StyleSheet, View, TextInput, Platform } from 'react-native';
 import { Spinner } from '@ui-kitten/components';
 
 
-export default function Input({ options, placeholder, value, onChange, isLoading }) {
+export default function Input({ options, placeholder, value, onSubmit = () => { }, onChange, isLoading }) {
     return (
         <View style={styles.MainContainer}>
             <View style={styles.inputContainer}>
@@ -15,12 +15,13 @@ export default function Input({ options, placeholder, value, onChange, isLoading
                     underlineColorAndroid={'#FFFFFF00'}
                     autoCapitalize="none"
                     autoCorrect={false}
+                    onKeyPress={(e) => e.nativeEvent.key === 'Enter' ? onSubmit() : () => { }}
                     onChangeText={text => onChange(text)}
                     value={value}
                     style={[styles.TextInputStyleClass, options || []]} />
             </View>
             {isLoading && <View style={styles.spinnerContainer}>
-                <Spinner/>
+                <Spinner />
             </View>}
 
         </View>

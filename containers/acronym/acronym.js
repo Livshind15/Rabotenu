@@ -41,6 +41,12 @@ const AcronymMain = ({ navigation }) => {
   React.useEffect(()=>{
     setSearchType(searchTypes[selectedOptions])
   },[selectedOptions])
+  const onSubmit = async ()=>{
+    setLoading(true);
+    const results = await getAcronym(input,searchType);
+    setLoading(false);
+    navigation.push('AcronymResult', { results });
+  }
   return (
     <Background>
       <AcronymModal onOptionsSelected={onOptionsSelected} selectedOptions={selectedOptions} visible={showModal} setVisible={setShowModal} />
@@ -50,19 +56,14 @@ const AcronymMain = ({ navigation }) => {
             <Text style={styles.text}>הקלד ראשי תיבות שתרצה לאתר</Text>
           </View>
           <View style={styles.input}>
-            <Input isLoading={isLoading} value={input} onChange={setInput} placeholder={'חפש'} />
+            <Input onSubmit={onSubmit} isLoading={isLoading} value={input} onChange={setInput} placeholder={'חפש'} />
           </View>
           <View style={styles.buttonsWrapper}>
             <View style={styles.buttonWrapper}>
               <ClickButton onPress={() => setShowModal(true)} outline={true}>הגדרות</ClickButton>
             </View>
             <View style={styles.buttonWrapper}>
-              <ClickButton onPress={async () => {
-                setLoading(true);
-                const results = await getAcronym(input,searchType);
-                setLoading(false);
-                navigation.push('AcronymResult', { results });
-              }} outline={false} optionsButton={{ paddingVertical: 6 }} >חיפוש</ClickButton>
+              <ClickButton onPress={onSubmit} outline={false} optionsButton={{ paddingVertical: 6 }} >חיפוש</ClickButton>
             </View>
           </View>
 

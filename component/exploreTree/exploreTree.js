@@ -15,26 +15,29 @@ const ExploreTree = ({ getBookInfo, navigation, groups = [], deep = 0 }) => {
                 {group.books.length ? ((group.books) || []).map((book, index) => {
                     const [info, setInfo] = React.useState([]);
                     const [isLoading, setLoading] = React.useState(false);
+                    const [clickCount, setClickCount] = React.useState(0);
                     const [expanded, setExpanded] = React.useState(false);
+                    const onExpanded = React.useCallback((state) => {
+                        if (state && clickCount === 0) {
+                            setLoading(true);
+                            getBookInfo(book.bookId).then(infoRes => {
+                                setInfo(infoRes[0] || [])
+                                setClickCount(clickCount + 1);
+                                if (isEmpty(infoRes[0].tree)) {
+                                    navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })
+                                }
+                                setExpanded(false)
+                                setLoading(false);
+                            })
+                        }
+                        if (clickCount > 0) {
+                            navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })
+                        }
+                    }, [clickCount, info])
                     return <Accordian
                         initExpanded={expanded}
-                        key={index}
-                        onExpanded={(state) => {
-                            if (state) {
-                                setLoading(true);
-                                getBookInfo(book.bookId).then(infoRes => {
-                                    setInfo(infoRes[0] || [])
-                                    if (isEmpty(infoRes[0].tree)) {
-                                        navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })
-                                    }
-                                    else {
-                                        setExpanded(true);
-                                    }
-                                    setLoading(false);
-
-                                })
-                            }
-                        }}
+                        key={index}         
+                        onExpanded={onExpanded}
                         shouldExpanded={!isEmpty(info) && !isEmpty(info.tree)}
                         additionalComponent={
                             <TouchableOpacity style={{ paddingRight: 25 + (10 * deep), paddingLeft: 5 }} onPress={() => navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })} underlayColor="#ffffff00">

@@ -60,22 +60,23 @@ const SearchTree = ({ navigation, input, onSearch, onInput, result }) => {
             setShowErrorModel(true);
         }
     }, [error]);
+    const onSubmit = async () => {
+        setSearchType("exact")
+        onInput(searchInput)
+        setLoading(true)
+        await onSearch(searchInput)
+        setLoading(false)
+    }
     return (
         <Background>
             <ErrorModel errorMsg={"שגיאה בבקשה מהשרת של תצוגת עץ"} errorTitle={'שגיאה'} visible={showErrorModel} setVisible={setShowErrorModel} />
             <View style={styles.page}>
                 <View style={styles.input}>
                     <View style={styles.buttonWrapper}>
-                        <ClickButton onPress={async () => {
-                            setSearchType("exact")
-                            onInput(searchInput)
-                            setLoading(true)
-                            await onSearch(searchInput)
-                            setLoading(false)
-                        }} outline={true} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
+                        <ClickButton onPress={onSubmit} outline={true} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
                     </View>
                     <View style={styles.inputWrapper}>
-                        <Input value={searchInput} isLoading={isLoading} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+                        <Input onSubmit={onSubmit} value={searchInput} isLoading={isLoading} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
                     </View>
                 </View>
                 <View style={styles.resultCountWrapper}>

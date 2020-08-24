@@ -3,10 +3,12 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, LayoutAnimation, Platform, UIManager } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-export default function Accordian({ children,onLongPress=()=>{}, onExpanded =()=>{},   shouldExpanded = true, header, initExpanded = false, endToggle = false, customStyles = { container: {},header:{} }, additionalComponent, index }) {
+export default function Accordian({ children, onToggleClick, onLongPress = () => { }, onExpanded = () => { }, shouldExpanded = true, header, initExpanded = false, endToggle = false, customStyles = { container: {}, header: {} }, additionalComponent, index }) {
     const [expanded, setExpanded] = React.useState(initExpanded);
     const accordian = React.useRef(null);
-
+     React.useEffect(() => {
+       setExpanded(initExpanded)
+    }, [initExpanded])
     React.useEffect(() => {
         if (Platform.OS === 'android') {
             UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -22,18 +24,26 @@ export default function Accordian({ children,onLongPress=()=>{}, onExpanded =()=
     return (
         <View>
             <TouchableOpacity onLongPress={onLongPress} underlayColor="#ffffff00" ref={accordian} style={[styles.row, index === 0 ? { borderTopWidth: 1 } : {}, customStyles.container || {}]} onPress={() => toggleExpand()}>
-                { !endToggle && additionalComponent && <View style={styles.additionalComponent}>
+                {!endToggle && additionalComponent && <View style={styles.additionalComponent}>
                     {additionalComponent}
                 </View>}
-                {endToggle && shouldExpanded && <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />}
+                {endToggle && shouldExpanded &&
+                    <TouchableOpacity onPress={()=>onToggleClick? onToggleClick(!expanded):toggleExpand() } underlayColor="#ffffff00">
+
+                        <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />
+                    </TouchableOpacity>}
                 <View style={styles.toggleAndText}>
-                    
-                    <Text style={[styles.title, styles.font,customStyles.header, expanded && shouldExpanded ? styles.titleBold : {}]}>{header}</Text>
-                    {!endToggle && shouldExpanded&&  <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />}
+
+                    <Text style={[styles.title, styles.font, customStyles.header, expanded && shouldExpanded ? styles.titleBold : {}]}>{header}</Text>
+                    {!endToggle && shouldExpanded &&
+                        <TouchableOpacity onPress={()=> onToggleClick?onToggleClick(!expanded):toggleExpand() } underlayColor="#ffffff00">
+
+                            <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />
+                        </TouchableOpacity>}
                 </View>
-                    {additionalComponent && endToggle && <View style={styles.additionalComponentStart}>
-                        {additionalComponent}
-                    </View>} 
+                {additionalComponent && endToggle && <View style={styles.additionalComponentStart}>
+                    {additionalComponent}
+                </View>}
             </TouchableOpacity>
             <View style={styles.parentHr} />
             {
@@ -59,7 +69,7 @@ const styles = StyleSheet.create({
     toggleAndText: {
         flex: 1,
         alignItems: 'center',
-        width: '100%',   
+        width: '100%',
         justifyContent: 'flex-end',
         flexDirection: 'row'
     },
@@ -69,7 +79,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     additionalComponentStart: {
-        width:'auto',
+        width: 'auto',
         height: '100%',
         justifyContent: 'center',
     },

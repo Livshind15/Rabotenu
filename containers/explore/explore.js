@@ -14,7 +14,6 @@ import ExploreTreeView from './exploreTreeView'
 import ExploreAddReplace from './exploreAddReplace';
 import BookNavigator from '../bookNavigator/bookNavigator'
 import config from "../../config/config";
-import { RabotenuContext } from '../../contexts/applicationContext';
 
 
 const Stack = createStackNavigator();
@@ -77,32 +76,33 @@ const SearchExploreRoutes = () => {
 const ExploreMain = ({ navigation, replaceInput, addInput }) => {
   const [input, setInput] = React.useState('');
   const [isLoading, setLoading] = React.useState(false);
+  const onSubmit = async () => {
+    if (!isLoading) {
+      setLoading(true)
+      const newInput = replaceInput.reduce((input, currReplace) => {
+        input = input.replace(currReplace.srcInput, currReplace.desInput)
+        return input;
+      }, input)
+      const addInputs =  addInput.reduce((addInput, inputToAdd)=> {
+        if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
+          addInput.push(inputToAdd.desInput)
+        }
+        return addInput;
+      }, [])
+      const result = await getBooksByByBookName([newInput,...addInputs]);
+      setLoading(false)
+      navigation.push('ResultView', { result: result, searchInput: input });
+  }
+}
   return (
     <Background>
       <View style={styles.page}>
         <View style={styles.input}>
-          <Input isLoading={isLoading} value={input} onChange={setInput} placeholder={"חיפוש חופשי"} />
+          <Input onSubmit={onSubmit} isLoading={isLoading} value={input} onChange={setInput} placeholder={"חיפוש חופשי"} />
         </View>
         <View style={styles.button}>
           <View style={styles.buttonWrapper}>
-            <ClickButton optionsButton={{ paddingVertical: 6 }} onPress={async () => {
-              if (!isLoading) {
-                setLoading(true)
-                const newInput = replaceInput.reduce((input, currReplace) => {
-                  input = input.replace(currReplace.srcInput, currReplace.desInput)
-                  return input;
-                }, input)
-                const addInputs =  addInput.reduce((addInput, inputToAdd)=> {
-                  if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
-                    addInput.push(inputToAdd.desInput)
-                  }
-                  return addInput;
-                }, [])
-                const result = await getBooksByByBookName([newInput,...addInputs]);
-                setLoading(false)
-                navigation.push('ResultView', { result: result, searchInput: input });
-              }
-            }}>חיפוש</ClickButton>
+            <ClickButton optionsButton={{ paddingVertical: 6 }} onPress={onSubmit}>חיפוש</ClickButton>
           </View>
           <TouchableOpacity
             underlayColor="#ffffff00"

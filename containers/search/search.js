@@ -85,7 +85,15 @@ const SearchMain = ({ navigation }) => {
   const [showSearchType, setShowSearchType] = React.useState(false);
   const { searchInput, setSearchInput, setBookResult,notSearchGroups,notSearchBooks, setSearchType, searchType, tableInput, setTableInput } = React.useContext(SearchContext);
 
-
+const onSubmit = async () =>{
+  if (!isLoading) {
+    setLoading(true);
+    const result = await getBooksByContent(searchInput, searchType, tableInput,notSearchBooks,notSearchGroups);
+    setLoading(false)
+    setBookResult(result);
+    navigation.push('SearchResultView', { onSearch: getBooksByContent })
+  }
+}
   return (
     <Background>
       <SearchOptionsModel onResources={() => navigation.push('Resources')} openSearchType={() => setShowSearchType(true)} visible={showOptionsSearch} setVisible={setShowOptionsSearch} ></SearchOptionsModel>
@@ -104,18 +112,10 @@ const SearchMain = ({ navigation }) => {
             <Text style={styles.text}>הקלד את המילה החיפוש שתרצה לאתר</Text>
           </View>
           <View style={styles.input}>
-            <Input isLoading={isLoading} value={searchInput} onChange={setSearchInput} placeholder={'חפש'} />
+            <Input onSubmit={onSubmit} isLoading={isLoading} value={searchInput} onChange={setSearchInput} placeholder={'חפש'} />
           </View>
           <View style={styles.buttonWrapper}>
-            <ClickButton onPress={async () => {
-              if (!isLoading) {
-                setLoading(true);
-                const result = await getBooksByContent(searchInput, searchType, tableInput,notSearchBooks,notSearchGroups);
-                setLoading(false)
-                setBookResult(result);
-                navigation.push('SearchResultView', { onSearch: getBooksByContent })
-              }
-            }} outline={true} >חיפוש</ClickButton>
+            <ClickButton onPress={onSubmit} outline={true} >חיפוש</ClickButton>
           </View>
           <TouchableOpacity
             underlayColor="#ffffff00"
