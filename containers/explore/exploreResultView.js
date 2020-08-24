@@ -92,7 +92,7 @@ function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
                 style={styles.result}
                 key={index}
                 underlayColor="#ffffff00"
-                onPress={() => { setResultCheck(result.key) }}>
+                onPress={() => { navigation.push('Result',{ selectedBooks: [{bookId:result.bookId}]  }) }}>
                 <View style={styles.checkBoxWrapper}>
                   <CheckBox
                     checked={result.isCheck}
