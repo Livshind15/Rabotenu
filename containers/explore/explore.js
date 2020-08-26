@@ -20,15 +20,14 @@ const Stack = createStackNavigator();
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-export const getBooksByByBookName = async (booksNames) => {
-  const { data } = await axios.post(`${config.serverUrl}/mapping/books/book`, { booksNames: booksNames });
+export const getBooksByByQuery = async ([query]) => {
+  const { data } = await axios.post(`${config.serverUrl}/book/find/`, { query: query });
   return (data || []).map((book, index) => {
     return { ...book, key: index }
   });
 }
 
 export default function Explore(props) {
-  
   return (
     <Stack.Navigator initialRouteName="ExplorePages" >
       <Stack.Screen name="ExplorePages" options={{ headerShown: false,title:'רבותינו' }} component={ExplorePages} />
@@ -89,7 +88,7 @@ const ExploreMain = ({ navigation, replaceInput, addInput }) => {
         }
         return addInput;
       }, [])
-      const result = await getBooksByByBookName([newInput,...addInputs]);
+      const result = await getBooksByByQuery([newInput,...addInputs]);
       setLoading(false)
       navigation.push('ResultView', { result: result, searchInput: input });
   }

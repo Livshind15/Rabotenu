@@ -5,7 +5,7 @@ import { CheckBox } from '@ui-kitten/components';
 import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
-import {getBooksByByBookName} from './explore'
+import {getBooksByByQuery} from './explore'
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 
@@ -53,7 +53,7 @@ function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
                   }
                   return addInput;
                 }, [])
-                const result = await getBooksByByBookName([newInput,...addInputs]);
+                const result = await getBooksByByQuery([newInput,...addInputs]);
                 setResult(result)
                 setLoading(false)
               }
@@ -74,7 +74,7 @@ function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
                   }
                   return addInput;
                 }, [])
-                const result = await getBooksByByBookName([newInput,...addInputs]);
+                const result = await getBooksByByQuery([newInput,...addInputs]);
                 setResult(result)
                 setLoading(false)
               }

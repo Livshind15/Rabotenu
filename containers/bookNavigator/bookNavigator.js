@@ -151,6 +151,7 @@ const BookNavigator = ({ navigation, route }) => {
             verse={verse}
             index={initIndex}
             section={section}
+            mode={'scroll'}
             chapter={chapter}
             onBookSelect={(bookId,index) => {
                 setInitIndex(index)

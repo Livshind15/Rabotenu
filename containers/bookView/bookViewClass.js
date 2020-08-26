@@ -168,7 +168,7 @@ class BookViewClass extends React.Component {
                     onEndReachedThreshold={10}
                     initialNumToRender={2}
                     onEndReached={() => {
-                        if (!this.state.end) {
+                        if (!this.state.end && this.props.mode === 'scroll') {
                             this.setState({ loading: true }, () => this.fetchMore());
                         }
                     }}
