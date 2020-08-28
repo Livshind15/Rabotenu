@@ -227,7 +227,10 @@ const BookNavigator = ({ navigation, route }) => {
             isPending={treeFunc.isPending} />
     }, [booksIds, currBook, tree])
     const bookDisplay = React.useCallback((props) => {
-        return <BookDisplay {...props} onSave={({ textSize, grammar, exegesis, flavors, punctuation }) => {
+        return <BookDisplay {...props}   title={copyTitle}  godOption={godReplace} onSaveCopy={({ attachTitle, godReplace }) => {
+            setGodReplace(godReplace);
+            setCopyTitle(attachTitle);
+        }}  onSave={({ textSize, grammar, exegesis, flavors, punctuation }) => {
             setTextSide(textSize);
             setGrammar(grammar);
             setExegesis(exegesis);
@@ -258,7 +261,6 @@ const BookNavigator = ({ navigation, route }) => {
 
     return (
         <Navigator swipeEnabled={false} initialRouteName='View' tabBar={props => <TopTabBar {...props} />}>
-            <Screen name='Copy' options={{ title: 'רבותינו' }} component={bookListMount ? bookCopy : View} />
             <Screen name='Menu' options={{ title: 'רבותינו' }} component={bookMenu} />
             <Screen name='Display' options={{ title: 'רבותינו' }} component={bookDisplay} />
             <Screen name='BookList' options={{ title: 'רבותינו' }} component={bookList} />
@@ -270,10 +272,9 @@ const BookNavigator = ({ navigation, route }) => {
 const TopTabBar = ({ navigation, state }) => (
     <View style={styles.tabs}>
         <Tabs selectedIndex={state.index} onSelect={index => navigation.navigate(state.routeNames[index])}>
-            <HeaderButton>העתקה</HeaderButton>
             <HeaderButton>תפריטי קשר</HeaderButton>
-            <HeaderButton>הגדרות תצוגה</HeaderButton>
-            <HeaderButton>רשימת ספרים</HeaderButton>
+            <HeaderButton>הגדרות כלליות</HeaderButton>
+            <HeaderButton>חלונית ניווט</HeaderButton>
         </Tabs>
     </View>
 );

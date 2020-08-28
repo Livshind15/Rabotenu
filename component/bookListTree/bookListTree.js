@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 
-import OctIcons from "react-native-vector-icons/Octicons";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Accordian from '../../component/accordian/accordian';
 import Feather from 'react-native-vector-icons/Feather';
 import { isEmpty } from 'lodash';
@@ -68,7 +68,7 @@ const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } 
                             }
                         }
                         } underlayColor="#ffffff00" >
-                            <OctIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#0384AE' : '#A0A0A0'} size={30} name={'book'}></OctIcons>
+                            <MaterialCommunityIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#01A7BC' : '#A0A0A0'} size={30} name={'eye'}/>
                         </TouchableOpacity>
                         {/* <TouchableOpacity underlayColor="#ffffff00" >
                         <Feather style={{ paddingHorizontal: 5 }} color={'#0384AE'} size={30} name={'info'}></Feather>

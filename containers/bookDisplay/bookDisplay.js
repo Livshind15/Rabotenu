@@ -7,9 +7,12 @@ import { CheckBox } from '@ui-kitten/components';
 import { ScrollView } from 'react-native-gesture-handler';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
+import Accordian from '../../component/accordian/accordian';
+import { OptionCopy } from '../copy/copy';
 
+const godReplaceOption = ['יהוה', '"', "ה'", 'י-ה', 'ידוד']
 
-const BookDisplay = ({ onSave, navigation, setting }) => {
+const BookDisplay = ({ onSave, navigation, setting,title,godOption ,onSaveCopy }) => {
     const [textSize, setTextSide] = React.useState(setting.textSize);
     const [grammar, setGrammar] = React.useState(setting.grammar);
     const [exegesis, setExegesis] = React.useState(setting.exegesis);
@@ -17,44 +20,57 @@ const BookDisplay = ({ onSave, navigation, setting }) => {
     const [punctuation, setPunctuation] = React.useState(setting.punctuation);
 
 
+    const [attachTitle, setAttachTitle] = React.useState(title.enable||false);
+    const [subTitleOption,setSubTitleOption] = React.useState(title.position||0);
+    const [subGodOption,setSubGodOption] = React.useState(godReplaceOption.findIndex(item => item === godOption)||0);
+
     return (
         <Background>
             <View style={styles.page}>
                 <ScrollView style={styles.optionContainer}>
-                    {/* <Option key={Math.random()} checked={flavors} onChange={setFlavors} customStyle={{ option: { borderTopWidth: 0 } }}>אל תציג טעמים בכל המאגרים</Option> */}
-                    <Option key={Math.random()} checked={grammar} onChange={setGrammar}>אל תציג ניקוד בכל המאגרים</Option>
+                    <Accordian header={'הגדרות תצוגה'}>
+                        <Option key={Math.random()} checked={grammar} onChange={setGrammar}>אל תציג ניקוד בכל המאגרים</Option>
+                        <Option key={Math.random()} checked={exegesis} onChange={setExegesis}>אל תציג ציוני מפרשים והערות</Option>
+                        <Option key={Math.random()} checked={punctuation} onChange={setPunctuation}> אל תציג סימני פיסוק</Option>
+                        <View style={styles.sliderContainer}>
+                            <Text style={styles.optionTextSlider}>גודל תצוגה:</Text>
+                            <View style={styles.sliderWrapperAndText}>
+                                <View style={styles.sliderTextContainer}>
+                                    <Text style={[styles.sliderText]}>100%</Text>
+                                </View>
+                                <View style={styles.sliderWrapper}>
+                                    <Slider
+                                        value={textSize}
+                                        onValueChange={setTextSide}
+                                        trackStyle={iosStyles.track}
+                                        thumbStyle={iosStyles.thumb}
+                                        minimumTrackTintColor='#00A8BD'
+                                        maximumTrackTintColor='#b7b7b7'
+                                    />
+                                </View>
+                                <View style={styles.sliderTextContainer}>
+                                    <Text style={styles.sliderText}>0%</Text>
+                                </View>
 
-                    <Option key={Math.random()} checked={exegesis} onChange={setExegesis}>אל תציג ציוני מפרשים והערות</Option>
-                    <Option key={Math.random()} checked={punctuation} onChange={setPunctuation}> אל תציג סימני פיסוק</Option>
-                    <View style={styles.sliderContainer}>
-                        <Text style={styles.optionTextSlider}>גודל תצוגה:</Text>
-                        <View style={styles.sliderWrapperAndText}>
-                            <View style={styles.sliderTextContainer}>
-                                <Text style={[styles.sliderText]}>100%</Text>
                             </View>
-                            <View style={styles.sliderWrapper}>
-                                <Slider
-                                    value={textSize}
-                                    onValueChange={setTextSide}
-                                    trackStyle={iosStyles.track}
-                                    thumbStyle={iosStyles.thumb}
-                                    minimumTrackTintColor='#00A8BD'
-                                    maximumTrackTintColor='#b7b7b7'
-                                />
-                            </View>
-                            <View style={styles.sliderTextContainer}>
-                                <Text style={styles.sliderText}>0%</Text>
-                            </View>
-
                         </View>
-                    </View>
+                    </Accordian>
+                    <Accordian header={'הגדרות העתקה'}>
+                        <OptionCopy subOptionsState={subTitleOption} setSelectedOptions={setSubTitleOption} withRadioOption={true} subOption={['לפני העתקה', 'אחרי העתקה']} customStyle={{ option: { borderWidth: 0 } }} onChange={setAttachTitle} checked={attachTitle}>הוסף כותרות להעתקה</OptionCopy>
+                        <OptionCopy subOptionsState={subGodOption} setSelectedOptions={setSubGodOption} showCheckBox={false} subOption={['רגיל', '"', "ה'", 'י-ה', 'ידוד']} title={'עיצוב שם הויה'} withRadioOption={true} customStyle={{ option: { borderWidth: 0 } }} checked={true} />
+
+                    </Accordian>
+                    {/* <Option key={Math.random()} checked={flavors} onChange={setFlavors} customStyle={{ option: { borderTopWidth: 0 } }}>אל תציג טעמים בכל המאגרים</Option> */}
+
                 </ScrollView>
                 <View style={styles.bottomContainer}>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
                             style={styles.button}
                             onPress={() => {
-                                onSave({ textSize, grammar, exegesis, flavors,punctuation })
+                                onSave({ textSize, grammar, exegesis, flavors, punctuation })
+                                onSaveCopy({ attachTitle:{enable:attachTitle,position:subTitleOption},godReplace:godReplaceOption[subGodOption] })
+
                                 navigation.navigate('View')
                             }}
                             underlayColor="#ffffff00" >
@@ -102,7 +118,7 @@ const styles = StyleSheet.create({
         color: '#5D5C5C',
         fontFamily: "OpenSansHebrewBold",
         textAlign: 'center',
-        paddingTop: 18,
+        paddingTop: 5,
         fontSize: 18,
     },
     button: {
@@ -121,7 +137,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     bottomContainer: {
-        flex: 0.3,
+        flex: 0.25,
         width: "100%"
     },
     sliderWrapper: {
@@ -158,7 +174,7 @@ const styles = StyleSheet.create({
         fontSize: 21
     },
     optionContainer: {
-        paddingTop: 20,
+
         width: '100%',
         flex: 0.8
     },
@@ -222,4 +238,4 @@ const iosStyles = StyleSheet.create({
     }
 });
 
-export default optimizeHeavyScreen(BookDisplay,PlaceHolder);
+export default optimizeHeavyScreen(BookDisplay, PlaceHolder);

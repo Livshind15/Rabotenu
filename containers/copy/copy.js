@@ -15,8 +15,7 @@ const Copy = ({ onSave, navigation,title,godOption }) => {
     const [subTitleOption,setSubTitleOption] = React.useState(title.position||0);
     const [subGodOption,setSubGodOption] = React.useState(godReplaceOption.findIndex(item => item === godOption)||0);
 
-    // const [comments, setComments] = React.useState(false);
-    // const [dontRemove, setDontRemove] = React.useState(false);
+   
 
     return (
         <Background>
@@ -31,7 +30,6 @@ const Copy = ({ onSave, navigation,title,godOption }) => {
                 <View style={styles.bottomContainer}>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                        
                             style={styles.button}
                             onPress={() => {
                                 onSave({ attachTitle:{enable:attachTitle,position:subTitleOption},godReplace:godReplaceOption[subGodOption] })
@@ -54,8 +52,8 @@ const Copy = ({ onSave, navigation,title,godOption }) => {
     )
 }
 
-
-const Option = ({ subOptionsState,setSelectedOptions, children, showCheckBox = true, checked, onChange, title, withRadioOption, subOption, customStyle = { option: {} } }) => {
+  
+export const OptionCopy = ({ subOptionsState,setSelectedOptions, children, showCheckBox = true, checked, onChange, title, withRadioOption, subOption, customStyle = { option: {} } }) => {
     return (
         <View style={[styles.optionWrapper, customStyle.option]}>
             {title && <Text style={styles.optionTitle}>{title}</Text>}

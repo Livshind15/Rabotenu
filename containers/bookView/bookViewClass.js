@@ -191,6 +191,7 @@ class Item extends React.Component {
         this.comments = {};
     }
     shouldComponentUpdate(nextProps, nextState) {
+
         if (nextProps.highlightIndex !== this.props.index && this.props.index !== this.props.highlightIndex) {
             return false;
         }
@@ -316,7 +317,7 @@ class Item extends React.Component {
                         return elements
                     }
 
-                    elements.push(<Text selectable={true} key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(text, exegesis, punctuation, grammar)}</Text>)
+                    elements.push(<Text selectable={true} key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(text, punctuation, grammar)}</Text>)
 
                     return elements
                 }, [])}
@@ -329,7 +330,8 @@ class Item extends React.Component {
 
 
 export const removeNotNeedContent = (content, punctuation, grammar) => {
-    return removeTag(punctuation ? removePunctuation((grammar ? removeGrammar(content) : content)) : (grammar ? removeGrammar(content) : content))
+    const contentWithoutTags = removeTag(content)
+    return punctuation ? removePunctuation((grammar ? removeGrammar(contentWithoutTags) : contentWithoutTags)) : (grammar ? removeGrammar(contentWithoutTags) : contentWithoutTags)
 }
 
 
@@ -420,16 +422,17 @@ const getStyles = (textSize) => {
 }
 
 export const removeGrammar = (content) => {
-    return content.replace(/[^א-ת\s,;.-]/g, '')
+    return content.replace(/[^א-ת\s,:;־.-]/g, '')
 }
 
-export const removePunctuation = (content) => {
-    return ([...content] || []).reduce((newString, char, index) => {
-        if (!['?', '!', ',', ".", ":"].includes(char) || [...content].length - 1 === index) {
-            newString += char;
-        }
-        return newString;
-    }, '')
+export const removePunctuation =    (content) => {
+    // return ([...content] || []).reduce((newString, char, index) => {
+    //     if (!['?', '!', ',', ".", ":"].includes(char) || [...content].length - 1 === index) {
+    //         newString += char;
+    //     }
+    //     return newString;
+    // }, '')
+    return content
 }
 
 export const removeTag = (content) => {
