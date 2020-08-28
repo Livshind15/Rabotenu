@@ -6,6 +6,7 @@ import { getBooksInGroup, addCheckForResources } from '../containers/resources/r
 const ResourcesGroupsKey = 'RabotenuResourceGroups';
 const ResourcesGroupSelectedKey = 'RabotenuResourceGroupSelected';
 const ResourcesSearchType = 'ResourcesSearchType';
+const SearchHistoryType = 'SearchHistoryType';
 
 
 export const SearchContext = React.createContext();
@@ -17,15 +18,15 @@ export const SearchProvider = ({ children }) => {
     const [tableInput, setTableInput] = React.useState([[]]);
     const [allResourceToggle, setResourceToggle] = React.useState(false);
     const [selectedGroup, setSelectedGroup] = React.useState('');
-    const [notSearchGroups,setNotSearchGroups]= React.useState({});
-    const [notSearchBooks,setNotSearchBooks]= React.useState({});
-
+    const [notSearchGroups, setNotSearchGroups] = React.useState({});
+    const [notSearchBooks, setNotSearchBooks] = React.useState({});
+    const [searchHistory, setSearchHistory] = React.useState([]);
     const [resourcesGroups, setResourcesGroups] = React.useState({});
     const [resources, setResources] = React.useState([]);
     const [removeResources, setRemoveResources] = React.useState([]);
 
     const [resourcesData, setData] = React.useState([]);
-   
+
     React.useEffect(() => {
         if (allResourceToggle) {
             if (resourcesData && resourcesData.length) {
@@ -34,7 +35,7 @@ export const SearchProvider = ({ children }) => {
         }
     }, [allResourceToggle]);
     React.useEffect(() => {
-        if(resourcesGroups[selectedGroup]){
+        if (resourcesGroups[selectedGroup]) {
             setResources(resourcesGroups[selectedGroup].resources)
         }
     }, [selectedGroup]);
@@ -43,7 +44,7 @@ export const SearchProvider = ({ children }) => {
         const allBooks = flatten(getBooksInGroup(resources, true).map(resource => resource.booksId));
         const books = flatten(getBooksInGroup(resources, false).map(resource => resource.booksId));
         const isAllResource = isEqual(allBooks, difference(allBooks, books))
-        if(isAllResource){
+        if (isAllResource) {
             setSelectedGroup('')
         }
         setResourceToggle(isAllResource);
@@ -55,7 +56,7 @@ export const SearchProvider = ({ children }) => {
 
         setNotSearchGroups(groups)
         setNotSearchBooks(books)
-    }, [removeResources,resources]);
+    }, [removeResources, resources]);
 
 
     React.useEffect(() => {
@@ -65,7 +66,7 @@ export const SearchProvider = ({ children }) => {
                 const jsonValue = value != null ? JSON.parse(value) : null;
                 if (jsonValue !== null) {
                     setSelectedGroup(jsonValue)
-                    if(resourcesGroups[selectedGroup]){
+                    if (resourcesGroups[selectedGroup]) {
                         setResources(resourcesGroups[selectedGroup].resources)
                     }
                 }
@@ -101,9 +102,21 @@ export const SearchProvider = ({ children }) => {
             }
         })()
     }, [])
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const value = await AsyncStorage.getItem(SearchHistoryType)
+                const jsonValue = value != null ? JSON.parse(value) : null;
+                if (jsonValue !== null) {
+                    setSearchHistory(jsonValue)
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        })()
+    }, [])
 
 
-    
     React.useEffect(() => {
         (async () => {
             try {
@@ -124,6 +137,17 @@ export const SearchProvider = ({ children }) => {
             }
         })()
     }, [searchType])
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const jsonValue = JSON.stringify(searchHistory)
+                await AsyncStorage.setItem(SearchHistoryType, jsonValue)
+            } catch (e) {
+                console.log(e);
+            }
+        })()
+    }, [searchHistory])
+
 
 
 
@@ -139,8 +163,19 @@ export const SearchProvider = ({ children }) => {
         })()
     }, [resourcesGroups])
 
+    const setSearchCb = (search) => {
+        if(search.length > 30){
+            const newSearchHistory = search.slice(0, -1);;
+            setSearchHistory(newSearchHistory)
+        }
+        else{
+            setSearchHistory(search)
+
+        }
+    }
+
     return (
-        <SearchContext.Provider value={{ searchInput,selectedGroup, setSelectedGroup,notSearchBooks, removeResources,allResourceToggle, setResourceToggle, notSearchGroups, setRemoveResources, setResourcesGroups, resourcesData, setData, resourcesGroups, resources, setResources, searchType, setSearchType, tableInput, setTableInput, searchType, bookResult, setSearchInput, setSearchType, setBookResult }}>
+        <SearchContext.Provider value={{ setNotSearchGroups,setNotSearchBooks ,setSearchHistory:setSearchCb,searchHistory, searchInput, selectedGroup, setSelectedGroup, notSearchBooks, removeResources, allResourceToggle, setResourceToggle, notSearchGroups, setRemoveResources, setResourcesGroups, resourcesData, setData, resourcesGroups, resources, setResources, searchType, setSearchType, tableInput, setTableInput, searchType, bookResult, setSearchInput, setSearchType, setBookResult }}>
             {children}
         </SearchContext.Provider>
     )

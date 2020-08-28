@@ -19,26 +19,27 @@ import TableSearch from '../tableSearch/tableSearch';
 import { isEmpty } from 'lodash';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen'
 import PlaceHolder from '../../component/placeHolder/placeHolder';
+import SearchHistory from '../historyPage/historyPage';
 
 
 const Stack = createStackNavigator();
 
 
-export const getBooksByContent = async (content, searchType, tableInput,books,groups) => {
+export const getBooksByContent = async (content, searchType, tableInput, books, groups) => {
   const { data } = await axios.post(`${config.serverUrl}/book/search/books/`, {
     "content": content,
     "type": !isEmpty(tableInput) ? searchType || 'exact' : 'exact',
     "table": tableInput,
-    "books":books,
-    "groups":groups
+    "books": books,
+    "groups": groups
   });
   return data;
 }
 
 
 
-export default function Search() {
-  const { setTableInput, setBookResult, setSearchType ,notSearchBooks,notSearchGroups} = React.useContext(SearchContext);
+export default function Search({navigation}) {
+  const { setTableInput, setSearchHistory ,setSearchInput,setNotSearchGroups,setNotSearchBooks , setBookResult, searchHistory, notSearchBooks, notSearchGroups ,setSearchType} = React.useContext(SearchContext);
   const [tableInit] = React.useState([[{ value: "" }]])
   const tableSearch = (props) => <TableSearch tableInit={tableInit} {...props} onSave={async (table, navigation) => {
     const tablesInput = table.map(or => {
@@ -49,11 +50,25 @@ export default function Search() {
         }
       })
     })
-    const result = await getBooksByContent("", "table", tablesInput,notSearchBooks,notSearchGroups);
+    const result = await getBooksByContent("", "table", tablesInput, notSearchBooks, notSearchGroups);
     setTableInput(tablesInput)
     setBookResult(result);
     navigation.push('SearchResultView', { onSearch: getBooksByContent })
   }} />
+
+  const historyPage = (props) => <SearchHistory onSelect={async (selectIndex)=>{
+      const {searchInput, searchType, tableInput, notSearchBooks, notSearchGroups} = searchHistory[selectIndex];
+      setTableInput(tableInput)
+      setSearchType(searchType)
+      setSearchInput(searchInput)
+      setNotSearchGroups(notSearchGroups)
+      setNotSearchBooks(notSearchBooks)
+      const result = await getBooksByContent(searchInput, searchType, tableInput, notSearchBooks, notSearchGroups);
+      setBookResult(result);
+      navigation.push('SearchResultView', { onSearch: getBooksByContent })
+  }} onRemove={(removeIndex) => {
+   setSearchHistory(searchHistory.filter((key,index)=> index!==removeIndex))
+  }} {...props} history={searchHistory} />
 
   return (
 
@@ -64,6 +79,7 @@ export default function Search() {
       <Stack.Screen name="SearchView" options={{ headerShown: false, title: 'רבותינו' }} component={searchView} />
       <Stack.Screen name="Result" options={{ headerShown: false, title: 'רבותינו' }} component={bookNavigator} />
       <Stack.Screen name="TableSearch" options={{ headerShown: false, title: 'רבותינו' }} component={tableSearch} />
+      <Stack.Screen name="SearchHistory" options={{ headerShown: false, title: 'רבותינו' }} component={historyPage} />
 
     </Stack.Navigator>
   );
@@ -83,17 +99,19 @@ const SearchMain = ({ navigation }) => {
   const [isLoading, setLoading] = React.useState(false);
   const [showOptionsSearch, setShowOptionsSearch] = React.useState(false);
   const [showSearchType, setShowSearchType] = React.useState(false);
-  const { searchInput, setSearchInput, setBookResult,notSearchGroups,notSearchBooks, setSearchType, searchType, tableInput, setTableInput } = React.useContext(SearchContext);
+  const { searchInput, setSearchInput, setBookResult, notSearchGroups, notSearchBooks, setSearchType, searchType, tableInput, setSearchHistory, searchHistory } = React.useContext(SearchContext);
 
-const onSubmit = async () =>{
-  if (!isLoading) {
-    setLoading(true);
-    const result = await getBooksByContent(searchInput, searchType, tableInput,notSearchBooks,notSearchGroups);
-    setLoading(false)
-    setBookResult(result);
-    navigation.push('SearchResultView', { onSearch: getBooksByContent })
+  const onSubmit = async () => {
+    if (!isLoading) {
+      setLoading(true);
+      setSearchHistory([{ searchInput, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
+      const result = await getBooksByContent(searchInput, searchType, tableInput, notSearchBooks, notSearchGroups);
+      setLoading(false)
+      setBookResult(result);
+      navigation.push('SearchResultView', { onSearch: getBooksByContent })
+    }
   }
-}
+
   return (
     <Background>
       <SearchOptionsModel onResources={() => navigation.push('Resources')} openSearchType={() => setShowSearchType(true)} visible={showOptionsSearch} setVisible={setShowOptionsSearch} ></SearchOptionsModel>
@@ -123,17 +141,20 @@ const onSubmit = async () =>{
           >
             <Text style={styles.clickText}>אפשרויות חיפוש מתקדמות</Text>
           </TouchableOpacity>
+          <TouchableOpacity underlayColor="#ffffff00" onPress={() => navigation.push('SearchHistory')}>
+            <Text style={styles.clickText}>הסטוריית חיפושים</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Background>
   )
 }
 
-const searchResultView = optimizeHeavyScreen(SearchResultView,PlaceHolder)
-const searchMain = optimizeHeavyScreen(SearchMain,PlaceHolder)
-const resources = optimizeHeavyScreen(Resources,PlaceHolder)
-const searchView = optimizeHeavyScreen(SearchView,PlaceHolder)
-const bookNavigator = optimizeHeavyScreen(BookNavigator,PlaceHolder)
+const searchResultView = optimizeHeavyScreen(SearchResultView, PlaceHolder)
+const searchMain = optimizeHeavyScreen(SearchMain, PlaceHolder)
+const resources = optimizeHeavyScreen(Resources, PlaceHolder)
+const searchView = optimizeHeavyScreen(SearchView, PlaceHolder)
+const bookNavigator = optimizeHeavyScreen(BookNavigator, PlaceHolder)
 
 
 

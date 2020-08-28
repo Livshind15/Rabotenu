@@ -14,14 +14,18 @@ import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 const SearchResultView = ({ navigation, route }) => {
-    const onSearch  = route.params.onSearch || (()=>{});
-    const { searchInput, bookResult, allResourceToggle, setResourceToggle, setSearchInput, setBookResult, notSearchBooks,notSearchGroups, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
+    const onSearch = route.params.onSearch || (() => { });
+    const { searchInput, bookResult, searchHistory, setSearchHistory, allResourceToggle, setResourceToggle, setSearchInput, setBookResult, notSearchBooks, notSearchGroups, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
     const searchResult = (props) => <SearchResult {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
+        setSearchHistory([{searchInput: input, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
+
         const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups);
         setBookResult(result);
 
     }} result={bookResult} />
     const searchTree = (props) => <SearchTree {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
+              setSearchHistory([{searchInput: input, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
+
         const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups);
         setBookResult(result);
 
@@ -30,12 +34,12 @@ const SearchResultView = ({ navigation, route }) => {
     return (
         <View style={styles.page}>
             <View style={styles.header}>
-                <Toggle checked={allResourceToggle} onChange={(status)=>{
+                <Toggle checked={allResourceToggle} onChange={(status) => {
                     setResourceToggle(status)
-                    if(!status){
+                    if (!status) {
                         navigation.push('Resources')
                     }
-                    }} />
+                }} />
                 <Text style={styles.headerText}>חפש בכל המאגרים</Text>
             </View>
             <View style={styles.body}>
