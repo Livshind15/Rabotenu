@@ -36,15 +36,22 @@ const ExploreTree = ({ getBookInfo, navigation, groups = [], deep = 0 }) => {
                     }, [clickCount, info])
                     return <Accordian
                         initExpanded={expanded}
-                        key={index}         
+                        key={index}
                         onExpanded={onExpanded}
                         shouldExpanded={!isEmpty(info) && !isEmpty(info.tree)}
                         additionalComponent={
                             <TouchableOpacity style={{ paddingRight: 25 + (10 * deep), paddingLeft: 5 }} onPress={() => navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })} underlayColor="#ffffff00">
                                 {isLoading ? <Spinner></Spinner> : <OctIcons name={'book'} size={22} color={'#9AD3CE'} />}
                             </TouchableOpacity>} endToggle={true} header={book.bookName.replace('_', '"')}  >
-                        {!isEmpty(info) && !isEmpty(info.tree) ? <BookListTree onSelect={({ bookId, chapter, verse, section }) => {
-                            navigation.push('Result', { selectedBooks: [{ bookId: bookId }], selectedChapter: chapter, selectedVerse: verse, selectedSection: section })
+                        {!isEmpty(info) && !isEmpty(info.tree) ? <BookListTree  onSelect={(select) => {
+                            navigation.push('Result', {
+                                selectedBooks: [{ bookId: select.bookId }], selectedHeaders: Object.keys(select).reduce((headers, key) => {
+                                    if (key !== 'bookId') {
+                                        headers[key] = select[key];
+                                    }
+                                    return headers;
+                                }, {})
+                            })
                         }} deep={deep + 5} results={info.tree} bookId={book.bookId} parent={info}></BookListTree> : <></>}
                     </Accordian>
                 }) : <></>}

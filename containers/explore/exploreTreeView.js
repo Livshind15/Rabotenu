@@ -9,18 +9,8 @@ import Background from '../../component/background/background';
 import ExploreTree from '../../component/exploreTree/exploreTree';
 import { Spinner } from '@ui-kitten/components';
 import ErrorModel from '../../component/modalError/modalError';
-import PlaceHolder from '../../component/placeHolder/placeHolder';
-import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 
-function removeNulls(obj) {
-    var isArray = obj instanceof Array;
-    for (var k in obj) {
-        if (obj[k] === null) isArray ? obj.splice(k, 1) : delete obj[k];
-        else if (typeof obj[k] == "object") removeNulls(obj[k]);
-        if (isArray && obj.length == k) removeNulls(obj);
-    }
-    return obj;
-}
+
 const getBookTree = async (booksIds) => {
     const data = await Promise.all(booksIds.map(bookId => {
         return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);

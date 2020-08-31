@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Platform,Clipboard  } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Platform, Clipboard } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Tabs from '../../component/tabs/tabs'
@@ -16,6 +16,7 @@ import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { RabotenuContext } from '../../contexts/applicationContext';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
+const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 
 const getBookTree = async ([booksIds]) => {
     const data = await Promise.all(booksIds.map(bookId => {
@@ -24,71 +25,46 @@ const getBookTree = async ([booksIds]) => {
     return data || [];
 }
 
-const getSubBooks = async ([bookId, section, chapter, verse]) => {
+const getSubBooks = async ([bookId, header]) => {
     let url = `${config.serverUrl}/mapping/groups/childBooks/${bookId}`;
     let params = '';
-    if (section) {
-        if (params.length) {
-            params += `&section=${section}`
+    headers.forEach(headersType => {
+        if (header[headersType]) {
+            if (params.length) {
+                params += `&${headersType}=${header[headersType]}`
+            }
+            else {
+                params += `?${headersType}=${header[headersType]}`
+            }
         }
-        else {
-            params += `?section=${section}`
-        }
-    }
-    if (chapter) {
-        if (params.length) {
-            params += `&chapter=${chapter}`
-        }
-        else {
-            params += `?chapter=${chapter}`
-        }
-    }
-    if (verse) {
-        if (params.length) {
-            params += `&verse=${verse}`
-        }
-        else {
-            params += `?verse=${verse}`
-        }
-    }
+    })
+
     const { data } = await axios.get(url + params);
-    return { child: data, info: { section, chapter, verse } } || [];
+    return { child: data, info: header } || [];
 }
 
-const getParentBooks = async ([bookId, section, chapter, verse]) => {
+
+const getParentBooks = async ([bookId, header]) => {
     let url = `${config.serverUrl}/mapping/groups/parentBook/${bookId}`;
     let params = '';
-    if (section) {
-        if (params.length) {
-            params += `&section=${section}`
+
+    headers.forEach(headersType => {
+        if (header[headersType]) {
+            if (params.length) {
+                params += `&${headersType}=${header[headersType]}`
+            }
+            else {
+                params += `?${headersType}=${header[headersType]}`
+            }
         }
-        else {
-            params += `?section=${section}`
-        }
-    }
-    if (chapter) {
-        if (params.length) {
-            params += `&chapter=${chapter}`
-        }
-        else {
-            params += `?chapter=${chapter}`
-        }
-    }
-    if (verse) {
-        if (params.length) {
-            params += `&verse=${verse}`
-        }
-        else {
-            params += `?verse=${verse}`
-        }
-    }
+    })
+
     const { data } = await axios.get(url + params);
-    return { parent: data, info: { section, chapter, verse } } || [];
+    return { parent: data, info: header } || [];
 }
 
 const BookNavigator = ({ navigation, route }) => {
     const {
-        showBack,
         copyTitle,
         setCopyTitle,
         setGodReplace,
@@ -111,19 +87,14 @@ const BookNavigator = ({ navigation, route }) => {
         }
     }, [])
 
-    const { selectedBooks, selectedChapter, selectedIndex, selectedVerse, selectedSection } = route.params;
-
+    const { selectedBooks, selectedHeaders, selectedIndex} = route.params;
+    const [selectedHeader, setSelectedHeader] = React.useState(selectedHeaders || {header1:'', header2:'', header3:'', header4:'', header5:'', header6:'', header7:''});
     const { booksIds, setBooksIds } = React.useContext(RabotenuContext);
-
     const [currBook, setCurrBook] = React.useState(selectedBooks[0].bookId)
     const [initIndex, setInitIndex] = React.useState(selectedIndex || 0);
-
-
     const [bookListMount, setBookListMount] = React.useState(false);
     const [tree, setTree] = React.useState([])
-    const [chapter, setChapter] = React.useState(selectedChapter || '');
-    const [verse, setVerse] = React.useState(selectedVerse || '');
-    const [section, setSection] = React.useState(selectedSection || '');
+
 
     const subBooks = useAsync({ deferFn: getSubBooks })
     const parentBooks = useAsync({ deferFn: getParentBooks })
@@ -147,13 +118,11 @@ const BookNavigator = ({ navigation, route }) => {
         return <BookViewClass
             {...props}
             bookId={currBook}
+            selectedHeader={selectedHeader}
             setMount={setBookListMount}
-            verse={verse}
             index={initIndex}
-            section={section}
             mode={'scroll'}
-            chapter={chapter}
-            onBookSelect={(bookId,index) => {
+            onBookSelect={(bookId, index) => {
                 setInitIndex(index)
                 if (!booksIds.includes(bookId)) {
                     setBooksIds([...booksIds, bookId])
@@ -161,7 +130,18 @@ const BookNavigator = ({ navigation, route }) => {
                 setCurrBook(bookId)
             }}
             onTextLongPress={async (text) => {
-                const header = (`${text.original.groupName ? text.original.groupName.replace("_", '') + ' ' : '"'}${text.original.bookName ? text.original.bookName.replace("_", '"') + ' ' : ""}${text.original.section ? text.original.section + ' ' : ""}${text.original.chapter ? text.original.chapter + ' ' : ""}${text.original.verse ? text.original.verse + ' ' : ""} `)
+                const header = (`
+                ${text.original.groupName ? text.original.groupName.replace("_", '') + ' ' : '"'}
+                ${text.original.bookName ? text.original.bookName.replace("_", '"') + ' ' : ""}
+                ${text.original.header1 ? text.original.header1 + ' ' : ""}
+                ${text.original.header2 ? text.original.header2 + ' ' : ""}
+                ${text.original.header3 ? text.original.header3 + ' ' : ""}
+                ${text.original.header4 ? text.original.header4 + ' ' : ""}
+                ${text.original.header5 ? text.original.header5 + ' ' : ""}
+                ${text.original.header6 ? text.original.header6 + ' ' : ""}
+                ${text.original.header7 ? text.original.header7 + ' ' : ""}
+                 `)
+            
 
                 if (Platform.OS === 'web') {
                     if (navigator.clipboard) {
@@ -191,46 +171,42 @@ const BookNavigator = ({ navigation, route }) => {
                 }
             }}
             onTextSelected={(text) => {
-                const { bookId, section, chapter, verse } = text.original;
-                // setChapter(chapter)
-                // setVerse(verse)
-                // setSection(section)
-                subBooks.run(bookId, section, chapter, verse)
-                parentBooks.run(bookId, section, chapter, verse)
+                const { bookId, header1, header2, header3, header4, header5, header6, header7} = text.original;
+
+                subBooks.run(bookId, {header1, header2, header3, header4, header5, header6, header7})
+                parentBooks.run(bookId,{header1, header2, header3, header4, header5, header6, header7})
 
             }}
             textSize={textSize}
             exegesis={exegesis}
             punctuation={punctuation}
             grammar={grammar} />
-    }, [currBook, chapter, section, copyTitle,booksIds, verse, textSize, exegesis, grammar, punctuation, initIndex, godReplace
+    }, [currBook, selectedHeader, copyTitle, booksIds, textSize, exegesis, grammar, punctuation, initIndex, godReplace
 
     ])
     const bookList = React.useCallback((props) => {
         return <BookList
-            onSelectBook={(book) => {
-                if (!booksIds.includes(book)) {
-                    setBooksIds([...booksIds, book])
-                }
-                setChapter('')
-                setSection('')
-                setVerse('')
-                setInitIndex(0)
-                setCurrBook(book)
-            }}
+         
             bookId={currBook}
             {...props}
-            onSelectSection={setSection}
-            onSelectVerse={setVerse}
-            onSelectChapter={setChapter}
+            onSelect={(select) => {
+                setCurrBook(select.bookId)
+                setSelectedHeader(Object.keys(select).reduce((headers, key) => {
+                    if (key !== 'bookId') {
+                        headers[key] = select[key];
+                    }
+                    return headers;
+                }, {}))
+            }}
             tree={tree || {}}
             isPending={treeFunc.isPending} />
     }, [booksIds, currBook, tree])
+
     const bookDisplay = React.useCallback((props) => {
-        return <BookDisplay {...props}   title={copyTitle}  godOption={godReplace} onSaveCopy={({ attachTitle, godReplace }) => {
+        return <BookDisplay {...props} title={copyTitle} godOption={godReplace} onSaveCopy={({ attachTitle, godReplace }) => {
             setGodReplace(godReplace);
             setCopyTitle(attachTitle);
-        }}  onSave={({ textSize, grammar, exegesis, flavors, punctuation }) => {
+        }} onSave={({ textSize, grammar, exegesis, flavors, punctuation }) => {
             setTextSide(textSize);
             setGrammar(grammar);
             setExegesis(exegesis);
@@ -238,25 +214,17 @@ const BookNavigator = ({ navigation, route }) => {
             setPunctuation(punctuation)
         }} setting={{ textSize, grammar, exegesis, flavors, punctuation }} />
     }, [textSize, grammar, exegesis, flavors, punctuation])
-    const bookCopy = React.useCallback((props) => {
-        return <Copy title={copyTitle} godOption={godReplace} {...props} onSave={({ attachTitle, godReplace }) => {
-            setGodReplace(godReplace);
-            setCopyTitle(attachTitle);
-        }}></Copy>
-    }, [])
+
     const bookMenu = React.useCallback((props) => {
         return <BookMenu {...props} childData={subBooks.data} parentData={parentBooks.data} isPending={subBooks.isPending} onBookSelect={(book, info) => {
-            const { section, chapter, verse } = info
-            setChapter(chapter)
-            setVerse(verse)
-            setSection(section)
+            setSelectedHeader(info)
             setInitIndex(0)
             if (!booksIds.includes(book)) {
                 setBooksIds([...booksIds, book])
             }
             setCurrBook(book)
         }} bookId={currBook} />
-    }, [booksIds, currBook, subBooks,parentBooks])
+    }, [booksIds, currBook, subBooks, parentBooks])
 
 
     return (

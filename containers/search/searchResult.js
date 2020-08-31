@@ -13,7 +13,7 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
     const [searchInput, setInput] = React.useState(input);
     const [isLoading, setLoading] = React.useState(false);
     const { setSearchType } = React.useContext(SearchContext);
-
+    console.log(result);
     return (
         <Background>
             <View style={styles.page}>
@@ -36,7 +36,7 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                     <Text style={styles.titleResult}>תוצאות</Text>
                 </View>
                 <FlatList
-                    data={result || []}
+                    data={result.filter(result => result.bookId) || []}
                     style={styles.scroll}
                     keyExtractor={(key, index) => index.toString()}
                     initialNumToRender={7}
@@ -64,7 +64,7 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                                     </View>
                                 </View>
                                 <View style={styles.toggleAndText}>
-                                    <Text style={[styles.title, styles.font]}>{`${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`}</Text>
+                                    <Text style={[styles.title, styles.font]}>{`${ item.groupName ? item.groupName.replace('_', '"')+', ':""}${item.bookName?item.bookName.replace('_', '"'):""}`}</Text>
                                 </View>
 
                             </TouchableOpacity>

@@ -9,41 +9,15 @@ import PlaceHolder from '../../component/placeHolder/placeHolder';
 
 
 
-const BookList = ({ tree, isPending, navigation,onSelectSection, onSelectChapter,onSelectVerse, onSelectBook, bookId }) => {
+const BookList = ({ tree, isPending, navigation, onSelect, bookId }) => {
     return (
         <Background>
             <View style={styles.page}>
                 <ScrollView style={styles.scroll}>
                     {!isPending && tree ? <BookListTree bookId={bookId} onSelect={(select => {
-                        if (select.verse) {
-                            if (select.bookId) {
-                                onSelectBook(select.bookId)
-                            }
-                            if (select.chapter) {
-                                onSelectChapter(select.chapter)
-                            }
-                            onSelectVerse(select.verse)
-                            navigation.navigate('View')
-                        }
-                        else if (select.chapter) {
-                            if (select.bookId) {
-                                onSelectBook(select.bookId)
-                            }
-                            onSelectChapter(select.chapter)
-                            navigation.navigate('View')
-                        }
-                        else if (select.section) {
-                            if (select.bookId) {
-                                onSelectBook(select.bookId)
-                            }
-                            onSelectSection(select.section)
-                            navigation.navigate('View')
+                        onSelect(select)
+                        navigation.navigate('View')
 
-                        }
-                        else if (select.book) {
-                            onSelectBook(select.book)
-                            navigation.navigate('View')
-                        }
                     })} results={tree} /> : <></>}
                 </ScrollView>
             </View>

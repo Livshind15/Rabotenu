@@ -15,6 +15,7 @@ import ErrorModel from '../../component/modalError/modalError';
 import Accordian from '../../component/accordian/accordian';
 import { isEmpty } from 'lodash';
 import { removeTag, removeBoldTag, removeGrayTag, removeSmallTag } from '../bookView/bookViewClass';
+const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 
 
 const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => {
@@ -60,15 +61,17 @@ const SearchView = ({ navigation, route }) => {
                             let boldText = false;
                             let smallText = false;
                             let header = `${item.groupName.replace('_','"')}, ${item.bookName.replace('_','"')}`;
-                            if(item.chapter){
-                                header += `, ${item.chapter}`
-                            }
-                            if(item.verse){
-                                header += `, פסוק ${item.verse}`
-                            }
+                            headers.forEach(headersType => {
+                                if(item[headersType]){
+
+                                    header += `, ${item[headersType]}`
+                                }
+                            } 
+                            )
+                            
                             return (<Accordian initExpanded={true} header={header} >
                                 <TouchableOpacity onPress={() => {
-                                    navigation.push('Result', {selectedIndex:item.index, selectedChapter: item.chapter, selectedBooks: [{ bookId: item.bookId }] })
+                                    navigation.push('Result', {selectedIndex:item.index, selectedBooks: [{ bookId: item.bookId }] })
                                 }} style={styles.contentContainer}>
                                     <View style={styles.pasokContainer}>
                                         {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}

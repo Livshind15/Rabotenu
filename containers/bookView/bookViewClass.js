@@ -12,8 +12,8 @@ import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import ErrorModel from '../../component/modalError/modalError';
 
-
-const DefaultScrollSize = 20;
+const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
+const DefaultScrollSize = 35;
 
 class BookViewClass extends React.Component {
     constructor(props) {
@@ -26,21 +26,23 @@ class BookViewClass extends React.Component {
             loading: false,
             highlightIndex: null,
             showCopyModal: false,
-            bookId: this.props.bookId
+            bookId: this.props.bookId,
+            bookInfo: {}
         }
         this.styles = getStyles(this.props.textSize);
 
         this.bookName = [];
-        this.section = [];
-        this.chapter = '';
+        this.headers = ['', '', '', '', '', '', '', '']
     }
 
     async componentDidMount() {
         delay(1000).then(() => {
             this.props.setMount(true)
         })
-        if (this.props.index === 0 || this.props.section || this.props.chapter || this.props.verse) {
-            const index = await this.getContentIndex(this.props.bookId, this.props.section, this.props.chapter, this.props.verse);
+        const bookInfo = await this.getBookInfo([this.props.bookId])
+        this.setState({ bookInfo: bookInfo })
+        if (this.props.index === 0 || (this.props.selectedHeader && Object.keys(this.props.selectedHeader).some(header => !isEmpty(this.props.selectedHeader[header])))) {
+            const index = await this.getContentIndex(this.props.bookId, this.props.selectedHeader);
             this.setState({ loading: true, index: index }, () => this.fetchMore());
         } else {
             this.setState({ loading: true, index: this.props.index }, () => this.fetchMore());
@@ -50,15 +52,14 @@ class BookViewClass extends React.Component {
     }
 
     async componentDidUpdate(nextProps) {
-        if (nextProps.section !== this.props.section ||
-            nextProps.chapter !== this.props.chapter ||
-            nextProps.verse !== this.props.verse ||
+        if (nextProps.selectedHeader !== this.props.selectedHeader ||
             nextProps.bookId !== this.props.bookId) {
-            const index = await this.getContentIndex(nextProps.bookId, nextProps.section, nextProps.chapter, nextProps.verse);
+            const index = await this.getContentIndex(nextProps.bookId, nextProps.selectedHeader);
             this.setState({ bookId: nextProps.bookId, loading: true, index: index }, () => this.fetchMore());
         }
 
     }
+
 
     bookToElements(bookContent) {
         return bookContent.reduce((elements, content, index) => {
@@ -66,26 +67,68 @@ class BookViewClass extends React.Component {
                 this.bookName = [...this.bookName, content.bookName]
                 elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName, original: content })
             }
-            if (!this.section.includes(content.section)) {
-                this.section = [...this.section, content.section]
-                elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
-            }
-            if (this.chapter !== content.chapter) {
-                this.chapter = content.chapter
-                elements.push({ id: elements.length + 1, type: "chapter", value: content.chapter, original: content })
-            }
+            headers.forEach((header, index) => {
+                if (this.headers[index] !== content[header] && !isEmpty(content[header])) {
+                    this.headers[index] = content[header]
+                    if (!this.state.bookInfo.style[header].inLine) {
+                        elements.push({ id: this.state.data.length + elements.length + 1, type: header, style: this.state.bookInfo.style[header], value: content[header], original: content })
+                    }
+                }
+            })
+            const inLineHeader = Object.keys(this.state.bookInfo.style).map((header) => {
+                if (this.state.bookInfo.style[header].inLine) {
+                    return header
+                }
+            }).filter(item => !isEmpty(item))
+            // if (!this.header2 !== (content.header2)) {
+            //     this.header1 = content.header1
+            //     elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
+            // }
+            // if (!this.header3 !== (content.header3)) {
+            //     this.header1 = content.header1
+            //     elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
+            // }
+            // if (!this.header4 !== (content.header4)) {
+            //     this.header1 = content.header1
+            //     elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
+            // }
+            // if (!this.header5 !== (content.header6)) {
+            //     this.header1 = content.header1
+            //     elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
+            // }
 
-            if (content.verse.length && elements[elements.length - 1] && elements[elements.length - 1].index && elements[elements.length - 1].index === content.verse) {
+
+
+            if (content[inLineHeader[0]].length && elements[elements.length - 1] && elements[elements.length - 1].index && elements[elements.length - 1].index === content[inLineHeader[0]] && elements[elements.length - 1].value !== content.content) {
                 elements[elements.length - 1] = { ...elements[elements.length - 1], parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag : RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: elements[elements.length - 1].value + content.content }
                 return elements
             }
-            if (elements[elements.length - 1] && elements[elements.length - 1].type === 'chapter' && !content.content.length) {
-                return elements
+            // if (elements[elements.length - 1] && elements[elements.length - 1].type === 'chapter' && !content.content.length) {
+            //     return elements
+            // }
+            // if (elements[elements.length - 1] && elements[elements.length - 1].type === 'section' && !content.content.length) {
+            //     return elements
+            // }
+            if (inLineHeader[0]) {
+                elements.push({
+                    original: content,
+                    id: this.state.data.length + elements.length + 1,
+                    type: "content",
+                    index: content[inLineHeader[0]],
+                    parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content),
+                    value: content.content
+                })
             }
-            if (elements[elements.length - 1] && elements[elements.length - 1].type === 'section' && !content.content.length) {
-                return elements
+            else {
+                elements.push({
+                    original: content,
+                    id: this.state.data.length + elements.length + 1,
+                    type: "content",
+                    parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content),
+                    value: content.content
+                })
             }
-            elements.push({ original: content, id: elements.length + 1, type: "verse", parsaTag: RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), index: content.verse, value: content.content })
+
             return elements
 
         }, []);
@@ -97,17 +140,19 @@ class BookViewClass extends React.Component {
         return data || [];
     }
 
-    async getContentIndex(bookId, section, chapter, verse) {
+    async getBookInfo([bookId]) {
+        const { data } = await axios.get(`${config.serverUrl}/mapping/books/book/${bookId}`);
+        return data || [];
+    }
+
+
+    async getContentIndex(bookId, header) {
         let url = `${config.serverUrl}/book/content/${bookId}?size=1`;
-        if (section) {
-            url += `&section=${section}`
-        }
-        if (chapter) {
-            url += `&chapter=${chapter}`
-        }
-        if (verse) {
-            url += `&verse=${verse}`
-        }
+        headers.forEach(headersType => {
+            if (header[headersType]) {
+                url += `&${headersType}=${header[headersType]}`
+            }
+        })
         const { data } = await axios.get(url);
         if (isEmpty(data)) {
             return 0;
@@ -115,15 +160,15 @@ class BookViewClass extends React.Component {
         return data[0].index || 0
     }
 
-    async getRefIndex(bookId, section, chapter, character ,id) {
-        let url = `${config.serverUrl}/mapping/groups/refs/${bookId}?character=${character.replace('.','')}`;
-        if (section) {
-            url += `&section=${section}`
-        }
-        if (chapter) {
-            url += `&chapter=${chapter}`
-        }
-        if(id){ 
+    async getRefIndex(bookId, header, character, id) {
+        console.log(bookId, header, character, id);
+        let url = `${config.serverUrl}/mapping/groups/refs/${bookId}?character=${character.replace('.', '')}`;
+        headers.forEach(headersType => {
+            if (header[headersType]) {
+                url += `&${headersType}=${header[headersType]}`
+            }
+        })
+        if (id) {
             url += `&id=${id}`
         }
         const { data } = await axios.get(url);
@@ -141,18 +186,31 @@ class BookViewClass extends React.Component {
         }
     }
 
-    async onRefClick(index,id,char){
-        const original  = this.state.data[index].original;
-        const ref = await this.getRefIndex(original.bookId,original.section,original.chapter,char,id)
-        if(!isEmpty(ref)){
-            this.props.onBookSelect(ref.bookId,ref.index);
+    async onRefClick(index, id, char) {
+        const original = this.state.data[index].original;
+        const inLineHeader = Object.keys(this.state.bookInfo.style).map((header) => {
+            if (this.state.bookInfo.style[header].inLine) {
+                return header
+            }
+        }).filter(item => !isEmpty(item))
+        const ref = await this.getRefIndex(original.bookId, {...{
+            header1: original.header1,
+            header2: original.header2,
+            header3: original.header3,
+            header4: original.header4,
+            header5: original.header5,
+            header6: original.header6,
+            header7: original.header7,
+        },[inLineHeader]:char}, id)
+        if (!isEmpty(ref)) {
+            this.props.onBookSelect(ref.bookId, ref.index);
         }
-     } 
+    }
 
     renderItem({ item, index }) {
         return (
 
-            <Item onRefClick={(index,id,char) => this.onRefClick(index,id,char)} showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
+            <Item textSize={this.props.textSize} onRefClick={(index, id, char) => this.onRefClick(index, id, char)} showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
             }} highlightIndex={this.state.highlightIndex} item={item} punctuation={this.props.punctuation} styles={this.styles} index={index} itemIndex={index} textSize={this.props.textSize} grammar={this.props.grammar} exegesis={this.props.exegesis}></Item>
@@ -169,7 +227,7 @@ class BookViewClass extends React.Component {
                     initialNumToRender={2}
                     onEndReached={() => {
                         if (!this.state.end && this.props.mode === 'scroll') {
-                            this.setState({ loading: true }, () => this.fetchMore());
+                            this.setState({ loading: true, index: this.state.index + 1 }, () => this.fetchMore());
                         }
                     }}
                     keyExtractor={(date, index) => String(index)}
@@ -199,17 +257,17 @@ class Item extends React.Component {
     }
 
     render() {
-        const { item, highlightIndex, indexLongPress, index,itemIndex, punctuation,onRefClick, styles, exegesis, indexPress, grammar } = this.props;
+        const { item, highlightIndex, indexLongPress, index, itemIndex, punctuation, onRefClick, styles, textSize, exegesis, indexPress, grammar } = this.props;
         if (item.type === 'bookName') {
             return <Text style={styles.book}>{item.value.replace('_', '"')}</Text>
         }
-        if (item.type === 'section') {
-            return <Text style={styles.parsa}>{item.value}</Text>
+        for (const header of headers) {
+            if (item.type === header) {
+                return <Text style={[styles.parsa, { fontSize: item.style.size ? (item.style.size + (textSize * 50)) : 24 + (textSize * 50), color: item.style.color, textAlign: item.style.textAlign || "right" }]}>{item.value}</Text>
+            }
         }
-        if (item.type === 'chapter') {
-            return <Text style={styles.chapter}>{item.value}</Text>
-        }
-        if (item.type === 'verse') {
+
+        if (item.type === 'content') {
             let grayText = false;
             let boldText = false;
             let smallText = false;
@@ -220,7 +278,7 @@ class Item extends React.Component {
                     this.props.showCopyModal();
                 }
             }} selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
-                <Text key={Math.random()} key={Math.random()} style={styles.pasok}>{item.index}</Text>
+                {item.index ? <Text key={Math.random()} key={Math.random()} style={styles.pasok}>{item.index}</Text> : <></>}
                 {item.value.split(' ').reduce((elements, splitContent, index) => {
                     let text = splitContent;
                     if (RegExp('<הערה').test(text)) {
@@ -236,9 +294,9 @@ class Item extends React.Component {
                             if (id) {
                                 comment.id = id[1];
                             }
-                            this.comments[index] ={...comment} 
+                            this.comments[index] = { ...comment }
                             elements.push(
-                                <TouchableOpacity onPress={() => { onRefClick(itemIndex,this.comments[index].id,this.comments[index].char) }}>
+                                <TouchableOpacity onPress={() => { onRefClick(itemIndex, this.comments[index].id, this.comments[index].char) }}>
                                     <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char} </Text>
                                 </TouchableOpacity>)
                             return elements
@@ -249,37 +307,6 @@ class Item extends React.Component {
                         comment.enable = false;
                         text = text.replace('</הערה', '')
                     }
-                    // if (RegExp(/<(הערה)[^>]*/).test(splitContent)) {
-                    //     comment.enable = true;
-                    //     return elements
-                    // }
-                    // if (comment.enable) {
-                    //     const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
-                    //     if (char) {
-                    //         comment.char = char[1];
-                    //     }
-                    //     const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
-                    //     if (id) {
-                    //         comment.id = id[1];
-                    //     }
-
-                    // }
-                    // if (RegExp("/(.*?)<\/(הערה)[^>]*>/").test(splitContent)) {
-                    //     const char = (RegExp(/תו="([^"]+)"/).exec(splitContent));
-                    //     if (char) { comment.char = char[1]; }
-                    //     const id = (RegExp(/Id="([^"]+)"/).exec(splitContent));
-                    //     if (id) { comment.id = id[1]; }
-                    //     if (comment.char.length) {
-                    //         comments.push({ ...comment });
-                    //         elements.push(
-                    //             <TouchableOpacity onPress={() => { console.log(comments) }}>
-                    //                 <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char} </Text>
-                    //             </TouchableOpacity>)
-                    //     }
-                    //     comment.enable = false;
-                    //     comment.id = '';
-                    //     comment.char = '';
-                    // }
                     if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(text)) {
                         grayText = true;
                     }
@@ -425,7 +452,7 @@ export const removeGrammar = (content) => {
     return content.replace(/[^א-ת\s,:;־.-]/g, '')
 }
 
-export const removePunctuation =    (content) => {
+export const removePunctuation = (content) => {
     // return ([...content] || []).reduce((newString, char, index) => {
     //     if (!['?', '!', ',', ".", ":"].includes(char) || [...content].length - 1 === index) {
     //         newString += char;
@@ -436,7 +463,7 @@ export const removePunctuation =    (content) => {
 }
 
 export const removeTag = (content) => {
-    return content.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig,'').replace('>','').replace('<','')
+    return content.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, '').replace('>', '').replace('<', '')
 }
 
 export const removeGrayTag = (content) => {

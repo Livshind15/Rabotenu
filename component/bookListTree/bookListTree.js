@@ -16,50 +16,37 @@ const getParentBook = (result) => {
     return '';
 }
 
-const getParentChapter = (result) => {
-    if (result.type === 'chapter') {
-        return result.text;
+const parentHeaders = (result) => {
+    if (result.isBook) {
+        return {};
     }
-    else if (result.parent) {
-        return getParentBook(result.parent)
-    }
-    return '';
+    const headers = { [result.type]: result.text, ...parentHeaders(result.parent) }
+    return headers;
 }
 const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } }) => {
-    const [expanded,setExpanded] = React.useState(false)
+    const [expanded, setExpanded] = React.useState(false)
     return <>
         {results.map((result, index) => (
             <Accordian
-            initExpanded={expanded}
+                initExpanded={expanded}
                 onToggleClick={(state) => {
-                    setExpanded(state) 
+                    setExpanded(state)
                 }}
                 onLongPress={() => {
-                  
-                }} onExpanded={() => {
-                  
-                        if (result.type === 'section') {
-                            onSelect({
-                                'section': result.text,
-                                'bookId': getParentBook(parent)
-                            })
-                        }
-                        else if (result.type === 'chapter') {
-                            onSelect({
-                                'chapter': result.text,
-                                'bookId': getParentBook(parent)
-                            })
-                        }
-                        else if (result.type === 'verse') {
-                            onSelect({
-                                'verse': result.text,
-                                'chapter': getParentChapter(parent),
-                                'bookId': getParentBook(parent)
-                            })
-                        }
-                        setExpanded(false)
 
-                 
+                }} onExpanded={() => {
+                    if (result.isBook) {
+                        onSelect({ 'bookId':result.id})
+                    }
+                    else {
+                        onSelect({
+                            'bookId': getParentBook(parent),
+                            ...parentHeaders(parent),
+                            [result.type]: result.text
+                        })
+                    }
+
+                    setExpanded(false)
                 }} shouldExpanded={!isEmpty(result.tree)} customStyles={{ header: { paddingLeft: 0, paddingRight: result.tree ? 0 : (2 * deep) }, container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId.replace('_', '"')}, ${result.text.replace('_', '"')}` : result.text.replace('_', '"')} additionalComponent={
                     result.isBook ? <View style={styles.endContainer}>
                         <TouchableOpacity onPress={() => {
@@ -68,7 +55,7 @@ const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } 
                             }
                         }
                         } underlayColor="#ffffff00" >
-                            <MaterialCommunityIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#01A7BC' : '#A0A0A0'} size={30} name={'eye'}/>
+                            <MaterialCommunityIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#01A7BC' : '#A0A0A0'} size={30} name={'eye'} />
                         </TouchableOpacity>
                         {/* <TouchableOpacity underlayColor="#ffffff00" >
                         <Feather style={{ paddingHorizontal: 5 }} color={'#0384AE'} size={30} name={'info'}></Feather>
