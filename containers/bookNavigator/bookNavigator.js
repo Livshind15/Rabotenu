@@ -87,14 +87,15 @@ const BookNavigator = ({ navigation, route }) => {
         }
     }, [])
 
-    const { selectedBooks, selectedHeaders, selectedIndex} = route.params;
+    const { selectedBooks, selectedHeaders, selectedIndex,stepBy} = route.params;
     const [selectedHeader, setSelectedHeader] = React.useState(selectedHeaders || {header1:'', header2:'', header3:'', header4:'', header5:'', header6:'', header7:''});
     const { booksIds, setBooksIds } = React.useContext(RabotenuContext);
+    const [pageBy, setStepBy ] = React.useState(stepBy);
     const [currBook, setCurrBook] = React.useState(selectedBooks[0].bookId)
     const [initIndex, setInitIndex] = React.useState(selectedIndex || 0);
     const [bookListMount, setBookListMount] = React.useState(false);
     const [tree, setTree] = React.useState([])
-
+    console.log({stepBy})
 
     const subBooks = useAsync({ deferFn: getSubBooks })
     const parentBooks = useAsync({ deferFn: getParentBooks })
@@ -121,8 +122,8 @@ const BookNavigator = ({ navigation, route }) => {
             selectedHeader={selectedHeader}
             setMount={setBookListMount}
             index={initIndex}
-            pageBy={'header2'}
-            mode={'page'}
+            pageBy={pageBy}
+            mode={pageBy?'page':'scroll'}
             onBookSelect={(bookId, index) => {
                 setInitIndex(index)
                 if (!booksIds.includes(bookId)) {
@@ -182,7 +183,7 @@ const BookNavigator = ({ navigation, route }) => {
             exegesis={exegesis}
             punctuation={punctuation}
             grammar={grammar} />
-    }, [currBook, selectedHeader, copyTitle, booksIds, textSize, exegesis, grammar, punctuation, initIndex, godReplace
+    }, [currBook, selectedHeader,pageBy, copyTitle, booksIds, textSize, exegesis, grammar, punctuation, initIndex, godReplace
 
     ])
     const bookList = React.useCallback((props) => {
@@ -192,6 +193,7 @@ const BookNavigator = ({ navigation, route }) => {
             {...props}
             onSelect={(select) => {
                 setCurrBook(select.bookId)
+                setStepBy(select.stepBy)
                 setSelectedHeader(Object.keys(select).reduce((headers, key) => {
                     if (key !== 'bookId') {
                         headers[key] = select[key];

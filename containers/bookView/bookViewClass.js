@@ -49,7 +49,7 @@ class BookViewClass extends React.Component {
 
         if (this.props.mode === 'scroll' && (this.props.index === 0 || (this.props.selectedHeader && Object.keys(this.props.selectedHeader).some(header => !isEmpty(this.props.selectedHeader[header]))))) {
             const index = await this.getContentIndex(this.props.bookId, this.props.selectedHeader);
-            this.setState({ loading: true, index: index }, () => this.fetchMore());
+            this.setState({ index: index }, () => this.fetchMore());
         }
         else if (this.props.mode === 'page' && (this.props.index === 0 || (this.props.selectedHeader && Object.keys(this.props.selectedHeader).some(header => !isEmpty(this.props.selectedHeader[header]))))) {
             const index = await this.getContentIndex(this.props.bookId, this.props.selectedHeader);
@@ -58,11 +58,11 @@ class BookViewClass extends React.Component {
 
         }
         else if (this.props.mode === 'page') {
-            this.setState({ loading: true, index: this.props.index }, () => this.fetchPage());
+            this.setState({ loading: true ,index: this.props.index }, () => this.fetchPage());
 
         }
         else {
-            this.setState({ loading: true, index: this.props.index }, () => this.fetchMore());
+            this.setState({ index: this.props.index }, () => this.fetchMore());
 
         }
 
@@ -75,7 +75,7 @@ class BookViewClass extends React.Component {
             this.setState({ bookInfo: bookInfo })
             if (this.props.mode !== 'page') {
                 const index = await this.getContentIndex(nextProps.bookId, nextProps.selectedHeader);
-                this.setState({ bookId: nextProps.bookId, loading: true, index: index }, () => this.fetchMore());
+                this.setState({ bookId: nextProps.bookId, index: index }, () => this.fetchMore());
             }
             else {
                 const index = await this.getContentIndex(nextProps.bookId, nextProps.selectedHeader);
@@ -161,7 +161,6 @@ class BookViewClass extends React.Component {
                 }
             }
         })
-        console.log(`${config.serverUrl}/book/content/${bookId}` + params);
         const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}` + params);
         return data || [];
     }
@@ -199,15 +198,17 @@ class BookViewClass extends React.Component {
         }
         const { data } = await axios.get(url);
         if (isEmpty(data)) {
-            return [];
+            
         }
         return data[0]
     }
 
-    async fetchMore() {
-        if (this.state.loading) {
+    async fetchMore() {               
+        if (!this.state.loading) {
+            this.setState({loading:true});
             this.getBookContent([this.state.bookId, this.state.index, DefaultScrollSize]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
-                this.setState({ end: !content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
+                console.log([...this.state.data, ...content]);
+                this.setState({ end: !content.length,loading:false, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
         }
     }
@@ -273,12 +274,29 @@ class BookViewClass extends React.Component {
             return true;
 
         }
-        else {
-            this.bookName = [];
-            this.headers = ['', '', '', '', '', '', '', '']
-            this.setState({ loading: false, data: [...this.state.data] });
-            return false;
 
+        else {
+            const content = await this.getBookContent([this.state.bookId, this.state.data[1].original.index - 1, 0])
+            if (!isEmpty(content) && !isEmpty(content[0])) {
+                this.headersFilter = Object.keys(content[0]).reduce((headersValue, key) => {
+                    if (headers.includes(key) && (headers.findIndex(item => item === key) < headers.findIndex(item => item === this.props.pageBy))) {
+                        headersValue[key] = content[0][key];
+                    }
+                    if (headers.includes(key) && (headers.findIndex(item => item === key) === headers.findIndex(item => item === this.props.pageBy))) {
+                        this.currHeader = { [key]: content[0][key] };
+                    }
+                    return headersValue;
+                }, {})
+                this.setState({ loading: true, index: this.props.index }, () => this.fetchPage());
+                return true;
+
+            }
+            else {
+                this.bookName = [];
+                this.headers = ['', '', '', '', '', '', '', '']
+                this.setState({ loading: false, data: [...this.state.data] });
+                return false;
+            }
 
         }
     }
@@ -294,15 +312,32 @@ class BookViewClass extends React.Component {
         const headerIndex = data.findIndex(header => header === this.currHeader[this.props.pageBy])
         if (data[headerIndex + 1]) {
             this.currHeader = { [this.props.pageBy]: data[headerIndex + 1] }
-            this.setState({ loading: true, index: this.props.index }, () => this.fetchPage());
+            this.setState({ loading: true }, () => this.fetchPage());
             return true;
 
         }
         else {
-            this.bookName = [];
-            this.headers = ['', '', '', '', '', '', '', '']
-            this.setState({ loading: false, data: [...this.state.data] });
-            return false;
+            const content = await this.getBookContent([this.state.bookId, this.state.data[this.state.data.length-2].original.index + 1, 0])
+            if (!isEmpty(content) && !isEmpty(content[0])) {
+                this.headersFilter = Object.keys(content[0]).reduce((headersValue, key) => {
+                    if (headers.includes(key) && (headers.findIndex(item => item === key) < headers.findIndex(item => item === this.props.pageBy))) {
+                        headersValue[key] = content[0][key];
+                    }
+                    if (headers.includes(key) && (headers.findIndex(item => item === key) === headers.findIndex(item => item === this.props.pageBy))) {
+                        this.currHeader = { [key]: content[0][key] };
+                    }
+                    return headersValue;
+                }, {})
+                this.setState({ loading: true }, () => this.fetchPage());
+                return true;
+            }
+            else {
+                this.bookName = [];
+                this.headers = ['', '', '', '', '', '', '', '']
+                this.setState({ loading: false, data: [...this.state.data] });
+                return false;
+            }
+
         }
     }
 
@@ -326,7 +361,7 @@ class BookViewClass extends React.Component {
                     initialNumToRender={2}
                     onEndReached={() => {
                         if (!this.state.end && this.props.mode === 'scroll') {
-                            this.setState({ loading: true, index: this.state.index + 1 }, () => this.fetchMore());
+                            this.setState({  index: this.state.index + 1 }, () => this.fetchMore());
                         }
                     }}
                     keyExtractor={(date, index) => String(index)}
@@ -362,12 +397,12 @@ class Item extends React.Component {
     render() {
         const { item, onPrevPage, onNextPage, highlightIndex, indexLongPress, index, itemIndex, punctuation, onRefClick, styles, textSize, exegesis, indexPress, grammar } = this.props;
         if (item.type === 'startButton') {
-            return <TouchableOpacity  disabled={this.state.start } onPress={async () => {
+            return <TouchableOpacity disabled={this.state.start} onPress={async () => {
                 this.setState({ start: !(await onPrevPage()) })
             }} style={styles.prevPage}><Icon color={this.state.start ? "#455253" : "#11AFC2"} size={30} name={'up'} /></TouchableOpacity>
         }
         if (item.type === 'endButton') {
-            return <TouchableOpacity disabled={this.state.end }  onPress={async () => {
+            return <TouchableOpacity disabled={this.state.end} onPress={async () => {
                 this.setState({ end: !(await onNextPage()) })
             }} style={styles.nextPage}><Icon color={this.state.end ? "#455253" : "#11AFC2"} size={30} name={'down'} /></TouchableOpacity>
         }

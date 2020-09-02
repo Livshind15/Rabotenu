@@ -44,9 +44,10 @@ const ExploreTree = ({ getBookInfo, navigation, groups = [], deep = 0 }) => {
                                 {isLoading ? <Spinner></Spinner> : <OctIcons name={'book'} size={22} color={'#9AD3CE'} />}
                             </TouchableOpacity>} endToggle={true} header={book.bookName.replace('_', '"')}  >
                         {!isEmpty(info) && !isEmpty(info.tree) ? <BookListTree  onSelect={(select) => {
+                            
                             navigation.push('Result', {
-                                selectedBooks: [{ bookId: select.bookId }], selectedHeaders: Object.keys(select).reduce((headers, key) => {
-                                    if (key !== 'bookId') {
+                                selectedBooks: [{ bookId: select.bookId }],stepBy:select.stepBy,  selectedHeaders: Object.keys(select).reduce((headers, key) => {
+                                    if (key !== 'bookId' ||key!=='stepBy') {
                                         headers[key] = select[key];
                                     }
                                     return headers;
