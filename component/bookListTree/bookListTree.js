@@ -24,52 +24,50 @@ const parentHeaders = (result) => {
     return headers;
 }
 const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } }) => {
-    const [expanded, setExpanded] = React.useState(false)
-    return <>
-        {results.map((result, index) => (
-            <Accordian
-                initExpanded={expanded}
-                onToggleClick={(state) => {
-                    setExpanded(state)
-                }}
-                onLongPress={() => {
+    return results.map((result, index) => {
+        const [expanded, setExpanded] = React.useState(false)
+        return (<Accordian
+            initExpanded={expanded}
+            onToggleClick={(state) => {
+                setExpanded(state)
+            }}
+            onLongPress={() => {
 
-                }} onExpanded={() => {
-                    if (result.isBook) {
-                        onSelect({ 'bookId':result.id})
-                    }
-                    else {
-                        onSelect({
-                            'bookId': getParentBook(parent),
-                            ...parentHeaders(parent),
-                            [result.type]: result.text
-                        })
-                    }
+            }} onExpanded={() => {
+                if (result.isBook) {
+                    onSelect({ 'bookId': result.id })
+                }
+                else {
+                    onSelect({
+                        'bookId': getParentBook(parent),
+                        ...parentHeaders(parent),
+                        [result.type]: result.text
+                    })
+                }
 
-                    setExpanded(false)
-                }} shouldExpanded={!isEmpty(result.tree)} customStyles={{ header: { paddingLeft: 0, paddingRight: result.tree ? 0 : (2 * deep) }, container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId.replace('_', '"')}, ${result.text.replace('_', '"')}` : result.text.replace('_', '"')} additionalComponent={
-                    result.isBook ? <View style={styles.endContainer}>
-                        <TouchableOpacity onPress={() => {
-                            if (bookId !== result.id) {
-                                onSelect({ 'book': result.id })
-                            }
+                setExpanded(false)
+            }} shouldExpanded={!isEmpty(result.tree)} customStyles={{ header: { paddingLeft: 0, paddingRight: result.tree ? 0 : (2 * deep) }, container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId.replace('_', '"')}, ${result.text.replace('_', '"')}` : result.text.replace('_', '"')} additionalComponent={
+                result.isBook ? <View style={styles.endContainer}>
+                    <TouchableOpacity onPress={() => {
+                        if (bookId !== result.id) {
+                            onSelect({ 'book': result.id })
                         }
-                        } underlayColor="#ffffff00" >
-                            <MaterialCommunityIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#01A7BC' : '#A0A0A0'} size={30} name={'eye'} />
-                        </TouchableOpacity>
-                        {/* <TouchableOpacity underlayColor="#ffffff00" >
+                    }
+                    } underlayColor="#ffffff00" >
+                        <MaterialCommunityIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#01A7BC' : '#A0A0A0'} size={30} name={'eye'} />
+                    </TouchableOpacity>
+                    {/* <TouchableOpacity underlayColor="#ffffff00" >
                         <Feather style={{ paddingHorizontal: 5 }} color={'#0384AE'} size={30} name={'info'}></Feather>
                     </TouchableOpacity> */}
-                    </View> : <></>
-                }>
+                </View> : <></>
+            }>
 
-                <View >
-                    {result.tree && <BookListTree parent={{ ...result, parent: parent }} bookId={bookId} onSelect={onSelect} results={result.tree} deep={deep + 1} />}
-                </View>
+            <View >
+                {result.tree && <BookListTree parent={{ ...result, parent: parent }} bookId={bookId} onSelect={onSelect} results={result.tree} deep={deep + 1} />}
+            </View>
 
-            </Accordian>
-        ))}
-    </>
+        </Accordian>)
+    })
 }
 
 const styles = StyleSheet.create({

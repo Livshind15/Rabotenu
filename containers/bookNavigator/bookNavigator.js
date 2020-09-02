@@ -121,7 +121,8 @@ const BookNavigator = ({ navigation, route }) => {
             selectedHeader={selectedHeader}
             setMount={setBookListMount}
             index={initIndex}
-            mode={'scroll'}
+            pageBy={'header2'}
+            mode={'page'}
             onBookSelect={(bookId, index) => {
                 setInitIndex(index)
                 if (!booksIds.includes(bookId)) {

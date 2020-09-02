@@ -3,6 +3,7 @@ import Background from '../../component/background/background';
 import { View, FlatList, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
 import axios from "axios";
 import { Tooltip } from '@ui-kitten/components';
+import Icon from "react-native-vector-icons/AntDesign";
 
 import config from "../../config/config";
 import { delay } from '../../utils/helpers';
@@ -11,6 +12,7 @@ import { Spinner } from '@ui-kitten/components';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import ErrorModel from '../../component/modalError/modalError';
+import { IfInitial } from 'react-async';
 
 const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 const DefaultScrollSize = 35;
@@ -24,13 +26,16 @@ class BookViewClass extends React.Component {
             end: false,
             index: 0,
             loading: false,
+            retchedEnd: false,
+            retchedStart: false,
             highlightIndex: null,
             showCopyModal: false,
             bookId: this.props.bookId,
-            bookInfo: {}
+            bookInfo: {},
         }
         this.styles = getStyles(this.props.textSize);
-
+        this.headersFilter = { header1: "", header2: "", header3: "", header4: "", header5: "", header6: "", header7: "" }
+        this.currHeader = {};
         this.bookName = [];
         this.headers = ['', '', '', '', '', '', '', '']
     }
@@ -41,10 +46,22 @@ class BookViewClass extends React.Component {
         })
         const bookInfo = await this.getBookInfo([this.props.bookId])
         this.setState({ bookInfo: bookInfo })
-        if (this.props.index === 0 || (this.props.selectedHeader && Object.keys(this.props.selectedHeader).some(header => !isEmpty(this.props.selectedHeader[header])))) {
+
+        if (this.props.mode === 'scroll' && (this.props.index === 0 || (this.props.selectedHeader && Object.keys(this.props.selectedHeader).some(header => !isEmpty(this.props.selectedHeader[header]))))) {
             const index = await this.getContentIndex(this.props.bookId, this.props.selectedHeader);
             this.setState({ loading: true, index: index }, () => this.fetchMore());
-        } else {
+        }
+        else if (this.props.mode === 'page' && (this.props.index === 0 || (this.props.selectedHeader && Object.keys(this.props.selectedHeader).some(header => !isEmpty(this.props.selectedHeader[header]))))) {
+            const index = await this.getContentIndex(this.props.bookId, this.props.selectedHeader);
+            this.setState({ loading: true, index: index }, () => this.fetchPage());
+
+
+        }
+        else if (this.props.mode === 'page') {
+            this.setState({ loading: true, index: this.props.index }, () => this.fetchPage());
+
+        }
+        else {
             this.setState({ loading: true, index: this.props.index }, () => this.fetchMore());
 
         }
@@ -54,15 +71,24 @@ class BookViewClass extends React.Component {
     async componentDidUpdate(nextProps) {
         if (nextProps.selectedHeader !== this.props.selectedHeader ||
             nextProps.bookId !== this.props.bookId) {
-            const index = await this.getContentIndex(nextProps.bookId, nextProps.selectedHeader);
-            this.setState({ bookId: nextProps.bookId, loading: true, index: index }, () => this.fetchMore());
+            const bookInfo = await this.getBookInfo([this.props.bookId])
+            this.setState({ bookInfo: bookInfo })
+            if (this.props.mode !== 'page') {
+                const index = await this.getContentIndex(nextProps.bookId, nextProps.selectedHeader);
+                this.setState({ bookId: nextProps.bookId, loading: true, index: index }, () => this.fetchMore());
+            }
+            else {
+                const index = await this.getContentIndex(nextProps.bookId, nextProps.selectedHeader);
+                this.setState({ bookId: nextProps.bookId, loading: true, index: index }, () => this.fetchPage());
+            }
+
         }
 
     }
 
 
     bookToElements(bookContent) {
-        return bookContent.reduce((elements, content, index) => {
+        const elements = bookContent.reduce((elements, content, index) => {
             if (!this.bookName.includes(content.bookName)) {
                 this.bookName = [...this.bookName, content.bookName]
                 elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName, original: content })
@@ -80,35 +106,10 @@ class BookViewClass extends React.Component {
                     return header
                 }
             }).filter(item => !isEmpty(item))
-            // if (!this.header2 !== (content.header2)) {
-            //     this.header1 = content.header1
-            //     elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
-            // }
-            // if (!this.header3 !== (content.header3)) {
-            //     this.header1 = content.header1
-            //     elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
-            // }
-            // if (!this.header4 !== (content.header4)) {
-            //     this.header1 = content.header1
-            //     elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
-            // }
-            // if (!this.header5 !== (content.header6)) {
-            //     this.header1 = content.header1
-            //     elements.push({ id: elements.length + 1, type: "section", value: content.section, original: content })
-            // }
-
-
-
             if (content[inLineHeader[0]].length && elements[elements.length - 1] && elements[elements.length - 1].index && elements[elements.length - 1].index === content[inLineHeader[0]] && elements[elements.length - 1].value !== content.content) {
                 elements[elements.length - 1] = { ...elements[elements.length - 1], parsaTag: elements[elements.length - 1].parsaTag ? elements[elements.length - 1].parsaTag : RegExp(`<\s*פרשה[^>]*>(.*?)<\s*/\s*פרשה>`).test(content.content), value: elements[elements.length - 1].value + content.content }
                 return elements
             }
-            // if (elements[elements.length - 1] && elements[elements.length - 1].type === 'chapter' && !content.content.length) {
-            //     return elements
-            // }
-            // if (elements[elements.length - 1] && elements[elements.length - 1].type === 'section' && !content.content.length) {
-            //     return elements
-            // }
             if (inLineHeader[0]) {
                 elements.push({
                     original: content,
@@ -132,11 +133,36 @@ class BookViewClass extends React.Component {
             return elements
 
         }, []);
+        if (this.props.mode === 'page') {
+            return [{
+                type: "startButton",
+            }, ...elements, {
+                type: "endButton",
+            }]
+        }
+        return elements;
     }
 
-    async getBookContent([bookId, index]) {
+    async getBookContent([bookId, index, scroll]) {
+        const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?lteIndex=${index + scroll}&gteIndex=${index}`);
+        return data || [];
+    }
 
-        const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?lteIndex=${index + DefaultScrollSize}&gteIndex=${index}`);
+    async getBookContentByHeaders([bookId, header]) {
+        let params = '';
+
+        headers.forEach(headersType => {
+            if (header[headersType]) {
+                if (params.length) {
+                    params += `&${headersType}=${header[headersType]}`
+                }
+                else {
+                    params += `?${headersType}=${header[headersType]}`
+                }
+            }
+        })
+        console.log(`${config.serverUrl}/book/content/${bookId}` + params);
+        const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}` + params);
         return data || [];
     }
 
@@ -180,10 +206,35 @@ class BookViewClass extends React.Component {
 
     async fetchMore() {
         if (this.state.loading) {
-            this.getBookContent([this.state.bookId, this.state.index]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
+            this.getBookContent([this.state.bookId, this.state.index, DefaultScrollSize]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
                 this.setState({ end: !content.length, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
         }
+    }
+    async fetchPage() {
+        console.log(this.headersFilter, this.currHeader);
+        if (!(this.headersFilter && Object.keys(this.headersFilter).some(header => !isEmpty(this.headersFilter[header])))) {
+
+            const content = await this.getBookContent([this.state.bookId, this.state.index, 0])
+            if (!isEmpty(content[0])) {
+                this.headersFilter = Object.keys(content[0]).reduce((headersValue, key) => {
+                    if (headers.includes(key) && (headers.findIndex(item => item === key) < headers.findIndex(item => item === this.props.pageBy))) {
+                        headersValue[key] = content[0][key];
+                    }
+                    if (headers.includes(key) && (headers.findIndex(item => item === key) === headers.findIndex(item => item === this.props.pageBy))) {
+                        this.currHeader = { [key]: content[0][key] };
+                    }
+                    return headersValue;
+                }, {})
+            }
+        }
+        this.getBookContentByHeaders([this.state.bookId, { ...this.headersFilter, ...this.currHeader }]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
+            console.log({ content });
+            this.setState({ data: [] })
+            this.bookName = [];
+            this.headers = ['', '', '', '', '', '', '', '']
+            this.setState({ end: !content.length, loading: false, data: [...this.state.data, ...content] });
+        })
     }
 
     async onRefClick(index, id, char) {
@@ -193,24 +244,72 @@ class BookViewClass extends React.Component {
                 return header
             }
         }).filter(item => !isEmpty(item))
-        const ref = await this.getRefIndex(original.bookId, {...{
-            header1: original.header1,
-            header2: original.header2,
-            header3: original.header3,
-            header4: original.header4,
-            header5: original.header5,
-            header6: original.header6,
-            header7: original.header7,
-        },[inLineHeader]:char}, id)
+        const ref = await this.getRefIndex(original.bookId, {
+            ...{
+                header1: original.header1,
+                header2: original.header2,
+                header3: original.header3,
+                header4: original.header4,
+                header5: original.header5,
+                header6: original.header6,
+                header7: original.header7,
+            }, [inLineHeader]: char
+        }, id)
         if (!isEmpty(ref)) {
             this.props.onBookSelect(ref.bookId, ref.index);
+
+        }
+    }
+
+    async onPrev() {
+        const { data } = await axios.post(`${config.serverUrl}/book/parts/${this.props.bookId}`, {
+            "type": this.props.pageBy,
+            "parentParts": this.headersFilter,
+        });
+        const headerIndex = data.findIndex(header => header === this.currHeader[this.props.pageBy])
+        if (data[headerIndex - 1]) {
+            this.currHeader = { [this.props.pageBy]: data[headerIndex - 1] }
+            this.setState({ loading: true, index: this.props.index }, () => this.fetchPage());
+            return true;
+
+        }
+        else {
+            this.bookName = [];
+            this.headers = ['', '', '', '', '', '', '', '']
+            this.setState({ loading: false, data: [...this.state.data] });
+            return false;
+
+
+        }
+    }
+    async getParts() {
+        const { data } = await axios.post(`${config.serverUrl}/book/parts/${this.props.bookId}`, {
+            "type": this.props.pageBy,
+            "parentParts": this.headersFilter,
+        });
+        return data
+    }
+    async onNext() {
+        const data = await this.getParts();
+        const headerIndex = data.findIndex(header => header === this.currHeader[this.props.pageBy])
+        if (data[headerIndex + 1]) {
+            this.currHeader = { [this.props.pageBy]: data[headerIndex + 1] }
+            this.setState({ loading: true, index: this.props.index }, () => this.fetchPage());
+            return true;
+
+        }
+        else {
+            this.bookName = [];
+            this.headers = ['', '', '', '', '', '', '', '']
+            this.setState({ loading: false, data: [...this.state.data] });
+            return false;
         }
     }
 
     renderItem({ item, index }) {
         return (
 
-            <Item textSize={this.props.textSize} onRefClick={(index, id, char) => this.onRefClick(index, id, char)} showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
+            <Item onPrevPage={() => this.onPrev()} onNextPage={() => this.onNext()} textSize={this.props.textSize} onRefClick={(index, id, char) => this.onRefClick(index, id, char)} showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
             }} highlightIndex={this.state.highlightIndex} item={item} punctuation={this.props.punctuation} styles={this.styles} index={index} itemIndex={index} textSize={this.props.textSize} grammar={this.props.grammar} exegesis={this.props.exegesis}></Item>
@@ -246,18 +345,32 @@ class BookViewClass extends React.Component {
 class Item extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            end: false,
+            start: false
+        }
         this.comments = {};
     }
     shouldComponentUpdate(nextProps, nextState) {
 
-        if (nextProps.highlightIndex !== this.props.index && this.props.index !== this.props.highlightIndex) {
+        if (nextProps.highlightIndex !== this.props.index && this.props.index !== this.props.highlightIndex && nextState.end === this.state.end && nextState.start === this.state.start) {
             return false;
         }
         return true;
     }
 
     render() {
-        const { item, highlightIndex, indexLongPress, index, itemIndex, punctuation, onRefClick, styles, textSize, exegesis, indexPress, grammar } = this.props;
+        const { item, onPrevPage, onNextPage, highlightIndex, indexLongPress, index, itemIndex, punctuation, onRefClick, styles, textSize, exegesis, indexPress, grammar } = this.props;
+        if (item.type === 'startButton') {
+            return <TouchableOpacity  disabled={this.state.start } onPress={async () => {
+                this.setState({ start: !(await onPrevPage()) })
+            }} style={styles.prevPage}><Icon color={this.state.start ? "#455253" : "#11AFC2"} size={30} name={'up'} /></TouchableOpacity>
+        }
+        if (item.type === 'endButton') {
+            return <TouchableOpacity disabled={this.state.end }  onPress={async () => {
+                this.setState({ end: !(await onNextPage()) })
+            }} style={styles.nextPage}><Icon color={this.state.end ? "#455253" : "#11AFC2"} size={30} name={'down'} /></TouchableOpacity>
+        }
         if (item.type === 'bookName') {
             return <Text style={styles.book}>{item.value.replace('_', '"')}</Text>
         }
@@ -355,16 +468,24 @@ class Item extends React.Component {
     }
 }
 
-
 export const removeNotNeedContent = (content, punctuation, grammar) => {
     const contentWithoutTags = removeTag(content)
     return punctuation ? removePunctuation((grammar ? removeGrammar(contentWithoutTags) : contentWithoutTags)) : (grammar ? removeGrammar(contentWithoutTags) : contentWithoutTags)
 }
 
-
-
 const getStyles = (textSize) => {
     return StyleSheet.create({
+        prevPage: {
+            alignSelf: 'center',
+            height: 20,
+            justifyContent: 'center'
+        },
+        nextPage: {
+            paddingTop: 5,
+            alignSelf: 'center',
+            height: 20,
+            justifyContent: 'center'
+        },
         view: {
             width: '100%',
             padding: 25
