@@ -8,13 +8,36 @@ import { SearchContext } from '../../contexts/searchContext';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import { FlatList } from 'react-native-gesture-handler';
+import SearchTypeModel from '../../component/searchType/searchType';
+import { typeToIndex, optionsSearch } from './search';
+import { isEmpty } from 'lodash';
 
 const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
     const [searchInput, setInput] = React.useState(input);
     const [isLoading, setLoading] = React.useState(false);
-    const { setSearchType } = React.useContext(SearchContext);
+    const { setSearchType, searchType } = React.useContext(SearchContext);
+    const [showSearchType, setShowSearchType] = React.useState(false);
+    React.useEffect(() => {
+        if (isEmpty(result)) {
+            setShowSearchType(true)
+
+        }
+    }, [result])
+
     return (
         <Background>
+            <SearchTypeModel currSelect={typeToIndex.findIndex(item => item === searchType) || 0} onOptionChange={async (index) => {
+                setSearchType(typeToIndex[index] || 'exact');
+                if (index === 3) {
+                    navigation.push('TableSearch');
+                    setShowSearchType(false)
+                }
+                onInput(searchInput)
+                setLoading(true)
+                await onSearch(searchInput)
+                setLoading(false)
+
+            }} setVisible={setShowSearchType} options={optionsSearch} visible={showSearchType}></SearchTypeModel>
             <View style={styles.page}>
                 <View style={styles.input}>
                     <View style={styles.buttonWrapper}>
@@ -63,7 +86,7 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                                     </View>
                                 </View>
                                 <View style={styles.toggleAndText}>
-                                    <Text style={[styles.title, styles.font]}>{`${ item.groupName ? item.groupName.replace('_', '"')+', ':""}${item.bookName?item.bookName.replace('_', '"'):""}`}</Text>
+                                    <Text style={[styles.title, styles.font]}>{`${item.groupName ? item.groupName.replace('_', '"') + ', ' : ""}${item.bookName ? item.bookName.replace('_', '"') : ""}`}</Text>
                                 </View>
 
                             </TouchableOpacity>
@@ -72,7 +95,7 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                 />
 
 
-               
+
             </View>
 
         </Background>

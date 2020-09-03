@@ -85,7 +85,7 @@ export default function Search({navigation}) {
   );
 }
 
-const options = [
+export const optionsSearch = [
   { title: 'חיפוש מדוייק', description: "חיפוש מדוייק של מילות החיפוש ללא מרחקים" },
   { title: 'חיפוש קל', description: "מרחק של עד 3 מילים בין מילות חיפוש" },
   { title: 'חפש תוצאות קרובות', description: "חפש עם קידומות לכל המילים,כתיב חסר למילים בכתיב מלא, מרחק של עד 30 מילים בין מילה למילה" },
@@ -93,7 +93,7 @@ const options = [
 
 ]
 
-const typeToIndex = ['exact', 'close', 'like', 'table'];
+export const typeToIndex = ['exact', 'close', 'like', 'table'];
 
 const SearchMain = ({ navigation }) => {
   const [isLoading, setLoading] = React.useState(false);
@@ -123,7 +123,7 @@ const SearchMain = ({ navigation }) => {
         }
 
 
-      }} setVisible={setShowSearchType} options={options} visible={showSearchType}></SearchTypeModel>
+      }} setVisible={setShowSearchType} options={optionsSearch} visible={showSearchType}></SearchTypeModel>
       <View style={styles.page}>
         <View style={styles.container}>
           <View style={styles.textWrapper}>

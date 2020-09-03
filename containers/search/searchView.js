@@ -23,7 +23,7 @@ const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => 
         "content": searchInput,
         "type": !isEmpty(tableInput) ? type || 'exact' : 'exact',
         size: 50,
-        table:tableInput,
+        table: tableInput,
         "booksIds": booksIds
     });
     return Promise.all(data.map(async verse => {
@@ -34,9 +34,9 @@ const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => 
 
 
 const SearchView = ({ navigation, route }) => {
-    const { searchInput, searchType,tableInput } = React.useContext(SearchContext);
+    const { searchInput, searchType, tableInput } = React.useContext(SearchContext);
 
-    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent,tableInput, booksIds: route.params.booksIds, type: searchType, searchInput })
+    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, tableInput, booksIds: route.params.booksIds, type: searchType, searchInput })
     const [showErrorModel, setShowErrorModel] = React.useState(false)
     React.useEffect(() => {
         if (error) {
@@ -60,18 +60,18 @@ const SearchView = ({ navigation, route }) => {
                             let grayText = false;
                             let boldText = false;
                             let smallText = false;
-                            let header = `${item.groupName.replace('_','"')}, ${item.bookName.replace('_','"')}`;
+                            let header = `${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`;
                             headers.forEach(headersType => {
-                                if(item[headersType]){
+                                if (item[headersType]) {
 
                                     header += `, ${item[headersType]}`
                                 }
-                            } 
+                            }
                             )
-                            
+
                             return (<Accordian initExpanded={true} header={header} >
                                 <TouchableOpacity onPress={() => {
-                                    navigation.push('Result', {selectedIndex:item.index, selectedBooks: [{ bookId: item.bookId }] })
+                                    navigation.push('Result', { selectedIndex: item.index,  ...getHeaders(item), selectedBooks: [{ bookId: item.bookId }] })
                                 }} style={styles.contentContainer}>
                                     <View style={styles.pasokContainer}>
                                         {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
@@ -80,7 +80,7 @@ const SearchView = ({ navigation, route }) => {
                                                 return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(' ' + splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, ''))).trim()}</Text></>
                                             }
                                             if (RegExp(`<\s*/\s*em>(.*?)<\s*em[^>]*>`).test(splitContent)) {
-                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(splitContent.match(/<\/em>(.*?)<em>/g).map((val) => val.replace(/<\/?em>/g, ''))).trim() }</Text></>
+                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(splitContent.match(/<\/em>(.*?)<em>/g).map((val) => val.replace(/<\/?em>/g, ''))).trim()}</Text></>
                                             }
                                             if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                                                 grayText = true;
@@ -130,6 +130,20 @@ const SearchView = ({ navigation, route }) => {
     )
 }
 
+
+const getHeaders = (currHeaders) => {
+    const filteredHeaders = headers.reduce((headersFilter, header) => {
+        if (currHeaders[header]) {
+            headersFilter[header] = currHeaders[header]
+        }
+        return headersFilter;
+    }, {})
+      const sortHeaders = Object.keys(filteredHeaders).filter(header => headers.includes(header)).sort((a, b) => {
+      return headers.indexOf(a) - headers.indexOf(b);
+    })
+  return({ stepBy:sortHeaders[sortHeaders.length - 1],selectedHeaders:filteredHeaders });
+}
+
 const styles = StyleSheet.create({
     contentContainer: {
         paddingHorizontal: 35,
@@ -147,7 +161,7 @@ const styles = StyleSheet.create({
     pasokContentSmall: {
         color: '#455253',
         textAlign: 'right',
-        fontSize: 14 ,
+        fontSize: 14,
     },
     pasokContentBold: {
         color: '#455253',
@@ -180,7 +194,7 @@ const styles = StyleSheet.create({
     pasokContainer: {
         flexWrap: 'wrap',
         flexDirection: 'row-reverse',
-  
+
 
     },
     view: {

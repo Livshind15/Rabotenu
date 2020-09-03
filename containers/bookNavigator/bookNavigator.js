@@ -95,7 +95,6 @@ const BookNavigator = ({ navigation, route }) => {
     const [initIndex, setInitIndex] = React.useState(selectedIndex || 0);
     const [bookListMount, setBookListMount] = React.useState(false);
     const [tree, setTree] = React.useState([])
-    console.log({stepBy})
 
     const subBooks = useAsync({ deferFn: getSubBooks })
     const parentBooks = useAsync({ deferFn: getParentBooks })
