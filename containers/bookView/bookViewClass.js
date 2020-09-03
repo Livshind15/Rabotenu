@@ -186,7 +186,6 @@ class BookViewClass extends React.Component {
     }
 
     async getRefIndex(bookId, header, character, id) {
-        console.log(bookId, header, character, id);
         let url = `${config.serverUrl}/mapping/groups/refs/${bookId}?character=${character.replace('.', '')}`;
         headers.forEach(headersType => {
             if (header[headersType]) {
@@ -207,13 +206,11 @@ class BookViewClass extends React.Component {
         if (!this.state.loading) {
             this.setState({loading:true});
             this.getBookContent([this.state.bookId, this.state.index, DefaultScrollSize]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
-                console.log([...this.state.data, ...content]);
                 this.setState({ end: !content.length,loading:false, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
         }
     }
     async fetchPage() {
-        console.log(this.headersFilter, this.currHeader);
         if (!(this.headersFilter && Object.keys(this.headersFilter).some(header => !isEmpty(this.headersFilter[header])))) {
 
             const content = await this.getBookContent([this.state.bookId, this.state.index, 0])
@@ -230,7 +227,6 @@ class BookViewClass extends React.Component {
             }
         }
         this.getBookContentByHeaders([this.state.bookId, { ...this.headersFilter, ...this.currHeader }]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
-            console.log({ content });
             this.setState({ data: [] })
             this.bookName = [];
             this.headers = ['', '', '', '', '', '', '', '']

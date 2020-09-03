@@ -9,7 +9,7 @@ import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
 import TabButton from '../../component/tabButton/tabButton';
 import Background from '../../component/background/background';
-import ExploreResultView from './exploreResultView';
+import ExploreResultView, { removeEmptyHeaders, filterTree, flattenHeaders } from './exploreResultView';
 import ExploreTreeView from './exploreTreeView'
 import ExploreAddReplace from './exploreAddReplace';
 import BookNavigator from '../bookNavigator/bookNavigator'
@@ -25,6 +25,13 @@ export const getBooksByByQuery = async ([query]) => {
   return (data || []).map((book, index) => {
     return { ...book, key: index }
   });
+}
+
+export const getBookTree = async (booksIds) => {
+  const data = await Promise.all(booksIds.map(bookId => {
+      return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
+  }))
+  return data || [];
 }
 
 export default function Explore(props) {
@@ -89,8 +96,17 @@ const ExploreMain = ({ navigation, replaceInput, addInput }) => {
         return addInput;
       }, [])
       const result = await getBooksByByQuery([newInput,...addInputs]);
+      if (result.length === 1) {
+
+        const tree = (await getBookTree([result[0].bookId]))[0].tree;
+        const queryTree = removeEmptyHeaders(filterTree(tree, result[0].headers));
+        navigation.push('ResultView', { result: flattenHeaders(queryTree, {}).map(res => { return { filters: res, ...result[0] } }), searchInput: input });
+
+      }
+      else {
+        navigation.push('ResultView', { result: result, searchInput: input });
+      }
       setLoading(false)
-      navigation.push('ResultView', { result: result, searchInput: input });
   }
 }
   return (

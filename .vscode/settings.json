@@ -26,5 +26,6 @@
     "search.exclude": {
         "**/bower_components": false,
         "**/node_modules": true
-    }
+    },
+    "synthwave84.brightness": "0.1"
 }

@@ -5,13 +5,61 @@ import { CheckBox } from '@ui-kitten/components';
 import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
-import {getBooksByByQuery} from './explore'
+import { getBooksByByQuery, getBookTree } from './explore'
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
+import { isEmpty } from 'lodash';
+import OctIcons from "react-native-vector-icons/Octicons";
 
-function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
+import { FlatList } from 'react-native-gesture-handler';
+const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
+
+export const filterTree = (tree, headersQuery) => {
+  if (tree[0]) {
+    const { type } = tree[0];
+    const filters = headersQuery[type];
+    const newTree = tree.reduce((tree, header) => {
+      const childHeaders = filterTree(header.tree, headersQuery);
+
+      if (!isEmpty(filters)) {
+        if (filters.includes(header.text)) {
+          tree = [...tree, { text: header.text, type: header.type, tree: childHeaders }]
+
+        }
+      }
+      else {
+        tree = [...tree, { text: header.text, type: header.type, tree: childHeaders }]
+
+      }
+      return tree
+    }, [])
+    return newTree
+  }
+  return tree;
+}
+
+export const removeEmptyHeaders = (tree) => {
+  return tree.reduce((treeHeaders, header) => {
+    if (header.tree.length) {
+      treeHeaders = [...treeHeaders, { text: header.text, type: header.type, tree: header.tree }]
+    }
+
+    return treeHeaders;
+  }, [])
+}
+
+export const flattenHeaders = (tree, headers) => {
+  return tree.reduce((treeHeaders, header) => {
+    treeHeaders = [...treeHeaders, { [header.type]: header.text, ...headers }, ...flattenHeaders(header.tree, { [header.type]: header.text, ...headers })]
+
+    return treeHeaders;
+  }, [])
+}
+
+
+function ExploreResultView({ route, navigation, replaceInput, addInput }) {
   const { searchInput } = route.params;
-  const [result , setResult] = React.useState(route.params.result);
+  const [result, setResult] = React.useState(route.params.result);
   const [input, setInput] = React.useState(searchInput);
   const [isLoading, setLoading] = React.useState(false);
   const [exploreResult, setExploreResult] = React.useState(attachKeyToArray(result, 'isCheck', false));
@@ -33,7 +81,7 @@ function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
 
   const countResultSelect = () => exploreResult.filter(result => result.isCheck).length
 
-  const selectedBooks = ()  => exploreResult.filter(result => result.isCheck);
+  const selectedBooks = () => exploreResult.filter(result => result.isCheck);
 
   return (
     <Background>
@@ -43,42 +91,61 @@ function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
             <ClickButton outline={true} optionsButton={{ paddingVertical: 8 }} onPress={async () => {
               if (!isLoading) {
                 setLoading(true)
-                const newInput = replaceInput.reduce((input,currReplace)=>{
-                  input = input.replace(currReplace.srcInput,currReplace.desInput)
+                const newInput = replaceInput.reduce((input, currReplace) => {
+                  input = input.replace(currReplace.srcInput, currReplace.desInput)
                   return input;
-                },input)
-                const addInputs =  addInput.reduce((addInput, inputToAdd)=> {
+                }, input)
+                const addInputs = addInput.reduce((addInput, inputToAdd) => {
                   if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
                     addInput.push(inputToAdd.desInput)
                   }
                   return addInput;
                 }, [])
-                const result = await getBooksByByQuery([newInput,...addInputs]);
-                setResult(result)
+                const result = await getBooksByByQuery([newInput, ...addInputs]);
+                if (result.length === 1) {
+
+                  const tree = (await getBookTree([result[0].bookId]))[0].tree;
+                  const queryTree = removeEmptyHeaders(filterTree(tree, result[0].headers));
+                  setResult(flattenHeaders(queryTree, {}).map(res => { return { filters: res, ...result[0] } }))
+
+                }
+                else {
+                  setResult(result)
+                }
                 setLoading(false)
               }
             }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
           </View>
           <View style={styles.inputWrapper}>
-            <Input value={input} isLoading={isLoading} onChange={async (text)=>{
+            <Input value={input} isLoading={isLoading} onChange={async (text) => {
               setInput(text)
               if (!isLoading) {
                 setLoading(true)
-                const newInput = replaceInput.reduce((input,currReplace)=>{
-                  input = input.replace(currReplace.srcInput,currReplace.desInput)
+                const newInput = replaceInput.reduce((input, currReplace) => {
+                  input = input.replace(currReplace.srcInput, currReplace.desInput)
                   return input;
-                },text)
-                const addInputs =  addInput.reduce((addInput, inputToAdd)=> {
+                }, text)
+                const addInputs = addInput.reduce((addInput, inputToAdd) => {
                   if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
                     addInput.push(inputToAdd.desInput)
                   }
                   return addInput;
                 }, [])
-                const result = await getBooksByByQuery([newInput,...addInputs]);
-                setResult(result)
+                const result = await getBooksByByQuery([newInput, ...addInputs]);
+
+                if (result.length === 1) {
+
+                  const tree = (await getBookTree([result[0].bookId]))[0].tree;
+                  const queryTree = removeEmptyHeaders(filterTree(tree, result[0].headers));
+                  setResult(flattenHeaders(queryTree, {}).map(res => { return { filters: res, ...result[0] } }))
+
+                }
+                else {
+                  setResult(result)
+                }
                 setLoading(false)
               }
-              }} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+            }} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
           </View>
         </View>
         <View style={styles.resultCountWrapper}>
@@ -86,43 +153,73 @@ function ExploreResultView({ route, navigation ,replaceInput,addInput }) {
           <Text style={styles.titleCount}>{`(סה"כ ${result.length})`}</Text>
         </View>
         <View style={styles.resultWrapper}>
-          <ScrollView>
-            {exploreResult.map((result, index) =>
+          <FlatList data={exploreResult}
+            keyExtractor={(key, index) => index.toString()}
+            initialNumToRender={7}
+            onScrollToIndexFailed={() => { }}
+            getItemLayout={(data, index) => {
+              return { length: 50, offset: 50 * index, index }
+            }}
+            style={styles.scroll}
+            renderItem={({ item, index }) => (
               <TouchableOpacity
                 style={styles.result}
                 key={index}
                 underlayColor="#ffffff00"
-                onPress={() => { navigation.push('Result',{ selectedBooks: [{bookId:result.bookId}]  }) }}>
-                <View style={styles.checkBoxWrapper}>
+                onPress={() => { navigation.push('Result', { selectedBooks: [{ bookId: item.bookId }], stepBy: !isEmpty(item.filters) ? getLastHeader(item.filters) : undefined, selectedHeaders: !isEmpty(item.filters) ? item.filters : {} }) }}>
+                {!item.filters ? <View style={styles.checkBoxWrapper}>
                   <CheckBox
-                    checked={result.isCheck}
-                    onChange={() => { setResultCheck(result.key) }}>
+                    checked={item.isCheck}
+                    onChange={() => { setResultCheck(item.key) }}>
                   </CheckBox>
-                </View>
+                </View> :
+                  <View style={styles.checkBoxWrapper}>
+                    <OctIcons name={'book'} size={22} color={'#9AD3CE'} />
+                  </View>
+                }
+
                 <View style={styles.resultTitleWrapper}>
-                  <Text style={styles.resultTitle}>{`${result.groupName.replace('_','"')}, ${result.bookName.replace('_','"')}`}</Text>
+                  <Text style={styles.resultTitle}>{itemToTitle(item)}</Text>
                 </View>
               </TouchableOpacity>
-            )}
-          </ScrollView>
+            )} />
+
         </View>
-        <View style={styles.selectContainer}>
+        {exploreResult && exploreResult[0] && !exploreResult[0].filters ? <View style={styles.selectContainer}>
           <TouchableOpacity
             disabled={!isResultSelect()}
             style={[styles.selectButton, isResultSelect() ? {} : styles.selectButtonDisable]}
             underlayColor="#ffffff00"
-            onPress={() => { navigation.push('Result',{ selectedBooks: selectedBooks() }) }
+            onPress={() => { navigation.push('Result', { selectedBooks: selectedBooks(), stepBy: !isEmpty(item.filters) ? getLastHeader(item.filters) : undefined, selectedHeaders: !isEmpty(item.filters) ? item.filters : {} }) }
             }>
             <Text style={[styles.selectButtonText, isResultSelect() ? {} : styles.selectButtonDisableText]} >
               {isResultSelect() ? `פתח ספרים נבחרים (${countResultSelect()})` : `פתח ספרים נבחרים`}
             </Text>
           </TouchableOpacity>
-        </View>
+        </View> : <></>}
       </View>
-    </Background>
+    </Background >
   );
 }
 
+const getLastHeader = (filters) => {
+  const ordersHeaders = Object.keys(filters).sort((a, b) => {
+    return headers.indexOf(a) - headers.indexOf(b);
+  })
+  return ordersHeaders[ordersHeaders.length - 1];
+}
+const itemToTitle = (item) => {
+  let title = ` ${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`;
+  const headersTitles = isEmpty(item.filters) ? '' : headers.reduce((headersTitle, key, index) => {
+    if (!isEmpty(item.filters[key])) {
+      headersTitle += `${item.filters[key]}, `
+    }
+    return headersTitle;
+
+
+  }, ', ')
+  return title + headersTitles.slice(0, -2);
+}
 const attachKeyToArray = (array, key, initValue) => {
   return array.map(element => {
     return {
@@ -137,6 +234,10 @@ const styles = StyleSheet.create({
   resultTitleWrapper: {
     justifyContent: 'center',
     flex: 1,
+  },
+  scroll: {
+    flex: 1,
+    width: '100%',
   },
   resultTitle: {
     fontFamily: "OpenSansHebrew",
@@ -276,4 +377,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default  optimizeHeavyScreen(ExploreResultView,PlaceHolder)
+export default optimizeHeavyScreen(ExploreResultView, PlaceHolder)

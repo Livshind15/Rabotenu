@@ -13,7 +13,6 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
     const [searchInput, setInput] = React.useState(input);
     const [isLoading, setLoading] = React.useState(false);
     const { setSearchType } = React.useContext(SearchContext);
-    console.log(result);
     return (
         <Background>
             <View style={styles.page}>
