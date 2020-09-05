@@ -14,6 +14,7 @@ import BookViewClass, { removeNotNeedContent } from '../bookView/bookViewClass';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { RabotenuContext } from '../../contexts/applicationContext';
+import { getLastHeader } from '../explore/exploreResultView';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
@@ -220,7 +221,9 @@ const BookNavigator = ({ navigation, route }) => {
     const bookMenu = React.useCallback((props) => {
         return <BookMenu {...props} childData={subBooks.data} parentData={parentBooks.data} isPending={subBooks.isPending} onBookSelect={(book, info) => {
             setSelectedHeader(info)
-            setInitIndex(0)
+            console.log({info});
+          
+            setStepBy(  getLastHeader(info))
             if (!booksIds.includes(book)) {
                 setBooksIds([...booksIds, book])
             }

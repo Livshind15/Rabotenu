@@ -202,7 +202,7 @@ function ExploreResultView({ route, navigation, replaceInput, addInput }) {
   );
 }
 
-const getLastHeader = (filters) => {
+export const getLastHeader = (filters) => {
   const ordersHeaders = Object.keys(filters).sort((a, b) => {
     return headers.indexOf(a) - headers.indexOf(b);
   })

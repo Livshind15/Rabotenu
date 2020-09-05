@@ -409,7 +409,7 @@ class Item extends React.Component {
         }
         for (const header of headers) {
             if (item.type === header) {
-                return <Text style={[styles.parsa, { fontSize: item.style.size ? (item.style.size + (textSize * 50)) : 24 + (textSize * 50), color: item.style.color, textAlign: item.style.textAlign || "right" }]}>{item.value}</Text>
+                return <Text style={[styles.parsa, { fontSize:  24 + (textSize * 50), color: item.style.color, textAlign: item.style.textAlign || "right" }]}>{item.value}</Text>
             }
         }
 

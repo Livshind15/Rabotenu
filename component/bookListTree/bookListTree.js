@@ -49,12 +49,7 @@ const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } 
                 setExpanded(false)
             }} shouldExpanded={!isEmpty(result.tree)} customStyles={{ header: { paddingLeft: 0, paddingRight: result.tree ? 0 : (2 * deep) }, container: { paddingLeft: 0, paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={result.isBook ? `${result.groupId.replace('_', '"')}, ${result.text.replace('_', '"')}` : result.text.replace('_', '"')} additionalComponent={
                 result.isBook ? <View style={styles.endContainer}>
-                    <TouchableOpacity onPress={() => {
-                        if (bookId !== result.id) {
-                            onSelect({ 'book': result.id })
-                        }
-                    }
-                    } underlayColor="#ffffff00" >
+                    <TouchableOpacity  underlayColor="#ffffff00" >
                         <MaterialCommunityIcons style={{ paddingHorizontal: 5 }} color={bookId === result.id ? '#01A7BC' : '#A0A0A0'} size={30} name={'eye'} />
                     </TouchableOpacity>
                     {/* <TouchableOpacity underlayColor="#ffffff00" >
