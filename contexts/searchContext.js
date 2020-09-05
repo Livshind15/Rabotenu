@@ -24,8 +24,10 @@ export const SearchProvider = ({ children }) => {
     const [resourcesGroups, setResourcesGroups] = React.useState({});
     const [resources, setResources] = React.useState([]);
     const [removeResources, setRemoveResources] = React.useState([]);
+    const [cache,setCache] = React.useState({});
 
     const [resourcesData, setData] = React.useState([]);
+
 
     React.useEffect(() => {
         if (allResourceToggle) {
@@ -175,7 +177,7 @@ export const SearchProvider = ({ children }) => {
     }
 
     return (
-        <SearchContext.Provider value={{ setNotSearchGroups,setNotSearchBooks ,setSearchHistory:setSearchCb,searchHistory, searchInput, selectedGroup, setSelectedGroup, notSearchBooks, removeResources, allResourceToggle, setResourceToggle, notSearchGroups, setRemoveResources, setResourcesGroups, resourcesData, setData, resourcesGroups, resources, setResources, searchType, setSearchType, tableInput, setTableInput, searchType, bookResult, setSearchInput, setSearchType, setBookResult }}>
+        <SearchContext.Provider value={{cache,setCache, setNotSearchGroups,setNotSearchBooks ,setSearchHistory:setSearchCb,searchHistory, searchInput, selectedGroup, setSelectedGroup, notSearchBooks, removeResources, allResourceToggle, setResourceToggle, notSearchGroups, setRemoveResources, setResourcesGroups, resourcesData, setData, resourcesGroups, resources, setResources, searchType, setSearchType, tableInput, setTableInput, searchType, bookResult, setSearchInput, setSearchType, setBookResult }}>
             {children}
         </SearchContext.Provider>
     )

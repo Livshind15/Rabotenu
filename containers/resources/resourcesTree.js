@@ -3,20 +3,51 @@ import { StyleSheet, ScrollView, View } from 'react-native';
 
 
 import Background from '../../component/background/background';
-import ResourceTree from '../../component/resourcesTree/resourceTree';
+import ResourceTree, { addCheckForBookHeaders } from '../../component/resourcesTree/resourceTree';
 import { flatten } from 'lodash';
+import ErrorModel from '../../component/modalError/modalError';
+import { getBookTree } from '../explore/exploreTreeView';
+import { SearchContext } from '../../contexts/searchContext';
+import { getBookInfo } from './resources';
 
 
+const ResourcesTreeView = ({  navigation }) => {
+    const { setResourceToggle,resources,cache, setCache, setRemoveResources, setResources } = React.useContext(SearchContext);
+    const updateCache =(bookFilter,bookId,cacheState)=>{
+        // console.log({update:{bookFilter,bookId}})
+        // console.log(cacheState)
+        setCache({...cacheState,[bookId]:bookFilter});
 
-const ResourcesTreeView = ({ navigation,resources,onRemoveResources=()=>{} }) => {
+    }
+    const removeCache =(bookId,cacheState)=>{
+        // console.log({delete:{bookId}})
+        const newCache = cacheState;
+        if(newCache[bookId]){
+            delete cacheState[bookId]
+        }
+        setCache({...newCache});
+
+        // console.log({cacheState})
+    }
+    const getBook = async (bookId, state,cacheState)=>{
+
+      const bookFilter= await getBookInfo(bookId, state, cacheState)
+      console.log({cacheState});
+
+setCache({...cacheState,[bookId]:bookFilter});
+return bookFilter
+    }
+
     return (
         <Background>
 
             <View style={styles.page}>
-            
-               <ScrollView style={styles.scroll}>
-                    <ResourceTree navigation={navigation} onChange={(removeResources,resourceTree)=>{
-                   onRemoveResources(removeResources,resourceTree)
+
+                <ScrollView style={styles.scroll}>
+                    <ResourceTree updateCache ={updateCache} cache={cache} removeCache={removeCache} getBookInfo={getBook} navigation={navigation} onChange={(removeResources, resourceTree) => {
+                        setResources(resourceTree)
+                        setRemoveResources(removeResources)
+                        setResourceToggle(false)
                     }} groups={resources} />
                 </ScrollView>
             </View>

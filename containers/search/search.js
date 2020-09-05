@@ -38,8 +38,8 @@ export const getBooksByContent = async (content, searchType, tableInput, books, 
 
 
 
-export default function Search({navigation}) {
-  const { setTableInput, setSearchHistory ,setSearchInput,setNotSearchGroups,setNotSearchBooks , setBookResult, searchHistory, notSearchBooks, notSearchGroups ,setSearchType} = React.useContext(SearchContext);
+export default function Search({ navigation }) {
+  const { setTableInput, setSearchHistory, setSearchInput, setNotSearchGroups, setNotSearchBooks, setBookResult, searchHistory, notSearchBooks, notSearchGroups, setSearchType } = React.useContext(SearchContext);
   const [tableInit] = React.useState([[{ value: "" }]])
   const tableSearch = (props) => <TableSearch tableInit={tableInit} {...props} onSave={async (table, navigation) => {
     const tablesInput = table.map(or => {
@@ -56,18 +56,18 @@ export default function Search({navigation}) {
     navigation.push('SearchResultView', { onSearch: getBooksByContent })
   }} />
 
-  const historyPage = (props) => <SearchHistory onSelect={async (selectIndex)=>{
-      const {searchInput, searchType, tableInput, notSearchBooks, notSearchGroups} = searchHistory[selectIndex];
-      setTableInput(tableInput)
-      setSearchType(searchType)
-      setSearchInput(searchInput)
-      setNotSearchGroups(notSearchGroups)
-      setNotSearchBooks(notSearchBooks)
-      const result = await getBooksByContent(searchInput, searchType, tableInput, notSearchBooks, notSearchGroups);
-      setBookResult(result);
-      navigation.push('SearchResultView', { onSearch: getBooksByContent })
+  const historyPage = (props) => <SearchHistory onSelect={async (selectIndex) => {
+    const { searchInput, searchType, tableInput, notSearchBooks, notSearchGroups } = searchHistory[selectIndex];
+    setTableInput(tableInput)
+    setSearchType(searchType)
+    setSearchInput(searchInput)
+    setNotSearchGroups(notSearchGroups)
+    setNotSearchBooks(notSearchBooks)
+    const result = await getBooksByContent(searchInput, searchType, tableInput, notSearchBooks, notSearchGroups);
+    setBookResult(result);
+    navigation.push('SearchResultView', { onSearch: getBooksByContent })
   }} onRemove={(removeIndex) => {
-   setSearchHistory(searchHistory.filter((key,index)=> index!==removeIndex))
+    setSearchHistory(searchHistory.filter((key, index) => index !== removeIndex))
   }} {...props} history={searchHistory} />
 
   return (
@@ -75,7 +75,7 @@ export default function Search({navigation}) {
     <Stack.Navigator initialRouteName="MainSearch" >
       <Stack.Screen name="MainSearch" options={{ headerShown: false, title: 'רבותינו' }} component={searchMain} />
       <Stack.Screen name="SearchResultView" options={{ headerShown: false, title: 'רבותינו' }} component={searchResultView} />
-      <Stack.Screen name="Resources" options={{ headerShown: false, title: 'רבותינו' }} component={resources} />
+      <Stack.Screen name="Resources" options={{ headerShown: false, title: 'רבותינו' }} component={Resources} />
       <Stack.Screen name="SearchView" options={{ headerShown: false, title: 'רבותינו' }} component={searchView} />
       <Stack.Screen name="Result" options={{ headerShown: false, title: 'רבותינו' }} component={bookNavigator} />
       <Stack.Screen name="TableSearch" options={{ headerShown: false, title: 'רבותינו' }} component={tableSearch} />

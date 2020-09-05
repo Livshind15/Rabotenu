@@ -11,13 +11,13 @@ import { Spinner } from '@ui-kitten/components';
 import ErrorModel from '../../component/modalError/modalError';
 
 
-const getBookTree = async (booksIds) => {
+export const getBookTree = async (booksIds) => {
     const data = await Promise.all(booksIds.map(bookId => {
         return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
     }))
     return data || [];
 }
-const getGroups = async () => {
+export const getGroups = async () => {
     const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
     return JSON.parse(JSON.stringify(data)) || []
 }

@@ -13,6 +13,8 @@ import { flatten, isEqual, difference } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
 import { SearchContext } from '../../contexts/searchContext';
 import { RabotenuContext } from '../../contexts/applicationContext';
+import { getBookTree } from '../explore/exploreTreeView';
+import { addCheckForBookHeaders } from '../../component/resourcesTree/resourceTree';
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
@@ -90,25 +92,31 @@ export const addCheckForResources = (resources, check) => {
     })
 }
 
+export const getBookInfo = async (bookId, state, cache) => {
+    if (cache[bookId]) {
+        return cache[bookId]
+    }
+    const res = await getBookTree([bookId]).then((res) => {
+        return { ...res[0], tree: addCheckForBookHeaders(res[0].tree, state) }
+    })
+
+    return res;
+}
+
 const Resources = ({ navigation }) => {
-    const {selectedGroup, setSelectedGroup, allResourceToggle, setResourceToggle, setResourcesGroups, resourcesGroups, resourcesData, resources, setRemoveResources, setResources } = React.useContext(SearchContext);
+    const { selectedGroup, setSelectedGroup, allResourceToggle, setResourceToggle, setResourcesGroups, resourcesGroups, resourcesData, resources, setRemoveResources, setResources, removeResource } = React.useContext(SearchContext);
     const [showErrorModel, setShowErrorModel] = React.useState(false);
 
-    // React.useEffect(() => {
-    //     if (error) {
-    //         setShowErrorModel(true);
-    //     }
-    // }, [error]);
     const {
         setShowBack,
-       } = React.useContext(RabotenuContext);
+    } = React.useContext(RabotenuContext);
     React.useEffect(() => {
         setShowBack({ enable: true, navigation })
         return () => {
             setShowBack({ enable: false, navigation: null })
         }
     }, [])
-   
+
 
     React.useEffect(() => {
         if (!selectedGroup.length && resourcesGroups[selectedGroup]) {
@@ -117,12 +125,8 @@ const Resources = ({ navigation }) => {
     }, [resources]);
 
 
-    const resourcesTreeView = (props) => <ResourcesTreeView resources={resources} onRemoveResources={(removeResources, resourceTree) => {
-        setResources(resourceTree)
-        setRemoveResources(removeResources)
-        setResourceToggle(false)
-    }} {...props} />
-
+    const resourcesTreeView =React.useCallback ((props) => <ResourcesTreeView {...props} />
+    ,[])
     const resourcesSearch = (props) => <ResourcesSearch editParams={{
         edit: true, resources: resources, groupName: "", onSave: ({ resources, groupName, groupId }) => {
             setResourcesGroups({ ...resourcesGroups, [groupId]: { groupName, resources: resources } });

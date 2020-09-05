@@ -42,7 +42,7 @@ const BookListTree = ({ results, bookId, parent, deep = 0, onSelect = () => { } 
                         'bookId': getParentBook(parent),
                         ...parentHeaders(parent),
                         [result.type]: result.text,
-                        stepBy:result.type
+                        stepBy: result.type
                     })
                 }
 
