@@ -8,7 +8,6 @@ import { flatten, isEmpty } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
 import BookListTree from '../bookListTree/bookListTree';
 import BookListTreeCheckBox from '../bookListTree/bookListTreeCheckBox';
-import { log } from 'react-native-reanimated';
 import { SearchContext } from '../../contexts/searchContext';
 
 const changeGroupsChecks = (group, state) => {
@@ -46,10 +45,22 @@ const getAllBooksInGroup = (groups) => {
 
 }
 
-export const addCheckForBookHeaders = (bookHeaders, check) => {
+export const changeCheckById = (bookHeaders, check,uuid) => {
     return bookHeaders.map(bookHeader => {
+       if(bookHeader.uuid === uuid) {
+        return { ...bookHeader, tree: addCheckForBookHeaders(bookHeader.tree || [], false, false) , isCheck: check }
 
-        return { ...bookHeader, tree: addCheckForBookHeaders(bookHeader.tree || [], check), isCheck: check }
+       }
+        return { ...bookHeader, tree: changeCheckById(bookHeader.tree || [], check,uuid) }
+    })
+}
+export const addCheckForBookHeaders = (bookHeaders, check,newUuid) => {
+    return bookHeaders.map(bookHeader => {
+        if(newUuid){
+            return { ...bookHeader, tree: addCheckForBookHeaders(bookHeader.tree || [], check,newUuid), isCheck: check,uuid:Math.random() }
+
+        }
+        return { ...bookHeader, tree: addCheckForBookHeaders(bookHeader.tree || [], check,newUuid), isCheck: check }
     })
 }
 const checkForUnCheckResource = (group) => {
@@ -61,7 +72,7 @@ const checkForUnCheckResource = (group) => {
 export const flattenHeaders = (tree, headers) => {
     return tree.reduce((treeHeaders, header) => {
         if (header.isCheck) {
-            treeHeaders = [...treeHeaders, { [header.type]: header.text, ...headers }]
+            treeHeaders = [...treeHeaders, { [header.type]: header.text,id:header.uuid, ...headers }]
         }
         else {
             treeHeaders = [...treeHeaders, ...flattenHeaders(header.tree, { [header.type]: header.text, ...headers })]
@@ -85,7 +96,7 @@ export const isArrayEqual = function (x, y) {
 };
 
 
-const ResourceTree = ({ getBookInfo, navigation, removeCache, updateCache, onChange = () => { }, groups = [], deep = 0 }) => {
+const ResourceTree =    ({ getBookInfo, navigation, updateCache, onChange = () => { }, groups = [], deep = 0 }) => {
 
     const [groupsState, setGroups] = React.useState(groups);
     React.useEffect(() => {
@@ -113,37 +124,22 @@ const ResourceTree = ({ getBookInfo, navigation, removeCache, updateCache, onCha
                 </View>
             } endToggle={true}>
             {group.subGroups.length || group.books.length ? <View style={styles.innerScroll}>
-                {group.subGroups.length ? <ResourceTree updateCache={updateCache} removeCache={removeCache} getBookInfo={getBookInfo} onChange={() => onChange(flatten(getAllBooksInGroup(groupsState)), groupsState)} navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
+                {group.subGroups.length ? <ResourceTree updateCache={updateCache}  getBookInfo={getBookInfo} onChange={() => onChange(flatten(getAllBooksInGroup(groupsState)), groupsState)} navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
                 {group.books.length ? ((group.books) || []).map((book, key) => {
-                    const [info, setInfo] = React.useState([]);
-                    const [initInfo, setInitInfo] = React.useState({ tree: [] });
                     const [isLoading, setLoading] = React.useState(false);
                     const [expanded, setExpanded] = React.useState(false);
                     const { cache } = React.useContext(SearchContext);
-                    {/* console.log(cache); */ }
+                    const info = cache[book.bookId]
                     const onBookFilterChange = React.useCallback(async (change) => {
                         const newInfo = info;
                         newInfo.tree = change;
-                        setInfo(newInfo)
-                        if (isArrayEqual(flattenHeaders(change, {}), flattenAllHeaders(change, {}))) {
-                            removeCache(book.bookId, cache);
-                        }
-                        else {
-                            updateCache(newInfo, book.bookId, cache)
-                        }
-                        console.log(flattenHeaders(change, {}))
-                        // console.log(isArrayEqual(flattenHeaders(change, {}), flattenHeaders(initInfo.tree, {})))
-
-
+                        updateCache(newInfo, book.bookId, cache)
                     }, [cache])
                     const onExpanded = React.useCallback(async (state) => {
                         if (state) {
                             setLoading(true);
-                            const infoRes = await getBookInfo(book.bookId, state, cache)
-                            setInfo(infoRes)
+                            const infoRes = await getBookInfo(book.bookId, book.isCheck, cache)
                             updateCache(infoRes, book.bookId, cache)
-
-                            setInitInfo(infoRes)
                             setLoading(false);
 
                         }
@@ -153,7 +149,8 @@ const ResourceTree = ({ getBookInfo, navigation, removeCache, updateCache, onCha
                         {/* setLoading(false); */ }
 
 
-                    }, [info, cache])
+                    }, [info, cache,book])
+                  
                     return (<Accordian
                         onExpanded={onExpanded}
                         initExpanded={expanded}
@@ -166,7 +163,7 @@ const ResourceTree = ({ getBookInfo, navigation, removeCache, updateCache, onCha
                                     onChange={(state) => {
                                         const newGroupsState = groupsState;
                                         newGroupsState[index].books[key].isCheck = state;
-                                        setInfo({ ...initInfo, tree: addCheckForBookHeaders(initInfo.tree, state) })
+                                        // setInfo({ ...info, tree: addCheckForBookHeaders(info.tree, state) })
                                         setGroups([...newGroupsState])
                                         onChange(flatten(getAllBooksInGroup(newGroupsState)), newGroupsState)
 

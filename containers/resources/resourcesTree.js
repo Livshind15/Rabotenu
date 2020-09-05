@@ -11,31 +11,16 @@ import { SearchContext } from '../../contexts/searchContext';
 import { getBookInfo } from './resources';
 
 
-const ResourcesTreeView = ({  navigation }) => {
-    const { setResourceToggle,resources,cache, setCache, setRemoveResources, setResources } = React.useContext(SearchContext);
-    const updateCache =(bookFilter,bookId,cacheState)=>{
-        // console.log({update:{bookFilter,bookId}})
-        // console.log(cacheState)
-        setCache({...cacheState,[bookId]:bookFilter});
-
+const ResourcesTreeView = ({ navigation }) => {
+    const { setResourceToggle, resources, setCache, setRemoveResources, setResources } = React.useContext(SearchContext);
+    const updateCache = (bookFilter, bookId, cacheState) => {
+        setCache({ ...cacheState, [bookId]: bookFilter });
     }
-    const removeCache =(bookId,cacheState)=>{
-        // console.log({delete:{bookId}})
-        const newCache = cacheState;
-        if(newCache[bookId]){
-            delete cacheState[bookId]
-        }
-        setCache({...newCache});
-
-        // console.log({cacheState})
-    }
-    const getBook = async (bookId, state,cacheState)=>{
-
-      const bookFilter= await getBookInfo(bookId, state, cacheState)
-      console.log({cacheState});
-
-setCache({...cacheState,[bookId]:bookFilter});
-return bookFilter
+   
+    const getBook = async (bookId, state, cacheState) => {
+        const bookFilter = await getBookInfo(bookId, state, cacheState)
+        setCache({ ...cacheState, [bookId]: bookFilter });
+        return bookFilter
     }
 
     return (
@@ -44,7 +29,7 @@ return bookFilter
             <View style={styles.page}>
 
                 <ScrollView style={styles.scroll}>
-                    <ResourceTree updateCache ={updateCache} cache={cache} removeCache={removeCache} getBookInfo={getBook} navigation={navigation} onChange={(removeResources, resourceTree) => {
+                    <ResourceTree updateCache={updateCache} getBookInfo={getBook} navigation={navigation} onChange={(removeResources, resourceTree) => {
                         setResources(resourceTree)
                         setRemoveResources(removeResources)
                         setResourceToggle(false)

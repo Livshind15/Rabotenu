@@ -33,12 +33,14 @@ export const SearchProvider = ({ children }) => {
         if (allResourceToggle) {
             if (resourcesData && resourcesData.length) {
                 setResources(addCheckForResources(resourcesData, true))
+                
             }
         }
     }, [allResourceToggle]);
     React.useEffect(() => {
         if (resourcesGroups[selectedGroup]) {
             setResources(resourcesGroups[selectedGroup].resources)
+            setCache(resourcesGroups[selectedGroup].cache||{})
         }
     }, [selectedGroup]);
 
@@ -70,6 +72,9 @@ export const SearchProvider = ({ children }) => {
                     setSelectedGroup(jsonValue)
                     if (resourcesGroups[selectedGroup]) {
                         setResources(resourcesGroups[selectedGroup].resources)
+
+                        setCache(resourcesGroups[selectedGroup].cache||{})
+
                     }
                 }
             } catch (e) {

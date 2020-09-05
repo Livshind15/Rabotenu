@@ -20,17 +20,21 @@ import { isEmpty } from 'lodash';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen'
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import SearchHistory from '../historyPage/historyPage';
+import { flattenHeaders } from '../../component/resourcesTree/resourceTree';
 
 
 const Stack = createStackNavigator();
+const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 
 
-export const getBooksByContent = async (content, searchType, tableInput, books, groups) => {
+export const getBooksByContent = async (content, searchType, tableInput, books, groups, filtersHeaders) => {
   const { data } = await axios.post(`${config.serverUrl}/book/search/books/`, {
     "content": content,
     "type": !isEmpty(tableInput) ? searchType || 'exact' : 'exact',
     "table": tableInput,
     "books": books,
+    headers:filtersHeaders,
+
     "groups": groups
   });
   return data;
@@ -39,8 +43,23 @@ export const getBooksByContent = async (content, searchType, tableInput, books, 
 
 
 export default function Search({ navigation }) {
-  const { setTableInput, setSearchHistory, setSearchInput, setNotSearchGroups, setNotSearchBooks, setBookResult, searchHistory, notSearchBooks, notSearchGroups, setSearchType } = React.useContext(SearchContext);
+  const { setTableInput, setSearchHistory, cache, resources, setSearchInput, setNotSearchGroups, setNotSearchBooks, setBookResult, searchHistory, notSearchBooks, notSearchGroups, setSearchType } = React.useContext(SearchContext);
   const [tableInit] = React.useState([[{ value: "" }]])
+  const bookIds = resources.map(resource => resource.bookId);
+  const getAllBookFilter = React.useCallback(() => {
+    return Object.keys(cache||{}).reduce((acc, curr) => {
+        if (!bookIds.includes(cache[curr].id)) {
+            const headers = flattenHeaders(cache[curr].tree, {})
+            headers.map(header => {
+              const newHeader = header;
+              delete newHeader.id;
+              return newHeader
+            })
+            acc = { ...acc, [cache[curr].id]:headers };
+        }
+        return acc;
+    }, {})
+}, [cache])
   const tableSearch = (props) => <TableSearch tableInit={tableInit} {...props} onSave={async (table, navigation) => {
     const tablesInput = table.map(or => {
       return or.map(must => {
@@ -50,7 +69,7 @@ export default function Search({ navigation }) {
         }
       })
     })
-    const result = await getBooksByContent("", "table", tablesInput, notSearchBooks, notSearchGroups);
+    const result = await getBooksByContent("", "table", tablesInput, notSearchBooks, notSearchGroups, getAllBookFilter());
     setTableInput(tablesInput)
     setBookResult(result);
     navigation.push('SearchResultView', { onSearch: getBooksByContent })
@@ -63,7 +82,7 @@ export default function Search({ navigation }) {
     setSearchInput(searchInput)
     setNotSearchGroups(notSearchGroups)
     setNotSearchBooks(notSearchBooks)
-    const result = await getBooksByContent(searchInput, searchType, tableInput, notSearchBooks, notSearchGroups);
+    const result = await getBooksByContent(searchInput, searchType, tableInput, notSearchBooks, notSearchGroups, getAllBookFilter());
     setBookResult(result);
     navigation.push('SearchResultView', { onSearch: getBooksByContent })
   }} onRemove={(removeIndex) => {
@@ -99,13 +118,27 @@ const SearchMain = ({ navigation }) => {
   const [isLoading, setLoading] = React.useState(false);
   const [showOptionsSearch, setShowOptionsSearch] = React.useState(false);
   const [showSearchType, setShowSearchType] = React.useState(false);
-  const { searchInput, setSearchInput, setBookResult, notSearchGroups, notSearchBooks, setSearchType, searchType, tableInput, setSearchHistory, searchHistory } = React.useContext(SearchContext);
-
+  const { searchInput, resources, cache, setSearchInput, setBookResult, notSearchGroups, notSearchBooks, setSearchType, searchType, tableInput, setSearchHistory, searchHistory } = React.useContext(SearchContext);
+  const bookIds = resources.map(resource => resource.bookId);
+  const getAllBookFilter = React.useCallback(() => {
+    return Object.keys(cache||{}).reduce((acc, curr) => {
+        if (!bookIds.includes(cache[curr].id)) {
+            const headers = flattenHeaders(cache[curr].tree, {})
+            headers.map(header => {
+              const newHeader = header;
+              delete newHeader.id;
+              return newHeader
+            })
+            acc = { ...acc, [cache[curr].id]:headers };
+        }
+        return acc;
+    }, {})
+}, [cache])
   const onSubmit = async () => {
     if (!isLoading) {
       setLoading(true);
       setSearchHistory([{ searchInput, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
-      const result = await getBooksByContent(searchInput, searchType, tableInput, notSearchBooks, notSearchGroups);
+      const result = await getBooksByContent(searchInput, searchType, tableInput, notSearchBooks, notSearchGroups, getAllBookFilter());
       setLoading(false)
       setBookResult(result);
       navigation.push('SearchResultView', { onSearch: getBooksByContent })

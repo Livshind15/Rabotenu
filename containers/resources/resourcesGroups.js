@@ -11,7 +11,7 @@ import GroupEdit from './groupEdit';
 const Stack = createStackNavigator();
 
 
-const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, currResources, onSave, removeGroup }) => {
+const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect,currCache, currResources, onSave, removeGroup }) => {
 
     return (
         <Background>
@@ -34,7 +34,7 @@ const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, cur
 
                                 <View style={styles.resourceContainerEnd} >
                                     <TouchableOpacity onPress={() => {
-                                        navigation.push('edit', { edit: false, resources: groups[groupId].resources, groupName: groups[groupId].groupName, groupId, onSave: onSave })
+                                        navigation.push('edit', { edit: false,cache: groups[groupId].cache, resources: groups[groupId].resources, groupName: groups[groupId].groupName, groupId, onSave: onSave })
                                     }} underlayColor="#ffffff00">
                                         <IconEvilIcons color={'#B4B4B4'} name={'pencil'} size={40}></IconEvilIcons>
                                     </TouchableOpacity>
@@ -49,7 +49,7 @@ const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect, cur
                 </View>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttonWrapper}><ClickButton onPress={() => {
-                        navigation.push('edit', { edit: true, resources: currResources, groupName: "", onSave: onSave })
+                        navigation.push('edit', { edit: true,cache: currCache, resources: currResources, groupName: "", onSave: onSave })
                     }} optionsButton={{ paddingVertical: 7 }} optionsText={{ fontSize: 22 }}>יצרת קבוצה חדשה</ClickButton></View>
 
                 </View>

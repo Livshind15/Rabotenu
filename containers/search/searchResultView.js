@@ -9,24 +9,42 @@ import SearchResult from './searchResult';
 import { SearchContext } from '../../contexts/searchContext';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
+import { flattenHeaders } from '../../component/resourcesTree/resourceTree';
+const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
 const SearchResultView = ({ navigation, route }) => {
-    const onSearch = route.params.onSearch || (() => { });
-    const { searchInput, bookResult, searchHistory, setSearchHistory, allResourceToggle, setResourceToggle, setSearchInput, setBookResult, notSearchBooks, notSearchGroups, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
-    const searchResult = (props) => <SearchResult {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-        setSearchHistory([{searchInput: input, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
 
-        const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups);
+    const onSearch = route.params.onSearch || (() => { });
+    const { searchInput, cache, resources, bookResult, searchHistory, setSearchHistory, allResourceToggle, setResourceToggle, setSearchInput, setBookResult, notSearchBooks, notSearchGroups, setSearchType, searchType, tableInput } = React.useContext(SearchContext);
+    const bookIds = resources.map(resource => resource.bookId);
+    const getAllBookFilter = React.useCallback(() => {
+        return Object.keys(cache||{}).reduce((acc, curr) => {
+            if (!bookIds.includes(cache[curr].id)) {
+                const headers = flattenHeaders(cache[curr].tree, {})
+                headers.map(header => {
+                  const newHeader = header;
+                  delete newHeader.id;
+                  return newHeader
+                })
+                acc = { ...acc, [cache[curr].id]:headers };
+            }
+            return acc;
+        }, {})
+    }, [cache])
+    const searchResult = (props) => <SearchResult {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
+        setSearchHistory([{ searchInput: input, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
+
+        const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups, getAllBookFilter());
         setBookResult(result);
 
     }} result={bookResult} />
     const searchTree = (props) => <SearchTree {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-              setSearchHistory([{searchInput: input, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
+        setSearchHistory([{ searchInput: input, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
 
-        const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups);
+        const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups, getAllBookFilter());
         setBookResult(result);
 
     }} result={bookResult} />

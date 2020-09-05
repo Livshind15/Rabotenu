@@ -8,11 +8,38 @@ import { ScrollView, FlatList } from 'react-native-gesture-handler';
 import Icon from "react-native-vector-icons/AntDesign";
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
+import { flattenHeaders } from '../../component/resourcesTree/resourceTree';
+import { isEmpty } from 'lodash';
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
+const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 
+export const itemToTitle = (item) => {
+    let title = ` ${item.groupId.replace('_', '"')}, ${item.text.replace('_', '"')}`;
+    const headersTitles = isEmpty(item.filters) ? '' : headers.reduce((headersTitle, key, index) => {
+      if (!isEmpty(item.filters[key])) {
+        headersTitle += `${item.filters[key]}, `
+      }
+      return headersTitle;
+  
+  
+    }, ', ')
+    return title + headersTitles.slice(0, -2);
+  }
+const ResourcesSearch = ({ navigation, resources, cache, onRemove,onFilterRemove, onRemoveAll, editParams }) => {
+    const bookIds = resources.map(resource => resource.bookId);
+    const getAllBookFilter = React.useCallback(() => {
+        return Object.keys(cache||{}).reduce((acc, curr) => {
+            if (!bookIds.includes(curr)) {
+                const headers = flattenHeaders(cache[curr].tree, {})
+                headers.forEach(header => {
+                    acc.push({ ...cache[curr], bookFilter: true,filters:header });
 
-const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll, editParams }) => {
+                })
+            }
+            return acc;
+        }, [])
+    }, [cache])
     return (
         <Background>
             <View style={styles.page}>
@@ -21,7 +48,7 @@ const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll, editPar
                 </View>
                 <View style={styles.resourcesContainer}>
                     <FlatList
-                        data={resources || []}
+                        data={[...getAllBookFilter(),...resources ] || []}
                         keyExtractor={(key, index) => index.toString()}
                         initialNumToRender={7}
                         onEndReachedThreshold={0.5}
@@ -31,19 +58,24 @@ const ResourcesSearch = ({ navigation, resources, onRemove, onRemoveAll, editPar
                         }}
                         style={styles.resourcesContainerScroll}
                         renderItem={({ item, index }) => {
-                            return <View key={index} style={styles.resourceContainer}>
-                                <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([item.bookId])}>
+                            return !!item.bookFilter ? <View key={index} style={styles.resourceContainer}>
+                                <TouchableOpacity underlayColor="#ffffff00" onPress={() =>onFilterRemove(item.filters.id,item.id)}>
                                     <Icon color={'#47BBB2'} name={'close'} size={20} />
                                 </TouchableOpacity>
-                                <Text style={styles.resourceName}>{`${item.groupName.replace('_','"')}, ${item.bookName.replace('_','"')}`}</Text>
-                            </View>
+                                <Text style={styles.resourceName}>{itemToTitle(item)}</Text>
+                            </View> : <View key={index} style={styles.resourceContainer}>
+                                    <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([item.bookId])}>
+                                        <Icon color={'#47BBB2'} name={'close'} size={20} />
+                                    </TouchableOpacity>
+                                    <Text style={styles.resourceName}>{`${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`}</Text>
+                                </View>
                         }}
                     />
 
                 </View>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttonsContainerRow}>
-                        <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} onPress={()=>navigation.goBack()} optionsText={{ fontSize: 22 }}>חפש תוצאות</ClickButton></View>
+                        <View style={styles.buttonWrapper}><ClickButton optionsButton={{ paddingVertical: 7 }} onPress={() => navigation.goBack()} optionsText={{ fontSize: 22 }}>חפש תוצאות</ClickButton></View>
                         <View style={styles.buttonWrapper}><ClickButton outline={true} onPress={() => {
                             navigation.goBack()
                         }} optionsText={{ fontSize: 22 }}>חזרה</ClickButton></View>

@@ -16,14 +16,16 @@ import Accordian from '../../component/accordian/accordian';
 import { isEmpty } from 'lodash';
 import { removeTag, removeBoldTag, removeGrayTag, removeSmallTag } from '../bookView/bookViewClass';
 const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
+import { flattenHeaders } from '../../component/resourcesTree/resourceTree';
 
 
-const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => {
+const getSearchContent = async ({ booksIds, searchInput, type, tableInput,headersFilters }) => {
     const { data } = await axios.post(`${config.serverUrl}/book/search/`, {
         "content": searchInput,
         "type": !isEmpty(tableInput) ? type || 'exact' : 'exact',
         size: 50,
         table: tableInput,
+        headers:headersFilters,
         "booksIds": booksIds
     });
     return Promise.all(data.map(async verse => {
@@ -34,9 +36,23 @@ const getSearchContent = async ({ booksIds, searchInput, type, tableInput }) => 
 
 
 const SearchView = ({ navigation, route }) => {
-    const { searchInput, searchType, tableInput } = React.useContext(SearchContext);
-
-    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, tableInput, booksIds: route.params.booksIds, type: searchType, searchInput })
+    const { searchInput, searchType, tableInput ,resources,cache} = React.useContext(SearchContext);
+    const bookIds = resources.map(resource => resource.bookId);
+    const getAllBookFilter = React.useCallback(() => {
+        return Object.keys(cache||{}).reduce((acc, curr) => {
+            if (!bookIds.includes(cache[curr].id)) {
+                const headers = flattenHeaders(cache[curr].tree, {})
+                headers.map(header => {
+                  const newHeader = header;
+                  delete newHeader.id;
+                  return newHeader
+                })
+                acc = { ...acc, [cache[curr].id]:headers };
+            }
+            return acc;
+        }, {})
+    }, [cache])
+    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, tableInput, booksIds: route.params.booksIds, type: searchType, searchInput,headersFilters:getAllBookFilter() })
     const [showErrorModel, setShowErrorModel] = React.useState(false)
     React.useEffect(() => {
         if (error) {

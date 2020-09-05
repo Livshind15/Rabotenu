@@ -11,14 +11,30 @@ import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import ErrorModel from '../../component/modalError/modalError';
 import { getAllBooksFromGroups } from './resources';
+import { flattenHeaders } from '../../component/resourcesTree/resourceTree';
+import { itemToTitle } from './searchResource';
 
 const Stack = createStackNavigator();
+const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 
 
 const GroupEdit = ({ navigation, route }) => {
-    const { edit, resources, groupName, groupId, onSave } = route.params;
+    const { edit, resources, groupName, groupId, onSave, cache } = route.params;
     const [showErrorModel, setShowErrorModel] = React.useState(false)
+    const bookIds = resources.map(resource => resource.bookId);
 
+    const getAllBookFilter = React.useCallback(() => {
+        return Object.keys(cache || {}).reduce((acc, curr) => {
+            if (!bookIds.includes(curr)) {
+                const headers = flattenHeaders(cache[curr].tree, {})
+                headers.forEach(header => {
+                    acc.push({ ...cache[curr], bookFilter: true, filters: header });
+
+                })
+            }
+            return acc;
+        }, [])
+    }, [cache])
     const [name, setGroupName] = React.useState(groupName)
     const [isEdit, setEdit] = React.useState(edit)
     return (
@@ -53,7 +69,7 @@ const GroupEdit = ({ navigation, route }) => {
 
                     <FlatList
 
-                        data={getAllBooksFromGroups(resources) || []}
+                        data={[...getAllBookFilter(), ...getAllBooksFromGroups(resources)]}
                         keyExtractor={(key, index) => index.toString()}
                         initialNumToRender={7}
                         onEndReachedThreshold={0.5}
@@ -63,14 +79,18 @@ const GroupEdit = ({ navigation, route }) => {
                         }}
                         style={styles.resourcesContainerScroll}
                         renderItem={({ item, index }) => {
-                            return <View key={index} style={styles.resourceContainer}>
+                            return !!item.bookFilter ? <View key={index} style={styles.resourceContainer}>
                                 <View style={styles.resourceContainerStart} >
-                                    {/* <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([resource.key])}>
-                                    <Icon color={'#47BBB2'} name={'close'} size={20} />
-                                </TouchableOpacity> */}
-                                    <Text style={styles.resourceName}>{`${item.groupName}, ${item.bookName}`}</Text>
+                                  
+                                    <Text style={styles.resourceName}>{itemToTitle(item)}</Text>
                                 </View>
-                            </View>
+                            </View> : <View key={index} style={styles.resourceContainer}>
+                                    <View style={styles.resourceContainerStart} >
+                        
+                                        <Text style={styles.resourceName}>{`${item.groupName}, ${item.bookName}`}</Text>
+                                    </View>
+                                </View>
+                            return
                         }}
                     />
 

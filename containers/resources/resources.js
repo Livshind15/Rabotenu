@@ -14,7 +14,7 @@ import { Spinner } from '@ui-kitten/components';
 import { SearchContext } from '../../contexts/searchContext';
 import { RabotenuContext } from '../../contexts/applicationContext';
 import { getBookTree } from '../explore/exploreTreeView';
-import { addCheckForBookHeaders } from '../../component/resourcesTree/resourceTree';
+import { addCheckForBookHeaders, changeCheckById } from '../../component/resourcesTree/resourceTree';
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
@@ -97,14 +97,14 @@ export const getBookInfo = async (bookId, state, cache) => {
         return cache[bookId]
     }
     const res = await getBookTree([bookId]).then((res) => {
-        return { ...res[0], tree: addCheckForBookHeaders(res[0].tree, state) }
+        return { ...res[0], tree: addCheckForBookHeaders(res[0].tree, state,true) }
     })
 
     return res;
 }
 
 const Resources = ({ navigation }) => {
-    const { selectedGroup, setSelectedGroup, allResourceToggle, setResourceToggle, setResourcesGroups, resourcesGroups, resourcesData, resources, setRemoveResources, setResources, removeResource } = React.useContext(SearchContext);
+    const { selectedGroup, setSelectedGroup,cache,setCache, allResourceToggle, setResourceToggle, setResourcesGroups, resourcesGroups, resourcesData, resources, setRemoveResources, setResources, removeResource } = React.useContext(SearchContext);
     const [showErrorModel, setShowErrorModel] = React.useState(false);
 
     const {
@@ -120,16 +120,20 @@ const Resources = ({ navigation }) => {
 
     React.useEffect(() => {
         if (!selectedGroup.length && resourcesGroups[selectedGroup]) {
-            setResourcesGroups({ ...{ ...resourcesGroups, [selectedGroup]: { groupName: resourcesGroups[selectedGroup].groupName, resources: resources } } });
+            setResourcesGroups({ ...{ ...resourcesGroups, [selectedGroup]: { groupName: resourcesGroups[selectedGroup].groupName, resources: resources,cache } } });
         }
     }, [resources]);
 
 
     const resourcesTreeView =React.useCallback ((props) => <ResourcesTreeView {...props} />
     ,[])
-    const resourcesSearch = (props) => <ResourcesSearch editParams={{
+    const resourcesSearch = (props) => <ResourcesSearch onFilterRemove ={(id,bookId)=>{
+      
+        setCache({...cache,[bookId]:{...cache[bookId],tree:changeCheckById(cache[bookId].tree,false,id)}});
+    }} cache={cache} editParams={{
+
         edit: true, resources: resources, groupName: "", onSave: ({ resources, groupName, groupId }) => {
-            setResourcesGroups({ ...resourcesGroups, [groupId]: { groupName, resources: resources } });
+            setResourcesGroups({ ...resourcesGroups, [groupId]: { groupName, resources: resources,cache} });
             setResources(resources)
             setSelectedGroup(groupId)
         }
@@ -143,18 +147,19 @@ const Resources = ({ navigation }) => {
 
     const resourcesGroupsView = (props) => <ResourcesGroups onSave={({ resources, groupName, groupId }) => {
 
-        setResourcesGroups({ ...resourcesGroups, [groupId]: { groupName, resources: resources } });
+        setResourcesGroups({ ...resourcesGroups, [groupId]: { groupName, resources: resources,cache } });
 
         setResources(resources)
         setSelectedGroup(groupId)
 
-    }} currResources={resources} groups={resourcesGroups} removeGroup={(id) => {
+    }} currCache={cache} currResources={resources} groups={resourcesGroups} removeGroup={(id) => {
         const newGroups = resourcesGroups;
         delete newGroups[id]
         setResourcesGroups({ ...newGroups })
     }} selectedGroup={selectedGroup} onGroupSelect={(id) => {
         setSelectedGroup(id);
         setResources(resourcesGroups[id].resources)
+        setCache(resourcesGroups[id].cache||{})
 
     }} {...props} />
 
