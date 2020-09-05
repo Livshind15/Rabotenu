@@ -241,6 +241,8 @@ class BookViewClass extends React.Component {
                 return header
             }
         }).filter(item => !isEmpty(item))
+        console.log(this.state.data[index].original);
+        console.log(headers[headers.findIndex(header=> inLineHeader[0]===header)+1])
         const ref = await this.getRefIndex(original.bookId, {
             ...{
                 header1: original.header1,
@@ -250,7 +252,7 @@ class BookViewClass extends React.Component {
                 header5: original.header5,
                 header6: original.header6,
                 header7: original.header7,
-            }, [inLineHeader]: char
+            }, [headers[headers.findIndex(header=> inLineHeader[0]===header)+1]]:char
         }, id)
         if (!isEmpty(ref)) {
             this.props.onBookSelect(ref.bookId, ref.index);
