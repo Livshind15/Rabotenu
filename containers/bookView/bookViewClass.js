@@ -617,7 +617,7 @@ export const removePunctuation = (content) => {
 }
 
 export const removeTag = (content) => {
-    return content.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, '').replace('>', '').replace('<', '')
+    return content.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, '').replace('>', '').replace('<', '').replace('/em','')
 }
 
 export const removeGrayTag = (content) => {

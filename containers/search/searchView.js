@@ -70,12 +70,13 @@ const SearchView = ({ navigation, route }) => {
                         style={styles.view} data={data} renderItem={({ item, index }) => {
                             let content = item.content.match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/g);
                             if (item.highlight && item.highlight[0]) {
-                                content = item.highlight[0].match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/g);
+                                content = removeComment(item.highlight[0]).match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/gmi);
                             }
 
                             let grayText = false;
                             let boldText = false;
                             let smallText = false;
+                            let highlight = false
                             let header = `${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`;
                             headers.forEach(headersType => {
                                 if (item[headersType]) {
@@ -84,7 +85,6 @@ const SearchView = ({ navigation, route }) => {
                                 }
                             }
                             )
-
                             return (<Accordian initExpanded={true} header={header} >
                                 <TouchableOpacity onPress={() => {
                                     navigation.push('Result', { selectedIndex: item.index,  ...getHeaders(item), selectedBooks: [{ bookId: item.bookId }] })
@@ -98,6 +98,16 @@ const SearchView = ({ navigation, route }) => {
                                             if (RegExp(`<\s*/\s*em>(.*?)<\s*em[^>]*>`).test(splitContent)) {
                                                 return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(splitContent.match(/<\/em>(.*?)<em>/g).map((val) => val.replace(/<\/?em>/g, ''))).trim()}</Text></>
                                             }
+                                            // if (RegExp(`<\s*em[^>]*>(.*?)`).test(splitContent)) {
+                                            //     highlight = true;
+                                            // }
+                                            // if (RegExp(`(.*?)<\s*/\s*em>`).test(splitContent)) {
+                                            //     highlight = false;
+                                            //     // return <Text style={styles.pasokContentMark}> {removeTag(splitContent)}</Text>
+                                            // }
+                                            // if (highlight) {
+                                            //     return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(splitContent.replace(/<\/?em>/g, ''))}</Text></>
+                                            // } 
                                             if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
                                                 grayText = true;
                                             }
@@ -145,6 +155,11 @@ const SearchView = ({ navigation, route }) => {
         </Background>
     )
 }
+
+const removeComment=(value)=>{
+     return value.replace('<הערה','').replace(/תו="([^"]+)"/g,'').replace(/Id="([^"]+)"/g,'').replace('</הערה', '')
+}
+
 
 
 const getHeaders = (currHeaders) => {
