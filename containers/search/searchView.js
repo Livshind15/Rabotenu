@@ -9,7 +9,7 @@ import config from "../../config/config";
 import { useAsync } from "react-async";
 import axios from "axios";
 import { Spinner } from '@ui-kitten/components';
-import _ from 'lodash';
+import _, { uniqBy } from 'lodash';
 import { SearchContext } from '../../contexts/searchContext';
 import ErrorModel from '../../component/modalError/modalError';
 import Accordian from '../../component/accordian/accordian';
@@ -17,42 +17,43 @@ import { isEmpty } from 'lodash';
 import { removeTag, removeBoldTag, removeGrayTag, removeSmallTag } from '../bookView/bookViewClass';
 const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 import { flattenHeaders } from '../../component/resourcesTree/resourceTree';
+import Content from '../bookView/contentRender';
 
 
-const getSearchContent = async ({ booksIds, searchInput, type, tableInput,headersFilters }) => {
+const getSearchContent = async ({ booksIds, searchInput, type, tableInput, headersFilters }) => {
     const { data } = await axios.post(`${config.serverUrl}/book/search/`, {
         "content": searchInput,
         "type": !isEmpty(tableInput) ? type || 'exact' : 'exact',
         size: 50,
         table: tableInput,
-        headers:headersFilters,
+        headers: headersFilters,
         "booksIds": booksIds
     });
     return Promise.all(data.map(async verse => {
 
         return { ...verse }
-    }))
+    })).then(val => uniqBy(val,'index'))
 }
 
 
 const SearchView = ({ navigation, route }) => {
-    const { searchInput, searchType, tableInput ,resources,cache} = React.useContext(SearchContext);
+    const { searchInput, searchType, tableInput, resources, cache } = React.useContext(SearchContext);
     const bookIds = resources.map(resource => resource.bookId);
     const getAllBookFilter = React.useCallback(() => {
-        return Object.keys(cache||{}).reduce((acc, curr) => {
+        return Object.keys(cache || {}).reduce((acc, curr) => {
             if (!bookIds.includes(cache[curr].id)) {
                 const headers = flattenHeaders(cache[curr].tree, {})
                 headers.map(header => {
-                  const newHeader = header;
-                  delete newHeader.id;
-                  return newHeader
+                    const newHeader = header;
+                    delete newHeader.id;
+                    return newHeader
                 })
-                acc = { ...acc, [cache[curr].id]:headers };
+                acc = { ...acc, [cache[curr].id]: headers };
             }
             return acc;
         }, {})
     }, [cache])
-    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, tableInput, booksIds: route.params.booksIds, type: searchType, searchInput,headersFilters:getAllBookFilter() })
+    const { data, error, isPending } = useAsync({ promiseFn: getSearchContent, tableInput, booksIds: route.params.booksIds, type: searchType, searchInput, headersFilters: getAllBookFilter() })
     const [showErrorModel, setShowErrorModel] = React.useState(false)
     React.useEffect(() => {
         if (error) {
@@ -68,98 +69,29 @@ const SearchView = ({ navigation, route }) => {
                     <FlatList
                         keyExtractor={item => item.id}
                         style={styles.view} data={data} renderItem={({ item, index }) => {
-                            let content = item.content.match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/g);
-                            if (item.highlight && item.highlight[0]) {
-                                content = removeComment(item.highlight[0]).match(/(?:<(\w+)[^>]*>(?:[\w+]+(?:(?!<).*?)<\/\1>?)[^\s\w]?|[^\s]+)/gmi);
+                            const header = `${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`;
+                            const content = {
+                                original: item,
+                                id: 0,
+                                type: "content",
+                                value: item.content
                             }
-
-                            let grayText = false;
-                            let boldText = false;
-                            let smallText = false;
-                            let highlight = false
-                            let header = `${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`;
-                            headers.forEach(headersType => {
-                                if (item[headersType]) {
-
-                                    header += `, ${item[headersType]}`
-                                }
-                            }
-                            )
-                            return (<Accordian initExpanded={true} header={header} >
+                            return <Accordian key={index} initExpanded={true} header={header} >
                                 <TouchableOpacity onPress={() => {
-                                    navigation.push('Result', { selectedIndex: item.index,  ...getHeaders(item), selectedBooks: [{ bookId: item.bookId }] })
+                                    navigation.push('Result', { selectedIndex: item.index, ...getHeaders(item), selectedBooks: [{ bookId: item.bookId }] })
                                 }} style={styles.contentContainer}>
-                                    <View style={styles.pasokContainer}>
-                                        {item.verse ? <Text style={styles.pasok}>{item.verse} </Text> : <></>}
-                                        {content.map(splitContent => {
-                                            if (RegExp(`<\s*em[^>]*>(.*?)<\s*/\s*em>`).test(splitContent)) {
-                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(' ' + splitContent.match(/<em>(.*?)<\/em>/g).map((val) => val.replace(/<\/?em>/g, ''))).trim()}</Text></>
-                                            }
-                                            if (RegExp(`<\s*/\s*em>(.*?)<\s*em[^>]*>`).test(splitContent)) {
-                                                return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(splitContent.match(/<\/em>(.*?)<em>/g).map((val) => val.replace(/<\/?em>/g, ''))).trim()}</Text></>
-                                            }
-                                            // if (RegExp(`<\s*em[^>]*>(.*?)`).test(splitContent)) {
-                                            //     highlight = true;
-                                            // }
-                                            // if (RegExp(`(.*?)<\s*/\s*em>`).test(splitContent)) {
-                                            //     highlight = false;
-                                            //     // return <Text style={styles.pasokContentMark}> {removeTag(splitContent)}</Text>
-                                            // }
-                                            // if (highlight) {
-                                            //     return <><Text>{' '}</Text><Text style={styles.pasokContentMark}>{removeTag(splitContent.replace(/<\/?em>/g, ''))}</Text></>
-                                            // } 
-                                            if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(splitContent)) {
-                                                grayText = true;
-                                            }
-                                            if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(splitContent)) {
-                                                grayText = false;
-                                                return <Text style={styles.pasokContentGray}> {removeTag(splitContent)}</Text>
-                                            }
-                                            if (grayText) {
-                                                return <Text style={styles.pasokContentGray}>{removeTag(splitContent)}</Text>
-                                            }
-                                            if (RegExp(`<\s*קטן[^>]*>(.*?)`).test(splitContent)) {
-                                                smallText = true;
-                                            }
-                                            if (RegExp(`(.*?)<\s*/\s*קטן>`).test(splitContent)) {
-                                                smallText = false;
-                                                return <Text style={styles.pasokContentSmall}> {removeTag(splitContent)}</Text>
-                                            }
-                                            if (smallText) {
-                                                return <Text style={styles.pasokContentSmall}> {removeTag(splitContent)}</Text>
-                                            }
-                                            if (RegExp(`<\s*דה[^>]*>(.*?)`).test(splitContent) || RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(splitContent)) {
-                                                boldText = true;
-                                            }
-                                            if (RegExp(`(.*?)<\s*/\s*דה>`).test(splitContent) || RegExp(`(.*?)<\s*/\s*הדגשה>`).test(splitContent)) {
-                                                boldText = false;
-                                                return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
-                                            }
-                                            if (boldText) {
-                                                return <Text style={styles.pasokContentBold}> {removeBoldTag(splitContent)}</Text>
-                                            }
-
-
-                                            return <Text style={styles.pasokContent}> {removeTag(splitContent)}</Text>
-                                        }
-                                        )}
-                                    </View>
+                                    <Content contentValue={content} refClick={() => { }}></Content>
                                 </TouchableOpacity>
-                            </Accordian>)
-                        }} />
-                    :
-                    <View style={styles.spinnerContainer}>
+                            </Accordian>
+                        }
+                        } />
+                    : <View style={styles.spinnerContainer}>
                         <Spinner />
                     </View>}
             </View>
         </Background>
     )
 }
-
-const removeComment=(value)=>{
-     return value.replace('<הערה','').replace(/תו="([^"]+)"/g,'').replace(/Id="([^"]+)"/g,'').replace('</הערה', '')
-}
-
 
 
 const getHeaders = (currHeaders) => {
@@ -169,10 +101,10 @@ const getHeaders = (currHeaders) => {
         }
         return headersFilter;
     }, {})
-      const sortHeaders = Object.keys(filteredHeaders).filter(header => headers.includes(header)).sort((a, b) => {
-      return headers.indexOf(a) - headers.indexOf(b);
+    const sortHeaders = Object.keys(filteredHeaders).filter(header => headers.includes(header)).sort((a, b) => {
+        return headers.indexOf(a) - headers.indexOf(b);
     })
-  return({ stepBy:sortHeaders[sortHeaders.length - 1],selectedHeaders:filteredHeaders });
+    return ({ stepBy: sortHeaders[sortHeaders.length - 1], selectedHeaders: filteredHeaders });
 }
 
 const styles = StyleSheet.create({
@@ -251,3 +183,4 @@ const styles = StyleSheet.create({
 });
 
 export default SearchView;
+

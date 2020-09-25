@@ -1,10 +1,8 @@
 import * as React from 'react';
 import Background from '../../component/background/background';
-import { View, FlatList, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
+import { View, FlatList, StyleSheet, Platform, Text, TouchableOpacity, TextInput } from 'react-native';
 import axios from "axios";
-import { Tooltip } from '@ui-kitten/components';
 import Icon from "react-native-vector-icons/AntDesign";
-
 import config from "../../config/config";
 import { delay } from '../../utils/helpers';
 import { isEmpty } from 'lodash';
@@ -12,7 +10,7 @@ import { Spinner } from '@ui-kitten/components';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import ErrorModel from '../../component/modalError/modalError';
-import { IfInitial } from 'react-async';
+import Content from './contentRender';
 
 const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 const DefaultScrollSize = 35;
@@ -58,7 +56,7 @@ class BookViewClass extends React.Component {
 
         }
         else if (this.props.mode === 'page') {
-            this.setState({ loading: true ,index: this.props.index }, () => this.fetchPage());
+            this.setState({ loading: true, index: this.props.index }, () => this.fetchPage());
 
         }
         else {
@@ -186,6 +184,7 @@ class BookViewClass extends React.Component {
     }
 
     async getRefIndex(bookId, header, character, id) {
+        console.log({bookId, header, character, id});
         let url = `${config.serverUrl}/mapping/groups/refs/${bookId}?character=${character.replace('.', '')}`;
         headers.forEach(headersType => {
             if (header[headersType]) {
@@ -197,16 +196,16 @@ class BookViewClass extends React.Component {
         }
         const { data } = await axios.get(url);
         if (isEmpty(data)) {
-            
+
         }
         return data[0]
     }
 
-    async fetchMore() {               
+    async fetchMore() {
         if (!this.state.loading) {
-            this.setState({loading:true});
+            this.setState({ loading: true });
             this.getBookContent([this.state.bookId, this.state.index, DefaultScrollSize]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
-                this.setState({ end: !content.length,loading:false, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
+                this.setState({ end: !content.length, loading: false, data: [...this.state.data, ...content], index: this.state.index + DefaultScrollSize });
             })
         }
     }
@@ -242,7 +241,7 @@ class BookViewClass extends React.Component {
             }
         }).filter(item => !isEmpty(item))
         console.log(this.state.data[index].original);
-        console.log(headers[headers.findIndex(header=> inLineHeader[0]===header)+1])
+        console.log(headers[headers.findIndex(header => inLineHeader[0] === header) + 1])
         const ref = await this.getRefIndex(original.bookId, {
             ...{
                 header1: original.header1,
@@ -252,8 +251,8 @@ class BookViewClass extends React.Component {
                 header5: original.header5,
                 header6: original.header6,
                 header7: original.header7,
-            }, [headers[headers.findIndex(header=> inLineHeader[0]===header)+1]]:char
-        }, id)
+            }, [headers[headers.findIndex(header => inLineHeader[0] === header) + 1]]: char
+        },char, id)
         if (!isEmpty(ref)) {
             this.props.onBookSelect(ref.bookId, ref.index);
 
@@ -315,7 +314,7 @@ class BookViewClass extends React.Component {
 
         }
         else {
-            const content = await this.getBookContent([this.state.bookId, this.state.data[this.state.data.length-2].original.index + 1, 0])
+            const content = await this.getBookContent([this.state.bookId, this.state.data[this.state.data.length - 2].original.index + 1, 0])
             if (!isEmpty(content) && !isEmpty(content[0])) {
                 this.headersFilter = Object.keys(content[0]).reduce((headersValue, key) => {
                     if (headers.includes(key) && (headers.findIndex(item => item === key) < headers.findIndex(item => item === this.props.pageBy))) {
@@ -341,7 +340,6 @@ class BookViewClass extends React.Component {
 
     renderItem({ item, index }) {
         return (
-
             <Item onPrevPage={() => this.onPrev()} onNextPage={() => this.onNext()} textSize={this.props.textSize} onRefClick={(index, id, char) => this.onRefClick(index, id, char)} showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
@@ -353,18 +351,18 @@ class BookViewClass extends React.Component {
         return (
             <Background>
                 <ErrorModel errorMsg={"הפיסקה עותקה בהצלחה"} errorTitle={'העתקת תוכן'} visible={this.state.showCopyModal} setVisible={(state) => { this.setState({ showCopyModal: state }) }} />
-
                 {this.state.data.length ? <FlatList
+                    selectable={true}
                     onEndReachedThreshold={10}
                     initialNumToRender={2}
+                    removeClippedSubviews={false}
                     onEndReached={() => {
                         if (!this.state.end && this.props.mode === 'scroll') {
-                            this.setState({  index: this.state.index + 1 }, () => this.fetchMore());
+                            this.setState({ index: this.state.index + 1 }, () => this.fetchMore());
                         }
                     }}
                     keyExtractor={(date, index) => String(index)}
                     style={this.styles.view}
-                    removeClippedSubviews={false}
                     refreshing={this.state.loading}
                     data={this.state.data}
                     renderItem={this.renderItem.bind(this)} /> : <View style={this.styles.spinnerContainer}>
@@ -409,97 +407,26 @@ class Item extends React.Component {
         }
         for (const header of headers) {
             if (item.type === header) {
-                return <Text style={[styles.parsa, { fontSize:  24 + (textSize * 50), color: item.style.color, textAlign: item.style.textAlign || "right" }]}>{item.value}</Text>
+                return <Text style={[styles.parsa, { fontSize: 24 + (textSize * 50), color: item.style.color, textAlign: item.style.textAlign || "right" }]}>{item.value}</Text>
             }
         }
-
         if (item.type === 'content') {
-            let grayText = false;
-            let boldText = false;
-            let smallText = false;
-            let comment = { enable: true, id: '', char: '' };
-            return <TouchableOpacity onLongPress={async () => {
-                await indexLongPress(index);
-                if (highlightIndex === index) {
-                    this.props.showCopyModal();
-                }
-            }} selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
-                {item.index ? <Text key={Math.random()} key={Math.random()} style={styles.pasok}>{item.index}</Text> : <></>}
-                {item.value.split(' ').reduce((elements, splitContent, index) => {
-                    let text = splitContent;
-                    if (RegExp('<הערה').test(text)) {
-                        comment.enable = true;
-                        text = text.replace('<הערה', '')
+            return (
+                <TouchableOpacity disabled={highlightIndex === index} onLongPress={async () => {
+                    await indexLongPress(index);
+                    if (highlightIndex === index) {
+                        this.props.showCopyModal();
                     }
-                    if (comment.enable) {
-                        const char = (RegExp(/תו="([^"]+)"/).exec(text));
-                        if (char) {
-                            text = text.replace(/תו="([^"]+)"/g, '')
-                            comment.char = char[1];
-                            const id = (RegExp(/Id="([^"]+)"/).exec(item.value.split(' ')[index + 1]));
-                            if (id) {
-                                comment.id = id[1];
-                            }
-                            this.comments[index] = { ...comment }
-                            elements.push(
-                                <TouchableOpacity onPress={() => { onRefClick(itemIndex, this.comments[index].id, this.comments[index].char) }}>
-                                    <Text key={Math.random()} style={styles.pasokContentComment}> {comment.char} </Text>
-                                </TouchableOpacity>)
-                            return elements
-                        }
-                        text = text.replace(/Id="([^"]+)"/g, '')
-                    }
-                    if (RegExp('</הערה').test(text)) {
-                        comment.enable = false;
-                        text = text.replace('</הערה', '')
-                    }
-                    if (RegExp(`<\s*כתיב[^>]*>(.*?)`).test(text)) {
-                        grayText = true;
-                    }
-                    if (RegExp(`(.*?)<\s*/\s*כתיב>`).test(text)) {
-                        grayText = false;
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentGray}> {removeGrayTag(text)}</Text>)
-                        return elements
-                    }
-                    if (grayText) {
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentGray}>{removeGrayTag(text)}</Text>)
-                        return elements
-                    }
-                    if (RegExp(`<\s*קטן[^>]*>(.*?)`).test(text)) {
-                        smallText = true;
-                    }
-                    if (RegExp(`(.*?)<\s*/\s*קטן>`).test(text)) {
-                        smallText = false;
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(text))}</Text>)
-                        return elements
-                    }
-                    if (smallText) {
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentSmall}> {removeBoldTag(removeSmallTag(text))}</Text>)
-                        return elements
-                    }
-                    if (RegExp(`<\s*דה[^>]*>(.*?)`).test(text) || RegExp(`<\s*הדגשה[^>]*>(.*?)`).test(text)) {
-                        boldText = true;
-                    }
-                    if (RegExp(`(.*?)<\s*/\s*דה>`).test(text) || RegExp(`(.*?)<\s*/\s*הדגשה>`).test(text)) {
-                        boldText = false;
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(text)}</Text>)
-                        return elements
-                    }
-                    if (boldText) {
-                        elements.push(<Text selectable key={Math.random()} style={styles.pasokContentBold}> {removeBoldTag(text)}</Text>)
-                        return elements
-                    }
+                }} selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
+                    <Content options={{textSize:textSize,punctuation,exegesis,grammar}} refClick={(id,char)=>{onRefClick(itemIndex,id,char)}} contentValue={item}></Content>
+                </TouchableOpacity>
+            )
 
-                    elements.push(<Text selectable={true} key={Math.random()} style={styles.pasokContent}> {removeNotNeedContent(text, punctuation, grammar)}</Text>)
-
-                    return elements
-                }, [])}
-                {item.parsaTag && !exegesis ? <Text key={Math.random()} style={styles.pasokLink}>{'פ'}</Text> : <></>}
-            </TouchableOpacity>
         }
         return <></>
     }
 }
+
 
 export const removeNotNeedContent = (content, punctuation, grammar) => {
     const contentWithoutTags = removeTag(content)
@@ -521,7 +448,8 @@ const getStyles = (textSize) => {
         },
         view: {
             width: '100%',
-            padding: 25
+            padding: 25,
+            textAlign: 'justify'
         },
         spinnerContainer: {
             height: 100,
@@ -550,54 +478,13 @@ const getStyles = (textSize) => {
             fontSize: 21 + (textSize * 50),
             paddingVertical: 10
         },
-        pasok: {
-            color: '#455253',
-            fontFamily: "OpenSansHebrewBold",
-            textAlign: 'right',
-            fontSize: 20 + (textSize * 50),
-        },
-        pasokContentBold: {
-            color: '#455253',
-            fontWeight: "bold",
-            textAlign: 'right',
-            fontSize: 20 + (textSize * 50),
-        },
-        pasokLink: {
-            color: '#11AFC2',
-            textAlign: 'right',
-            alignSelf: 'center',
-            fontSize: 12 + (textSize * 50),
-        },
-        pasokContentSmall: {
-            color: '#455253',
-            textAlign: 'right',
-            fontSize: 14 + (textSize * 50),
-        },
-        pasokContentComment: {
-            color: '#00701a',
-            textAlign: 'right',
-            fontSize: 14 + (textSize * 50),
-        },
-        pasokContentGray: {
-            color: '#CBD4D3',
-            textAlign: 'right',
-            fontSize: 17 + (textSize * 50),
-        },
-        pasokContent: {
-            color: '#455253',
-            textAlign: 'right',
-            fontSize: 20 + (textSize * 50),
-        },
         pasokContainer: {
             flexWrap: 'wrap',
-            alignItems: 'center',
+            alignItems: 'flex-end',
             justifyContent: 'flex-start',
-            flexDirection: 'row-reverse',
-
         },
         pasokContainerHighlight: {
             backgroundColor: "#11afc02F"
-
         }
     });
 }
@@ -607,17 +494,16 @@ export const removeGrammar = (content) => {
 }
 
 export const removePunctuation = (content) => {
-    // return ([...content] || []).reduce((newString, char, index) => {
-    //     if (!['?', '!', ',', ".", ":"].includes(char) || [...content].length - 1 === index) {
-    //         newString += char;
-    //     }
-    //     return newString;
-    // }, '')
-    return content
+    return ([...content] || []).reduce((newString, char, index) => {
+        if (!['?', '!', ',', ".", ":"].includes(char) || [...content].length - 1 === index) {
+            newString += char;
+        }
+        return newString;
+    }, '')
 }
 
 export const removeTag = (content) => {
-    return content.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, '').replace('>', '').replace('<', '').replace('/em','')
+    return content.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, '').replace('>', '').replace('<', '').replace('/em', '')
 }
 
 export const removeGrayTag = (content) => {

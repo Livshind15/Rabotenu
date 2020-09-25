@@ -4,7 +4,6 @@ import { StyleSheet, View, ScrollView, Text } from 'react-native';
 import Background from '../../component/background/background';
 import { FlatList } from 'react-native-gesture-handler';
 import { RabotenuContext } from '../../contexts/applicationContext';
-// import results from './acronymResult.mock';
 
 export default function AcronymResult({ route,navigation }) {
     const { results } = route.params;
