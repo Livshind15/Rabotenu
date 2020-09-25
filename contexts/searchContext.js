@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { flatten, isEqual, difference } from 'lodash';
 import { getBooksInGroup, addCheckForResources } from '../containers/resources/resources';
 
