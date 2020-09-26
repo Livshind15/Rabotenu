@@ -88,7 +88,7 @@ const BookNavigator = ({ navigation, route }) => {
         }
     }, [])
 
-    const { selectedBooks, selectedHeaders, selectedIndex,stepBy} = route.params;
+    const { selectedBooks, selectedHeaders, selectedIndex,stepBy,highlight} = route.params;
     const [selectedHeader, setSelectedHeader] = React.useState(selectedHeaders || {header1:'', header2:'', header3:'', header4:'', header5:'', header6:'', header7:''});
     const { booksIds, setBooksIds } = React.useContext(RabotenuContext);
     const [pageBy, setStepBy ] = React.useState(stepBy);
@@ -123,6 +123,7 @@ const BookNavigator = ({ navigation, route }) => {
             setMount={setBookListMount}
             index={initIndex}
             pageBy={pageBy}
+            highlight={highlight||[]}
             mode={pageBy?'page':'scroll'}
             onBookSelect={(bookId, index) => {
                 setInitIndex(index)

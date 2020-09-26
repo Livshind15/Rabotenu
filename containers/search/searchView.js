@@ -18,6 +18,7 @@ import { removeTag, removeBoldTag, removeGrayTag, removeSmallTag } from '../book
 const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 import { flattenHeaders } from '../../component/resourcesTree/resourceTree';
 import Content from '../bookView/contentRender';
+import { RabotenuContext } from '../../contexts/applicationContext';
 
 
 const getSearchContent = async ({ booksIds, searchInput, type, tableInput, headersFilters }) => {
@@ -37,6 +38,12 @@ const getSearchContent = async ({ booksIds, searchInput, type, tableInput, heade
 
 
 const SearchView = ({ navigation, route }) => {
+    const {
+        textSize,
+        grammar,
+        exegesis,
+        punctuation,
+         } = React.useContext(RabotenuContext);
     const { searchInput, searchType, tableInput, resources, cache } = React.useContext(SearchContext);
     const bookIds = resources.map(resource => resource.bookId);
     const getAllBookFilter = React.useCallback(() => {
@@ -78,9 +85,9 @@ const SearchView = ({ navigation, route }) => {
                             }
                             return <Accordian key={index} initExpanded={true} header={header} >
                                 <TouchableOpacity onPress={() => {
-                                    navigation.push('Result', { selectedIndex: item.index, ...getHeaders(item), selectedBooks: [{ bookId: item.bookId }] })
+                                    navigation.push('Result', { selectedIndex: item.index,highlight:item.highlight, ...getHeaders(item), selectedBooks: [{ bookId: item.bookId }] })
                                 }} style={styles.contentContainer}>
-                                    <Content contentValue={content} refClick={() => { }}></Content>
+                                    <Content highlight={item.highlight} contentValue={content} refClick={() => { } } options={{textSize:textSize,punctuation,exegesis,grammar}}></Content>
                                 </TouchableOpacity>
                             </Accordian>
                         }

@@ -340,7 +340,7 @@ class BookViewClass extends React.Component {
 
     renderItem({ item, index }) {
         return (
-            <Item onPrevPage={() => this.onPrev()} onNextPage={() => this.onNext()} textSize={this.props.textSize} onRefClick={(index, id, char) => this.onRefClick(index, id, char)} showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
+            <Item highlight={this.props.highlight} onPrevPage={() => this.onPrev()} onNextPage={() => this.onNext()} textSize={this.props.textSize} onRefClick={(index, id, char) => this.onRefClick(index, id, char)} showCopyModal={() => { this.setState({ showCopyModal: true }) }} indexLongPress={async (index) => this.props.onTextLongPress(this.state.data[index])} indexPress={(pressIndex) => {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
             }} highlightIndex={this.state.highlightIndex} item={item} punctuation={this.props.punctuation} styles={this.styles} index={index} itemIndex={index} textSize={this.props.textSize} grammar={this.props.grammar} exegesis={this.props.exegesis}></Item>
@@ -418,7 +418,7 @@ class Item extends React.Component {
                         this.props.showCopyModal();
                     }
                 }} selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
-                    <Content options={{textSize:textSize,punctuation,exegesis,grammar}} refClick={(id,char)=>{onRefClick(itemIndex,id,char)}} contentValue={item}></Content>
+                    <Content highlight={this.props.highlight} options={{textSize:textSize,punctuation,exegesis,grammar}} refClick={(id,char)=>{onRefClick(itemIndex,id,char)}} contentValue={item}></Content>
                 </TouchableOpacity>
             )
 

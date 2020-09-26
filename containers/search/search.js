@@ -106,13 +106,14 @@ export default function Search({ navigation }) {
 
 export const optionsSearch = [
   { title: 'חיפוש מדוייק', description: "חיפוש מדוייק של מילות החיפוש ללא מרחקים" },
-  { title: 'חיפוש קל', description: "מרחק של עד 3 מילים בין מילות חיפוש" },
+  { title: 'חיפוש קל', description: "חיפוש מדוייק של מילות החיפוש עם מרחקים ביניהם" },
   { title: 'חפש תוצאות קרובות', description: "חפש עם קידומות לכל המילים,כתיב חסר למילים בכתיב מלא, מרחק של עד 30 מילים בין מילה למילה" },
+   { title: 'חפש תוצאות דומות', description: "חפש חיפוש עמום עד 20 אחוז,דלג על מילים עד 40 אחוז" },
   { title: 'חיפוש טבלאי', description: "פתח את החיפוש הטבלאי" },
 
 ]
 
-export const typeToIndex = ['exact', 'close', 'like', 'table'];
+export const typeToIndex = ['exact', 'closeWords', 'wordForms',"likeSearch", 'table'];
 
 const SearchMain = ({ navigation }) => {
   const [isLoading, setLoading] = React.useState(false);
@@ -150,7 +151,7 @@ const SearchMain = ({ navigation }) => {
       <SearchOptionsModel onResources={() => navigation.push('Resources')} openSearchType={() => setShowSearchType(true)} visible={showOptionsSearch} setVisible={setShowOptionsSearch} ></SearchOptionsModel>
       <SearchTypeModel currSelect={typeToIndex.findIndex(item => item === searchType) || 0} onOptionChange={(index) => {
         setSearchType(typeToIndex[index] || 'exact');
-        if (index === 3) {
+        if (index === 4) {
           navigation.push('TableSearch');
           setShowSearchType(false)
         }

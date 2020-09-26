@@ -28,7 +28,7 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
         <Background>
             <SearchTypeModel currSelect={typeToIndex.findIndex(item => item === searchType) || 0} onOptionChange={async (index) => {
                 setSearchType(typeToIndex[index] || 'exact');
-                if (index === 3) {
+                if (index === 4) {
                     navigation.push('TableSearch');
                     setShowSearchType(false)
                 }

@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, Platform, TouchableOpacity } from 'react-native
 
 import { parse } from 'node-html-parser';
 import { removeNotNeedContent } from './bookViewClass';
+import { indexesOf,insertSubString } from '../../utils/helpers';
 
 const contentMap = [{
     originTag: "<\s*פרשה[^>]*>",
@@ -57,15 +58,15 @@ const contentMap = [{
 },
 ]
 const tags = {
-    text: { render: (node, options,styles) => <Text style={styles.text}>{removeNotNeedContent(node.rawText, options.punctuation, options.grammar)}</Text> },
-    parsha: { render: (node, options,styles) => !options.exegesis ? <Text style={styles.parsha}>{node.childNodes[0].rawText}</Text> : <></> },
-    bold: { render: (node, options,styles) => <Text style={styles.bold}>{node.childNodes[0].rawText}</Text> },
-    small: { render: (node, options,styles) => <Text style={styles.small}>{node.childNodes[0].rawText}</Text> },
-    grey: { render: (node, options,styles) => <Text style={styles.grey}>{node.childNodes[0].rawText}</Text> },
-    em: { render: (node, options,styles) => <Text style={styles.highlight}>{node.childNodes[0].rawText}</Text> },
-    hide: { render: (node, options,styles) => <></> },
+    text: { render: (node, options, styles) => <Text style={styles.text}>{removeNotNeedContent(node.rawText, options.punctuation, options.grammar)}</Text> },
+    parsha: { render: (node, options, styles) => !options.exegesis ? <Text style={styles.parsha}>{node.childNodes[0].rawText}</Text> : <></> },
+    bold: { render: (node, options, styles) => <Text style={styles.bold}>{node.childNodes[0].rawText}</Text> },
+    small: { render: (node, options, styles) => <Text style={styles.small}>{node.childNodes[0].rawText}</Text> },
+    grey: { render: (node, options, styles) => <Text style={styles.grey}>{node.childNodes[0].rawText}</Text> },
+    em: { render: (node, options, styles) => <Text style={styles.highlight}>{node.childNodes[0].rawText}</Text> },
+    hide: { render: (node, options, styles) => <></> },
     ref: {
-        render: (node, options,styles, refClick) => {
+        render: (node, options, styles, refClick) => {
             const char = RegExp(/תו="([^"]+)"/).exec(node.rawAttrs)[1];
             const id = RegExp(/Id="([^"]+)"/).exec(node.rawAttrs) ? RegExp(/Id="([^"]+)"/).exec(node.rawAttrs)[1] : null;
             return !options.exegesis ? <TouchableOpacity onPress={() => refClick(id, char)} >
@@ -75,12 +76,12 @@ const tags = {
     },
 }
 
-const contentReduce = (node, options,styles, refClick) => {
-    return tags[node._tag_name || 'text'].render(node, options,styles, refClick)
+const contentReduce = (node, options, styles, refClick) => {
+    return tags[node._tag_name || 'text'].render(node, options, styles, refClick)
 }
 
-const Content = ({ contentValue, refClick, options }) => {
-    const content = contentMap.reduce((content, replace) => {
+const Content = ({ contentValue, highlight = [], refClick, options }) => {
+    let content = contentMap.reduce((content, replace) => {
         return content.replace(new RegExp(replace.originTag, 'g'), replace.tag)
     }, contentValue.value)
     const styles = StyleSheet.create({
@@ -127,13 +128,27 @@ const Content = ({ contentValue, refClick, options }) => {
             fontSize: 16 + options.textSize * 40
         }
     });
+    const highlightPosition = highlight.reduce((position, currHighlight) => {
+        const currPosition = indexesOf(content, currHighlight);
+        position = [...position, ...currPosition.map(position => {
+            return {
+                position,
+                highlight: currHighlight
+            }
+        })]
+        return position;
+    }, []).sort((a, b) => b.position - a.position)
+    content= highlightPosition.reduce((highlightContent,highlight)=>{
+       return insertSubString(highlightContent,highlight.position,`<em>${highlight.highlight}</em>`,highlight.highlight.length-1)
+    },content)
+    // console.log(highlightPosition);
     return (
         <>
             {contentValue.index && contentValue.index.length >= 3 ? <Text style={[styles.index, styles.fullWidth]}>{contentValue.index}</Text> : <></>}
             <View key={Math.random()} style={{ flexDirection: "row-reverse" }}>
                 {contentValue.index && contentValue.index.length < 3 ? <Text style={[styles.index]}>{contentValue.index}</Text> : <></>}
                 <Text style={{ width: "100%", userSelect: 'text', direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }} >
-                    {parse(content).childNodes.map((node) => contentReduce(node, options,styles, refClick))}
+                    {parse(content).childNodes.map((node) => contentReduce(node, options, styles, refClick))}
                 </Text>
             </View>
         </>
