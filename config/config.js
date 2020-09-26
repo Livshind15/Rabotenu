@@ -1,3 +1,3 @@
 export default {
-    serverUrl: 'http://localhost:8080'
+    serverUrl: 'https://rabotenu.herokuapp.com'
 }
