@@ -30,7 +30,7 @@ const getSubBooks = async ([bookId, header]) => {
     let url = `${config.serverUrl}/mapping/groups/childBooks/${bookId}`;
     let params = '';
     headers.forEach(headersType => {
-        if (header[headersType]) {
+        if (header &&header[headersType]) {
             if (params.length) {
                 params += `&${headersType}=${header[headersType]}`
             }
@@ -44,13 +44,12 @@ const getSubBooks = async ([bookId, header]) => {
     return { child: data, info: header } || [];
 }
 
-
-const getParentBooks = async ([bookId, header]) => {
-    let url = `${config.serverUrl}/mapping/groups/parentBook/${bookId}`;
+const getParallelBooks = async ([bookId, header]) => {
+    let url = `${config.serverUrl}/mapping/groups/parallelBooks/${bookId}`;
     let params = '';
 
     headers.forEach(headersType => {
-        if (header[headersType]) {
+        if (header &&header[headersType]) {
             if (params.length) {
                 params += `&${headersType}=${header[headersType]}`
             }
@@ -60,6 +59,25 @@ const getParentBooks = async ([bookId, header]) => {
         }
     })
 
+    const { data } = await axios.get(url + params);
+    return { parent: data, info: header } || [];
+}
+
+
+const getParentBooks = async ([bookId, header]) => {
+    let url = `${config.serverUrl}/mapping/groups/parentBook/${bookId}`;
+    let params = '';
+    headers.forEach(headersType => {
+        if (header && header[headersType]) {
+            if (params.length) {
+                params += `&${headersType}=${header[headersType]}`
+            }
+            else {
+                params += `?${headersType}=${header[headersType]}`
+            }
+        }
+    })
+    
     const { data } = await axios.get(url + params);
     return { parent: data, info: header } || [];
 }
@@ -88,25 +106,28 @@ const BookNavigator = ({ navigation, route }) => {
         }
     }, [])
 
-    const { selectedBooks, selectedHeaders, selectedIndex,stepBy,highlight} = route.params;
-    const [selectedHeader, setSelectedHeader] = React.useState(selectedHeaders || {header1:'', header2:'', header3:'', header4:'', header5:'', header6:'', header7:''});
+    const { selectedBooks, selectedHeaders, selectedIndex, stepBy, highlight } = route.params;
+    const [selectedHeader, setSelectedHeader] = React.useState(selectedHeaders || { header1: '', header2: '', header3: '', header4: '', header5: '', header6: '', header7: '' });
     const { booksIds, setBooksIds } = React.useContext(RabotenuContext);
-    const [pageBy, setStepBy ] = React.useState(stepBy);
+    const [pageBy, setStepBy] = React.useState(stepBy);
     const [currBook, setCurrBook] = React.useState(selectedBooks[0].bookId)
     const [initIndex, setInitIndex] = React.useState(selectedIndex || 0);
     const [bookListMount, setBookListMount] = React.useState(false);
     const [tree, setTree] = React.useState([])
 
     const subBooks = useAsync({ deferFn: getSubBooks })
-    const parentBooks = useAsync({ deferFn: getParentBooks })
+    const parentBooks = useAsync({ deferFn: getParentBooks });
+    const parallelBooks = useAsync({ deferFn: getParallelBooks });
 
     React.useEffect(() => {
         setBooksIds((selectedBooks || []).map(book => book.bookId));
 
     }, [selectedBooks])
     React.useEffect(() => {
+        console.log({currBook})
         subBooks.run(currBook)
         parentBooks.run(currBook)
+        parallelBooks.run(currBook)
 
     }, [currBook])
 
@@ -123,8 +144,10 @@ const BookNavigator = ({ navigation, route }) => {
             setMount={setBookListMount}
             index={initIndex}
             pageBy={pageBy}
-            highlight={highlight||[]}
-            mode={pageBy?'page':'scroll'}
+            setShowBack={setShowBack}
+            parentNavigation = {navigation}
+            highlight={highlight || []}
+            mode={pageBy ? 'page' : 'scroll'}
             onBookSelect={(bookId, index) => {
                 setInitIndex(index)
                 if (!booksIds.includes(bookId)) {
@@ -144,8 +167,6 @@ const BookNavigator = ({ navigation, route }) => {
                 ${text.original.header6 ? text.original.header6 + ' ' : ""}
                 ${text.original.header7 ? text.original.header7 + ' ' : ""}
                  `)
-            
-
                 if (Platform.OS === 'web') {
                     if (navigator.clipboard) {
                         if (copyTitle.enable) {
@@ -174,22 +195,23 @@ const BookNavigator = ({ navigation, route }) => {
                 }
             }}
             onTextSelected={(text) => {
-                const { bookId, header1, header2, header3, header4, header5, header6, header7} = text.original;
+                const { bookId, header1, header2, header3, header4, header5, header6, header7 } = text.original;
 
-                subBooks.run(bookId, {header1, header2, header3, header4, header5, header6, header7})
-                parentBooks.run(bookId,{header1, header2, header3, header4, header5, header6, header7})
+                subBooks.run(bookId, { header1, header2, header3, header4, header5, header6, header7 })
+                parentBooks.run(bookId, { header1, header2, header3, header4, header5, header6, header7 })
+                parallelBooks.run(bookId, { header1, header2, header3, header4, header5, header6, header7 })
 
             }}
             textSize={textSize}
             exegesis={exegesis}
             punctuation={punctuation}
             grammar={grammar} />
-    }, [currBook, selectedHeader,pageBy, copyTitle, booksIds, textSize, exegesis, grammar, punctuation, initIndex, godReplace
+    }, [currBook, selectedHeader, pageBy, copyTitle, booksIds, textSize, exegesis, grammar, punctuation, initIndex, godReplace
 
     ])
     const bookList = React.useCallback((props) => {
         return <BookList
-         
+
             bookId={currBook}
             {...props}
             onSelect={(select) => {
@@ -220,17 +242,21 @@ const BookNavigator = ({ navigation, route }) => {
     }, [textSize, grammar, exegesis, flavors, punctuation])
 
     const bookMenu = React.useCallback((props) => {
-        return <BookMenu {...props} childData={subBooks.data} parentData={parentBooks.data} isPending={subBooks.isPending} onBookSelect={(book, info) => {
+        return <BookMenu {...props} childData={subBooks.data} parallelData={parallelBooks.data} parentData={parentBooks.data} isPending={subBooks.isPending} onBookSelect={(book, info) => {
             setSelectedHeader(info)
-            console.log({info});
-          
-            setStepBy(  getLastHeader(info))
+            console.log({ info });
+            if(info){
+                setStepBy(getLastHeader(info))
+            }
+            else{
+                setStepBy(null);
+            }
             if (!booksIds.includes(book)) {
                 setBooksIds([...booksIds, book])
             }
             setCurrBook(book)
         }} bookId={currBook} />
-    }, [booksIds, currBook, subBooks, parentBooks])
+    }, [booksIds, currBook, subBooks, parentBooks,parallelBooks])
 
 
     return (

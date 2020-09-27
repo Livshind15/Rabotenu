@@ -14,6 +14,7 @@ import ExploreTreeView from './exploreTreeView'
 import ExploreAddReplace from './exploreAddReplace';
 import BookNavigator from '../bookNavigator/bookNavigator'
 import config from "../../config/config";
+import { debounce } from 'lodash';
 
 
 const Stack = createStackNavigator();
@@ -82,42 +83,43 @@ const SearchExploreRoutes = () => {
 const ExploreMain = ({ navigation, replaceInput, addInput }) => {
   const [input, setInput] = React.useState('');
   const [isLoading, setLoading] = React.useState(false);
-  const onSubmit = async () => {
-    if (!isLoading) {
-      setLoading(true)
-      const newInput = replaceInput.reduce((input, currReplace) => {
-        input = input.replace(currReplace.srcInput, currReplace.desInput)
-        return input;
-      }, input)
-      const addInputs =  addInput.reduce((addInput, inputToAdd)=> {
-        if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
-          addInput.push(inputToAdd.desInput)
-        }
-        return addInput;
-      }, [])
-      const result = await getBooksByByQuery([newInput,...addInputs]);
-      if (result.length === 1) {
 
-        const tree = (await getBookTree([result[0].bookId]))[0].tree;
-        const queryTree = removeEmptyHeaders(filterTree(tree, result[0].headers));
-        navigation.push('ResultView', { result: flattenHeaders(queryTree, {}).map(res => { return { filters: res, ...result[0] } }), searchInput: input });
+  const onSearch = debounce(async (text) => {
+    const newInput = replaceInput.reduce((input, currReplace) => {
+      input = input.replace(currReplace.srcInput, currReplace.desInput)
+      return input;
+    }, text)
+    const addInputs = addInput.reduce((addInput, inputToAdd) => {
+      if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
+        addInput.push(inputToAdd.desInput)
+      }
+      return addInput;
+    }, [])
+    setLoading(true)
+    const result = await getBooksByByQuery([newInput, ...addInputs])
+    if (result.length === 1) {
+      const tree = (await getBookTree([result[0].bookId]))[0].tree;
+      const queryTree = removeEmptyHeaders(filterTree(tree, result[0].headers));
+      navigation.push('ResultView', { result: flattenHeaders(queryTree, {}).map(res => { return { filters: res, ...result[0] } }), searchInput: input });
 
-      }
-      else {
-        navigation.push('ResultView', { result: result, searchInput: input });
-      }
-      setLoading(false)
-  }
-}
+    }
+    else {
+      navigation.push('ResultView', { result: result, searchInput: input });
+    }
+    setLoading(false)
+
+  }, 100)
+
+  
   return (
     <Background>
       <View style={styles.page}>
         <View style={styles.input}>
-          <Input onSubmit={onSubmit} isLoading={isLoading} value={input} onChange={setInput} placeholder={"חיפוש חופשי"} />
+          <Input onSubmit={()=>{onSearch(input)}} isLoading={isLoading} value={input} onChange={setInput} placeholder={"חיפוש חופשי"} />
         </View>
         <View style={styles.button}>
           <View style={styles.buttonWrapper}>
-            <ClickButton optionsButton={{ paddingVertical: 6 }} onPress={onSubmit}>חיפוש</ClickButton>
+            <ClickButton optionsButton={{ paddingVertical: 6 }} onPress={()=>{onSearch(input)}}>חיפוש</ClickButton>
           </View>
           <TouchableOpacity
             underlayColor="#ffffff00"

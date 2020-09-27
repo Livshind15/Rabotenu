@@ -8,7 +8,7 @@ import ClickButton from '../../component/clickButton/clickButton';
 import { getBooksByByQuery, getBookTree } from './explore'
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
-import { isEmpty } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import OctIcons from "react-native-vector-icons/Octicons";
 
 import { FlatList } from 'react-native-gesture-handler';
@@ -83,68 +83,52 @@ function ExploreResultView({ route, navigation, replaceInput, addInput }) {
 
   const selectedBooks = () => exploreResult.filter(result => result.isCheck);
 
+  const onSearch = debounce(async (text) => {
+    const newInput = replaceInput.reduce((input, currReplace) => {
+      input = input.replace(currReplace.srcInput, currReplace.desInput)
+      return input;
+    }, text)
+    const addInputs = addInput.reduce((addInput, inputToAdd) => {
+      if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
+        addInput.push(inputToAdd.desInput)
+      }
+      return addInput;
+    }, [])
+    setLoading(true)
+    const result = await getBooksByByQuery([newInput, ...addInputs]).then(res => {
+      if (res.length !== 1) {
+        setLoading(false)
+        return res
+      }
+      return res
+    })
+    if (result.length === 1) {
+      const treeRes  = await getBookTree([result[0].bookId]).then(res=>{
+        setLoading(false)
+        return res
+      });
+      const tree = treeRes[0].tree;
+      const queryTree = removeEmptyHeaders(filterTree(tree, result[0].headers));
+      setResult(flattenHeaders(queryTree, {}).map(res => { return { filters: res, ...result[0] } }))
+
+    }
+    else {
+      setResult(result)
+    }
+
+  }, 1000)
+
   return (
     <Background>
       <View style={styles.page}>
         <View style={styles.input}>
           <View style={styles.buttonWrapper}>
-            <ClickButton outline={true} optionsButton={{ paddingVertical: 8 }} onPress={async () => {
-              if (!isLoading) {
-                setLoading(true)
-                const newInput = replaceInput.reduce((input, currReplace) => {
-                  input = input.replace(currReplace.srcInput, currReplace.desInput)
-                  return input;
-                }, input)
-                const addInputs = addInput.reduce((addInput, inputToAdd) => {
-                  if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
-                    addInput.push(inputToAdd.desInput)
-                  }
-                  return addInput;
-                }, [])
-                const result = await getBooksByByQuery([newInput, ...addInputs]);
-                if (result.length === 1) {
-
-                  const tree = (await getBookTree([result[0].bookId]))[0].tree;
-                  const queryTree = removeEmptyHeaders(filterTree(tree, result[0].headers));
-                  setResult(flattenHeaders(queryTree, {}).map(res => { return { filters: res, ...result[0] } }))
-
-                }
-                else {
-                  setResult(result)
-                }
-                setLoading(false)
-              }
-            }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
+            <ClickButton outline={true} optionsButton={{ paddingVertical: 8 }} onPress={() => onSearch(input)} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
           </View>
           <View style={styles.inputWrapper}>
             <Input value={input} isLoading={isLoading} onChange={async (text) => {
-              setInput(text)
-              if (!isLoading) {
-                setLoading(true)
-                const newInput = replaceInput.reduce((input, currReplace) => {
-                  input = input.replace(currReplace.srcInput, currReplace.desInput)
-                  return input;
-                }, text)
-                const addInputs = addInput.reduce((addInput, inputToAdd) => {
-                  if (inputToAdd.srcInput.length && newInput.includes(inputToAdd.srcInput)) {
-                    addInput.push(inputToAdd.desInput)
-                  }
-                  return addInput;
-                }, [])
-                const result = await getBooksByByQuery([newInput, ...addInputs]);
-
-                if (result.length === 1) {
-
-                  const tree = (await getBookTree([result[0].bookId]))[0].tree;
-                  const queryTree = removeEmptyHeaders(filterTree(tree, result[0].headers));
-                  setResult(flattenHeaders(queryTree, {}).map(res => { return { filters: res, ...result[0] } }))
-
-                }
-                else {
-                  setResult(result)
-                }
-                setLoading(false)
-              }
+              setInput(text);
+              onSearch(text);
             }} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
           </View>
         </View>

@@ -5,7 +5,7 @@ import axios from "axios";
 import Icon from "react-native-vector-icons/AntDesign";
 import config from "../../config/config";
 import { delay } from '../../utils/helpers';
-import { isEmpty } from 'lodash';
+import { isEmpty, uniqBy } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
@@ -31,6 +31,7 @@ class BookViewClass extends React.Component {
             bookId: this.props.bookId,
             bookInfo: {},
         }
+        
         this.styles = getStyles(this.props.textSize);
         this.headersFilter = { header1: "", header2: "", header3: "", header4: "", header5: "", header6: "", header7: "" }
         this.currHeader = {};
@@ -38,7 +39,15 @@ class BookViewClass extends React.Component {
         this.headers = ['', '', '', '', '', '', '', '']
     }
 
+    componentWillUnmount(){
+        this.props.setShowBack({ enable: false, navigation:null})
+
+    }
+
     async componentDidMount() {
+       
+        this.props.setShowBack({ enable: true, navigation:this.props.navigation })
+  
         delay(1000).then(() => {
             this.props.setMount(true)
         })
@@ -86,7 +95,7 @@ class BookViewClass extends React.Component {
 
 
     bookToElements(bookContent) {
-        const elements = bookContent.reduce((elements, content, index) => {
+        const elements = uniqBy(bookContent,'index').reduce((elements, content, index) => {
             if (!this.bookName.includes(content.bookName)) {
                 this.bookName = [...this.bookName, content.bookName]
                 elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName, original: content })
@@ -172,7 +181,7 @@ class BookViewClass extends React.Component {
     async getContentIndex(bookId, header) {
         let url = `${config.serverUrl}/book/content/${bookId}?size=1`;
         headers.forEach(headersType => {
-            if (header[headersType]) {
+            if (header && header[headersType]) {
                 url += `&${headersType}=${header[headersType]}`
             }
         })
