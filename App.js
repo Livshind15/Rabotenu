@@ -78,7 +78,7 @@ const Routes = (props) => {
   return (
     <>
       <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE' }}>
-        <Stack.Screen name="Home" options={{ headerShown: false, title }} component={Home} />
+        <Stack.Screen name="Home" options={{ headerShown: false,title: 'רבותינו'   }} component={Home} />
         <Stack.Screen name="Main" options={(props) => {
           return {
             ...screenOptions,

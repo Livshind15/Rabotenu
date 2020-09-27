@@ -5,9 +5,7 @@
     "ios": "react-native run-ios",
     "web": "expo start --web",
     "build": "expo build:web",
-    "start": "react-native start",
-    "test": "jest"
-  },
+    "start": "react-native start"  },
   "dependencies": {
     "@eva-design/eva": "^2.0.0",
     "@expo/webpack-config": "^0.12.16",
