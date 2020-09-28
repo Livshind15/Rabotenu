@@ -3,12 +3,9 @@ import { StyleSheet, ScrollView, View } from 'react-native';
 
 
 import Background from '../../component/background/background';
-import ResourceTree, { addCheckForBookHeaders } from '../../component/resourcesTree/resourceTree';
-import { flatten } from 'lodash';
-import ErrorModel from '../../component/modalError/modalError';
-import { getBookTree } from '../explore/exploreTreeView';
+import ResourceTree from '../../component/resourcesTree/resourceTree';
 import { SearchContext } from '../../contexts/searchContext';
-import { getBookInfo } from './resources';
+import { getBookInfo } from './resources.utils';
 
 
 const ResourcesTreeView = ({ navigation }) => {

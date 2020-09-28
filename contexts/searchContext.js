@@ -1,7 +1,7 @@
 import * as React from 'react';
-import AsyncStorage from '@react-native-community/async-storage';
+import { AsyncStorage } from 'react-native';
 import { flatten, isEqual, difference } from 'lodash';
-import { getBooksInGroup, addCheckForResources } from '../containers/resources/resources';
+import { getBooksInGroup, addCheckForResources } from '../containers/resources/resources.utils';
 
 const ResourcesGroupsKey = 'RabotenuResourceGroups';
 const ResourcesGroupSelectedKey = 'RabotenuResourceGroupSelected';

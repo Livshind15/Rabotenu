@@ -4,7 +4,8 @@ import Background from '../../component/background/background';
 import { ScrollView } from 'react-native-gesture-handler';
 import ClickButton from '../../component/clickButton/clickButton';
 import Input from '../../component/input/input';
-import Icon from "react-native-vector-icons/Entypo";
+import { Entypo } from '@expo/vector-icons'; 
+
 
 
 const TableSearch = ({ onSave, navigation, tableInit }) => {
@@ -43,7 +44,7 @@ const TableSearch = ({ onSave, navigation, tableInit }) => {
                                         })}
                                         underlayColor="#ffffff00"
                                     >
-                                        <Icon name={'plus'} size={20} color={'#ffffff'}></Icon>
+                                        <Entypo name={'plus'} size={20} color={'#ffffff'}/>
                                     </TouchableOpacity>
                                 </View>}
                             </>

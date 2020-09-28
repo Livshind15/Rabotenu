@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+
 import Accordian from '../../component/accordian/accordian';
-import Feather from 'react-native-vector-icons/Feather';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import { isEmpty } from 'lodash';
 
 const getParentBook = (result) => {

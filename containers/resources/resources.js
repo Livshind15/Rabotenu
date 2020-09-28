@@ -9,59 +9,19 @@ import ResourcesTreeView from './resourcesTree';
 import ResourcesGroups from './resourcesGroups';
 
 import ErrorModel from '../../component/modalError/modalError';
-import { flatten, isEqual, difference } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
 import { SearchContext } from '../../contexts/searchContext';
 import { RabotenuContext } from '../../contexts/applicationContext';
-import { getBookTree } from '../explore/exploreTreeView';
-import { addCheckForBookHeaders, changeCheckById } from '../../component/resourcesTree/resourceTree';
+import { changeCheckById } from '../../component/resourcesTree/resourceTree';
+import {  addCheckForResources,getAllBooksFromGroups } from './resources.utils';
+
 
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-export const getBooksInGroup = (groups, allGroups) => {
-    return groups.reduce((groups, group) => {
-        let removeResource = { booksId: [], groupIds: '' }
-        removeResource.booksId = (group.books || []).reduce((books, book) => {
-            if (!book.isCheck || allGroups) {
-                books.push(book.bookId)
-            }
-            return books;
-        }, [])
-        if (!group.isCheck || allGroups) {
-            removeResource.groupIds = group.groupId;
-        }
-        groups.push(removeResource)
-
-        if (group.subGroups && group.subGroups.length) {
-            groups = [...groups, ...flatten(getBooksInGroup(group.subGroups, allGroups))]
-
-        }
-        return groups
-    }, [])
-
-}
 
 
 
-export const getAllBooksFromGroups = (groups) => {
-    return groups.reduce((resources, group) => {
-        resources = [...resources, ...(group.books || []).reduce((books, book) => {
-            if (book.isCheck) {
-                books.push({ ...book, groupName: group.groupName, groupId: group.groupId })
-            }
-
-            return books;
-        }, [])]
-
-        if (group.subGroups && group.subGroups.length) {
-            resources = [...resources, ...(getAllBooksFromGroups(group.subGroups))]
-
-        }
-        return resources;
-    }, [])
-
-}
 export const removeResourceFromTree = (resources, keys) => {
     return resources.map(resource => {
         const books = resource.books.map(book => {
@@ -79,32 +39,10 @@ export const removeResourceFromTree = (resources, keys) => {
 }
 
 
-export const addCheckForResources = (resources, check) => {
-    return resources.map(resource => {
-        const books = resource.books.map(book => {
-            return { ...book, isCheck: check }
-        })
-        let subGroups = []
-        if (resource.subGroups.length) {
-            subGroups = addCheckForResources(resource.subGroups, check)
-        }
-        return { ...resource, books, subGroups, isCheck: check }
-    })
-}
 
-export const getBookInfo = async (bookId, state, cache) => {
-    if (cache[bookId]) {
-        return cache[bookId]
-    }
-    const res = await getBookTree([bookId]).then((res) => {
-        return { ...res[0], tree: addCheckForBookHeaders(res[0].tree, state,true) }
-    })
-
-    return res;
-}
 
 const Resources = ({ navigation }) => {
-    const { selectedGroup, setSelectedGroup,cache,setCache, allResourceToggle, setResourceToggle, setResourcesGroups, resourcesGroups, resourcesData, resources, setRemoveResources, setResources, removeResource } = React.useContext(SearchContext);
+    const { selectedGroup, setSelectedGroup,cache,setCache, allResourceToggle, setResourceToggle, setResourcesGroups, resourcesGroups, resourcesData, resources, setResources } = React.useContext(SearchContext);
     const [showErrorModel, setShowErrorModel] = React.useState(false);
 
     const {

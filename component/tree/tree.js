@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import OctIcons from "react-native-vector-icons/Octicons";
+import { Entypo } from '@expo/vector-icons'; 
+
+
 import Accordian from '../../component/accordian/accordian';
 import { flatten } from 'lodash';
 
@@ -36,7 +38,7 @@ const Tree = ({navigation, results, deep = 0 }) => (
                     {((result.books) || []).map((book, index) => <TouchableOpacity underlayColor="#ffffff00" key={index} style={[styles.resultContainer, { paddingRight: (40 + (10 * deep)) }]}>
                         <View style={styles.bookContainer}>
                             <View style={styles.bookName}>
-                                <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
+                                <Entypo name={'book'} size={22} color={'#9AD3CE'}></Entypo>
                                 <Text style={styles.resultText}>{book.bookName.replace('_','"')}</Text>
                             </View>
                             <View style={styles.endContainer}>

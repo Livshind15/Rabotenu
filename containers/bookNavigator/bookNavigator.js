@@ -10,7 +10,9 @@ import config from "../../config/config";
 import BookDisplay from '../bookDisplay/bookDisplay';
 import Copy from '../copy/copy';
 import BookMenu from '../../component/bookMenu/bookMenu';
-import BookViewClass, { removeNotNeedContent } from '../bookView/bookViewClass';
+import BookViewClass from '../bookView/bookViewClass';
+import { removeNotNeedContent } from '../bookView/bookView.utils';
+
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { RabotenuContext } from '../../contexts/applicationContext';

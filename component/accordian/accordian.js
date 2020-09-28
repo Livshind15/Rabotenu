@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, LayoutAnimation, Platform, UIManager } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function Accordian({ children, onToggleClick, onLongPress = () => { }, onExpanded = () => { }, shouldExpanded = true, header, initExpanded = false, endToggle = false, customStyles = { container: {}, header: {} }, additionalComponent, index }) {
     const [expanded, setExpanded] = React.useState(initExpanded);
@@ -30,7 +30,7 @@ export default function Accordian({ children, onToggleClick, onLongPress = () =>
                 {endToggle && shouldExpanded &&
                     <TouchableOpacity onPress={()=>onToggleClick? onToggleClick(!expanded):toggleExpand() } underlayColor="#ffffff00">
 
-                        <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />
+                        <MaterialIcons name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />
                     </TouchableOpacity>}
                 <View style={styles.toggleAndText}>
 
@@ -38,7 +38,7 @@ export default function Accordian({ children, onToggleClick, onLongPress = () =>
                     {!endToggle && shouldExpanded &&
                         <TouchableOpacity onPress={()=> onToggleClick?onToggleClick(!expanded):toggleExpand() } underlayColor="#ffffff00">
 
-                            <Icon name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />
+                            <MaterialIcons name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} color={'#A0A0A0'} size={30} />
                         </TouchableOpacity>}
                 </View>
                 {additionalComponent && endToggle && <View style={styles.additionalComponentStart}>

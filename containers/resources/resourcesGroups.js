@@ -5,8 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Background from '../../component/background/background';
 import ClickButton from '../../component/clickButton/clickButton';
 import { ScrollView } from 'react-native-gesture-handler';
-import Icon from "react-native-vector-icons/AntDesign";
-import IconEvilIcons from "react-native-vector-icons/EvilIcons";
+import { EvilIcons,AntDesign } from '@expo/vector-icons'; 
 import GroupEdit from './groupEdit';
 const Stack = createStackNavigator();
 
@@ -27,7 +26,7 @@ const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect,curr
                                     <TouchableOpacity underlayColor="#ffffff00" onPress={() => {
                                         removeGroup(groupId)
                                     }}>
-                                        <Icon color={'#47BBB2'} name={'close'} size={20} />
+                                        <AntDesign color={'#47BBB2'} name={'close'} size={20} />
                                     </TouchableOpacity>
                                     <Text style={styles.resourceName}>{groups[groupId].groupName}</Text>
                                 </View>
@@ -36,7 +35,7 @@ const ResourcesGroups = ({ navigation, groups, selectedGroup, onGroupSelect,curr
                                     <TouchableOpacity onPress={() => {
                                         navigation.push('edit', { edit: false,cache: groups[groupId].cache, resources: groups[groupId].resources, groupName: groups[groupId].groupName, groupId, onSave: onSave })
                                     }} underlayColor="#ffffff00">
-                                        <IconEvilIcons color={'#B4B4B4'} name={'pencil'} size={40}></IconEvilIcons>
+                                        <EvilIcons color={'#B4B4B4'} name={'pencil'} size={40}/>
                                     </TouchableOpacity>
                                     <TouchableOpacity underlayColor="#ffffff00">
                                         <Text onPress={() => onGroupSelect(groupId)} style={[styles.viewText, groupId !== selectedGroup ? styles.viewTextDisable : '']}>{"בחר"}</Text>

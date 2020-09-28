@@ -2,7 +2,8 @@ import * as React from 'react';
 import Background from '../../component/background/background';
 import { View, FlatList, StyleSheet, Platform, Text, TouchableOpacity, TextInput } from 'react-native';
 import axios from "axios";
-import Icon from "react-native-vector-icons/AntDesign";
+import { AntDesign } from '@expo/vector-icons'; 
+
 import config from "../../config/config";
 import { delay } from '../../utils/helpers';
 import { isEmpty, uniqBy } from 'lodash';
@@ -404,12 +405,12 @@ class Item extends React.Component {
         if (item.type === 'startButton') {
             return <TouchableOpacity disabled={this.state.start} onPress={async () => {
                 this.setState({ start: !(await onPrevPage()) })
-            }} style={styles.prevPage}><Icon color={this.state.start ? "#455253" : "#11AFC2"} size={30} name={'up'} /></TouchableOpacity>
+            }} style={styles.prevPage}><AntDesign color={this.state.start ? "#455253" : "#11AFC2"} size={30} name={'up'} /></TouchableOpacity>
         }
         if (item.type === 'endButton') {
             return <TouchableOpacity disabled={this.state.end} onPress={async () => {
                 this.setState({ end: !(await onNextPage()) })
-            }} style={styles.nextPage}><Icon color={this.state.end ? "#455253" : "#11AFC2"} size={30} name={'down'} /></TouchableOpacity>
+            }} style={styles.nextPage}><AntDesign color={this.state.end ? "#455253" : "#11AFC2"} size={30} name={'down'} /></TouchableOpacity>
         }
         if (item.type === 'bookName') {
             return <Text style={styles.book}>{item.value.replace('_', '"')}</Text>
@@ -437,10 +438,6 @@ class Item extends React.Component {
 }
 
 
-export const removeNotNeedContent = (content, punctuation, grammar) => {
-    const contentWithoutTags = removeTag(content)
-    return punctuation ? removePunctuation((grammar ? removeGrammar(contentWithoutTags) : contentWithoutTags)) : (grammar ? removeGrammar(contentWithoutTags) : contentWithoutTags)
-}
 
 const getStyles = (textSize) => {
     return StyleSheet.create({
@@ -498,31 +495,5 @@ const getStyles = (textSize) => {
     });
 }
 
-export const removeGrammar = (content) => {
-    return content.replace(/[^א-ת\s,:;־.-]/g, '')
-}
-
-export const removePunctuation = (content) => {
-    return ([...content] || []).reduce((newString, char, index) => {
-        if (!['?', '!', ',', ".", ":"].includes(char) || [...content].length - 1 === index) {
-            newString += char;
-        }
-        return newString;
-    }, '')
-}
-
-export const removeTag = (content) => {
-    return content.replace(/<([^>]+?)([^>]*?)>(.*?)<\/\1>/ig, '').replace('>', '').replace('<', '').replace('/em', '')
-}
-
-export const removeGrayTag = (content) => {
-    return content.replace(new RegExp(/<.כתיב./, 'g'), '').replace(/<\/?כתיב>/g, '')
-}
-export const removeSmallTag = (content) => {
-    return content.replace(new RegExp(/<קטן>/, 'g'), '').replace(/<\/?קטן>/g, '')
-}
-export const removeBoldTag = (content) => {
-    return content.replace(new RegExp(/<.דה./, 'g'), '').replace(/<\/?דה>/g, '').replace(new RegExp(/<.הדגשה./, 'g'), '').replace(/<\/?הדגשה>/g, '')
-}
 
 export default optimizeHeavyScreen(BookViewClass, PlaceHolder)

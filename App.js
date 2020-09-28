@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as eva from '@eva-design/eva';
 import 'react-native-gesture-handler';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
 import { useFonts } from '@use-expo/font';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -13,12 +13,15 @@ import Splash from './containers/splash/splash';
 import Logo from './component/logo/logo';
 import MainNavigator from './containers/mainNavigator/mainNavigator';
 import { RabotenuProvider, RabotenuContext } from './contexts/applicationContext';
-import Icons from "react-native-vector-icons/MaterialIcons";
+import { MaterialIcons } from '@expo/vector-icons';
+
 import { SearchContext, SearchProvider } from './contexts/searchContext';
 import config from "./config/config";
 import { useAsync } from "react-async";
 import axios from "axios";
-import { addCheckForResources } from './containers/resources/resources';
+import { addCheckForResources } from './containers/resources/resources.utils';
+import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
+
 
 const Stack = createStackNavigator();
 export const getGroups = async () => {
@@ -34,7 +37,7 @@ function App() {
 
   });
   const [isDelay, setDelay] = React.useState(false)
-  const {  setResources,setData,allResourceToggle } = React.useContext(SearchContext);
+  const { setResources, setData, allResourceToggle } = React.useContext(SearchContext);
   const { data, error, isPending } = useAsync({ promiseFn: getGroups })
 
   const [isInitialized, setInitialized] = React.useState(false)
@@ -42,13 +45,13 @@ function App() {
     if (fontsLoaded && isDelay && !isPending) {
       setInitialized(true);
     }
-  }, [fontsLoaded, isDelay,isPending]);
+  }, [fontsLoaded, isDelay, isPending]);
   setTimeout(() => {
     setDelay(true)
   }, 1500);
   React.useEffect(() => {
     if (data && data.length) {
-      if(allResourceToggle){
+      if (allResourceToggle) {
         setResources(addCheckForResources(data, true))
       }
       setData(data)
@@ -57,11 +60,16 @@ function App() {
 
 
   return (
-    <ApplicationProvider {...eva} theme={{ ...eva.light, ...myTheme }}>
-      <NavigationContainer>
-        {isInitialized ? <Routes /> : <Splash />}
-      </NavigationContainer>
-    </ApplicationProvider>
+    <SafeAreaProvider >
+      <ApplicationProvider {...eva} theme={{ ...eva.light, ...myTheme }}>
+        <NavigationContainer>
+          {/* <SafeAreaView style={{flex:1,backgroundColor:'#00AABE'}}> */}
+          {isInitialized ? <Routes /> : <Splash />}
+
+          {/* </SafeAreaView> */}
+        </NavigationContainer>
+      </ApplicationProvider>
+    </SafeAreaProvider>
   );
 }
 export default () =>
@@ -74,25 +82,27 @@ export default () =>
 
 const Routes = (props) => {
   const { title, showBack } = React.useContext(RabotenuContext);
+  const insets = useSafeAreaInsets();
 
   return (
-    <>
-      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE' }}>
-        <Stack.Screen name="Home" options={{ headerShown: false,title: 'רבותינו'   }} component={Home} />
+    <View style={{ paddingBottom: insets.bottom, flex: 1, width: '100%' }}>
+      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE', }}>
+        <Stack.Screen name="Home" options={{ headerShown: false, title: 'רבותינו' }} component={Home} />
         <Stack.Screen name="Main" options={(props) => {
           return {
+            safeAreaInsets: { top: insets.top, bottom: insets.bottom },
             ...screenOptions,
-            headerRight: () => showBack.enable ? <TouchableOpacity  underlayColor="#ffffff00" style={{ marginRight: 12 }} onPress={() => {
+            headerRight: () => showBack.enable ? <TouchableOpacity underlayColor="#ffffff00" style={{ marginRight: 12 }} onPress={() => {
               if (showBack.navigation) {
                 showBack.navigation.goBack()
               }
-            }} ><Icons name={'keyboard-arrow-right'} size={35} color={'#00AABE'} /></TouchableOpacity> : <></>,
+            }} ><MaterialIcons name={'keyboard-arrow-right'} size={35} color={'#00AABE'} /></TouchableOpacity> : <></>,
 
             title,
           }
         }} component={MainNavigator} />
       </Stack.Navigator>
-    </>
+    </View>
   )
 }
 
@@ -113,7 +123,11 @@ const styles = StyleSheet.create({
 
 const screenOptions = {
   headerTitleStyle: styles.headerTitle,
-  headerLeft: ({ onPress }) => <Logo options={{ marginLeft: 12 }} onPress={onPress} />,
+  headerLeft: ({ onPress }) => <Logo options={{ marginLeft: 12 }} onPress={() => {
+    StatusBar.setBarStyle('dark-content', true);
+
+    onPress()
+  }} />,
 
 
   headerStyle: {

@@ -5,22 +5,22 @@
     "name": "Rabotenu",
     "slug": "rabotenu",
     "version": "1.0.0",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "icon": "./assets/icon.png",
+    "platforms": ["ios", "android", "web"],
+    "assetBundlePatterns": ["**/*"],
+
     "packagerOpts": {
       "config": "metro.config.js",
       "sourceExts": [
-        "js",
-        "jsx",
+        "expo.ts",
+        "expo.tsx",
+        "expo.js",
+        "expo.jsx",
         "ts",
         "tsx",
+        "js",
+        "jsx",
+        "json",
+        "wasm",
         "svg"
       ]
     },
@@ -28,18 +28,20 @@
       "image": "./assets/background.png",
       "resizeMode": "cover",
       "backgroundColor": "#FFFFFF"
- 
- 
     },
     "ios": {
       "splash": {
         "image": "./assets/background.png",
         "resizeMode": "cover"
       },
+      "icon": "./assets/icon.png",
+
       "bundleIdentifier": "org.markup.exp"
     },
     "android": {
-	      "package": "rabotenu.livshin.com",
+      "package": "rabotenu.livshin.com",
+      "icon": "./assets/icon.png",
+
       "splash": {
         "mdpi": "./assets/background.png",
         "hdpi": "./assets/background.png",

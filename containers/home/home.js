@@ -5,9 +5,13 @@ import Background from '../../component/background/background';
 import { RabotenuContext } from '../../contexts/applicationContext';
 
 export default function Home({ navigation }) {
-    StatusBar.setBarStyle('dark-content', true);
     const { setTitle } = React.useContext(RabotenuContext);
-
+    React.useEffect(()=>{
+        StatusBar.setBarStyle('dark-content', true);
+        return () => {
+            StatusBar.setBarStyle('light-content', true);
+        }
+    },[])
     return (
         <Background>
             <Text style={styles.text}>בחר את אופן החיפוש:</Text>

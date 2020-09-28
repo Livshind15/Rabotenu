@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import OctIcons from "react-native-vector-icons/Octicons";
-import Icon from "react-native-vector-icons/Entypo";
+import { Entypo } from '@expo/vector-icons';
+
 import Accordian from '../accordian/accordian';
 import BookListTree from '../bookListTree/bookListTree'
 import { isEmpty } from 'lodash';
@@ -9,7 +9,7 @@ import { Spinner } from '@ui-kitten/components';
 
 const ExploreTree = ({ getBookInfo, navigation, groups = [], deep = 0 }) => {
     return (groups || []).map((group, index) => {
-        return <Accordian key={index} customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={group.groupName.replace('_', '"') || ''} additionalComponent={<Icon name={'folder'} size={22} color={'#515151'} />}>
+        return <Accordian key={index} customStyles={{ container: { paddingRight: 18 + (10 * deep) } }} key={index} index={index} header={group.groupName.replace('_', '"') || ''} additionalComponent={<Entypo name={'folder'} size={22} color={'#515151'} />}>
             {group.subGroups && group.subGroups && group.subGroups.length || group.books.length ? <View style={styles.innerScroll}>
                 {group.subGroups && group.subGroups.length ? <ExploreTree getBookInfo={getBookInfo} navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
                 {group.books.length ? ((group.books) || []).map((book, index) => {
@@ -41,7 +41,7 @@ const ExploreTree = ({ getBookInfo, navigation, groups = [], deep = 0 }) => {
                         shouldExpanded={!isEmpty(info) && !isEmpty(info.tree)}
                         additionalComponent={
                             <TouchableOpacity style={{ paddingRight: 25 + (10 * deep), paddingLeft: 5 }} onPress={() => navigation.push('Result', { selectedBooks: [{ bookId: book.bookId }] })} underlayColor="#ffffff00">
-                                {isLoading ? <Spinner></Spinner> : <OctIcons name={'book'} size={22} color={'#9AD3CE'} />}
+                                {isLoading ? <Spinner></Spinner> : <Entypo name={'book'} size={22} color={'#9AD3CE'} />}
                             </TouchableOpacity>} endToggle={true} header={book.bookName.replace('_', '"')}  >
                         {!isEmpty(info) && !isEmpty(info.tree) ? <BookListTree  onSelect={(select) => {
                             

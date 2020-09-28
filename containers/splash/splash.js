@@ -5,7 +5,12 @@ import Background from '../../component/background/background';
 import image from './splash.logo.png';
 
 export default function Splash() {
-    StatusBar.setBarStyle('dark-content', true);
+    React.useEffect(() => {
+        StatusBar.setBarStyle('dark-content', true);
+        return () => {
+            StatusBar.setBarStyle('light-content', true);
+        }
+    }, [])
     return (
         <Background>
             <View style={styles.container}>

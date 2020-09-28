@@ -5,7 +5,8 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import Background from '../../component/background/background';
 import ClickButton from '../../component/clickButton/clickButton';
 import { ScrollView, FlatList } from 'react-native-gesture-handler';
-import Icon from "react-native-vector-icons/AntDesign";
+import { AntDesign } from '@expo/vector-icons'; 
+
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { flattenHeaders } from '../../component/resourcesTree/resourceTree';
@@ -60,12 +61,12 @@ const ResourcesSearch = ({ navigation, resources, cache, onRemove,onFilterRemove
                         renderItem={({ item, index }) => {
                             return !!item.bookFilter ? <View key={index} style={styles.resourceContainer}>
                                 <TouchableOpacity underlayColor="#ffffff00" onPress={() =>onFilterRemove(item.filters.id,item.id)}>
-                                    <Icon color={'#47BBB2'} name={'close'} size={20} />
+                                    <AntDesign color={'#47BBB2'} name={'close'} size={20} />
                                 </TouchableOpacity>
                                 <Text style={styles.resourceName}>{itemToTitle(item)}</Text>
                             </View> : <View key={index} style={styles.resourceContainer}>
                                     <TouchableOpacity underlayColor="#ffffff00" onPress={() => onRemove([item.bookId])}>
-                                        <Icon color={'#47BBB2'} name={'close'} size={20} />
+                                        <AntDesign color={'#47BBB2'} name={'close'} size={20} />
                                     </TouchableOpacity>
                                     <Text style={styles.resourceName}>{`${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`}</Text>
                                 </View>

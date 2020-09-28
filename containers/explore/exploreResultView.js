@@ -5,11 +5,11 @@ import { CheckBox } from '@ui-kitten/components';
 import Background from '../../component/background/background';
 import Input from '../../component/input/input'
 import ClickButton from '../../component/clickButton/clickButton';
-import { getBooksByByQuery, getBookTree } from './explore'
+import { getBooksByByQuery, getBookTree } from './explore.utils'
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { debounce, isEmpty } from 'lodash';
-import OctIcons from "react-native-vector-icons/Octicons";
+import { Entypo } from '@expo/vector-icons'; 
 
 import { FlatList } from 'react-native-gesture-handler';
 const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
@@ -158,7 +158,7 @@ function ExploreResultView({ route, navigation, replaceInput, addInput }) {
                   </CheckBox>
                 </View> :
                   <View style={styles.checkBoxWrapper}>
-                    <OctIcons name={'book'} size={22} color={'#9AD3CE'} />
+                    <Entypo name={'book'} size={22} color={'#9AD3CE'} />
                   </View>
                 }
 

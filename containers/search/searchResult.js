@@ -9,7 +9,7 @@ import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import { FlatList } from 'react-native-gesture-handler';
 import SearchTypeModel from '../../component/searchType/searchType';
-import { typeToIndex, optionsSearch } from './search';
+import { typeToIndex, optionsSearch } from './search.common';
 import { isEmpty } from 'lodash';
 
 const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {

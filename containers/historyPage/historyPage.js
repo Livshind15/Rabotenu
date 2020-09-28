@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Icon from "react-native-vector-icons/AntDesign";
+import { AntDesign } from '@expo/vector-icons'; 
 
 import { StyleSheet, FlatList, View, TouchableOpacity, Text } from 'react-native';
 import Background from '../../component/background/background';
@@ -50,7 +50,7 @@ const SearchHistory = ({ navigation, history, onRemove, onSelect }) => {
                         <View key={index} style={styles.searchContainer}>
                             <Text style={styles.search}>{item.searchInput}</Text>
                             {selectedIndex === index && isLoading ? <Spinner /> : <TouchableOpacity onPress={() => onRemove(index)} underlayColor="#ffffff00">
-                                <Icon color={'#47BBB2'} name={'close'} size={20} />
+                                <AntDesign color={'#47BBB2'} name={'close'} size={20} />
                             </TouchableOpacity>}
                         </View>
                     </TouchableOpacity>

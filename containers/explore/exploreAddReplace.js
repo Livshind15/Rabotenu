@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import ClickButton from '../../component/clickButton/clickButton';
 import Input from '../../component/input/input'
-import Icon from "react-native-vector-icons/Entypo";
+import { Entypo } from '@expo/vector-icons'; 
 
 
 import Background from '../../component/background/background';
@@ -148,7 +148,7 @@ const InputArea = ({ title, input, onChange = () => { }, onClick = () => { }, wi
                         onPress={onClick}
                         underlayColor="#ffffff00"
                     >
-                        <Icon name={'plus'} size={20} color={'#ffffff'}></Icon>
+                        <Entypo name={'plus'} size={20} color={'#ffffff'}/>
                     </TouchableOpacity>
                 </View>}
             </View>

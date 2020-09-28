@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Accordian from '../../component/accordian/accordian';
-import Feather from 'react-native-vector-icons/Feather';
 import { isEmpty } from 'lodash';
-import { Spinner, CheckBox } from '@ui-kitten/components';
-import { addCheckForBookHeaders, isArrayEqual, flattenHeaders } from '../resourcesTree/resourceTree';
+import { CheckBox } from '@ui-kitten/components';
+import { addCheckForBookHeaders } from '../../containers/resources/resources.utils';
 
 const getParentBook = (result) => {
     if (result.id) {

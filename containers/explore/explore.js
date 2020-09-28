@@ -1,41 +1,27 @@
-import * as React from 'react';
-import axios from "axios";
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-
-import Tabs from '../../component/tabs/tabs';
-import Input from '../../component/input/input'
-import ClickButton from '../../component/clickButton/clickButton';
-import TabButton from '../../component/tabButton/tabButton';
-import Background from '../../component/background/background';
-import ExploreResultView, { removeEmptyHeaders, filterTree, flattenHeaders } from './exploreResultView';
-import ExploreTreeView from './exploreTreeView'
-import ExploreAddReplace from './exploreAddReplace';
-import BookNavigator from '../bookNavigator/bookNavigator'
-import config from "../../config/config";
+import { createStackNavigator } from '@react-navigation/stack';
 import { debounce } from 'lodash';
+import * as React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Background from '../../component/background/background';
+import ClickButton from '../../component/clickButton/clickButton';
+import Input from '../../component/input/input';
+import TabButton from '../../component/tabButton/tabButton';
+import Tabs from '../../component/tabs/tabs';
+import BookNavigator from '../bookNavigator/bookNavigator';
+import { getBooksByByQuery, getBookTree } from './explore.utils';
+import ExploreAddReplace from './exploreAddReplace';
+import ExploreResultView, { filterTree, flattenHeaders, removeEmptyHeaders } from './exploreResultView';
+import ExploreTreeView from './exploreTreeView';
+
 
 
 const Stack = createStackNavigator();
 
 const { Navigator, Screen } = createMaterialTopTabNavigator();
 
-export const getBooksByByQuery = async ([query]) => {
-  const { data } = await axios.post(`${config.serverUrl}/book/find/`, { query: query });
-  return (data || []).map((book, index) => {
-    return { ...book, key: index }
-  });
-}
 
-export const getBookTree = async (booksIds) => {
-  const data = await Promise.all(booksIds.map(bookId => {
-      return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
-  }))
-  return data || [];
-}
-
-export default function Explore(props) {
+export default function Explore() {
   return (
     <Stack.Navigator initialRouteName="ExplorePages" >
       <Stack.Screen name="ExplorePages" options={{ headerShown: false,title:'רבותינו' }} component={ExplorePages} />

@@ -3,8 +3,7 @@ import * as React from 'react';
 import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import Background from '../../component/background/background';
 import Accordian from '../accordian/accordian';
-import OctIcons from "react-native-vector-icons/Octicons";
-
+import { Entypo } from '@expo/vector-icons'; 
 import { Spinner } from '@ui-kitten/components';
 import { flatten } from 'lodash';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
@@ -24,7 +23,7 @@ const BookMenu = ({ childData,parentData, onBookSelect,parallelData, navigation,
                                     navigation.navigate('View')
                                 }} key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
                                     <Text style={styles.resultText}>{item.groupName.replace('_','"')}</Text>
-                                    <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
+                                    <Entypo name={'book'} size={22} color={'#9AD3CE'}/>
                                 </TouchableOpacity>
                             )))}
 
@@ -37,7 +36,7 @@ const BookMenu = ({ childData,parentData, onBookSelect,parallelData, navigation,
                                     navigation.navigate('View')
                                 }} key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
                                     <Text style={styles.resultText}>{item.groupName.replace('_','"')}</Text>
-                                    <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
+                                    <Entypo name={'book'} size={22} color={'#9AD3CE'}/>
                                 </TouchableOpacity>
                             )))}
 
@@ -50,7 +49,7 @@ const BookMenu = ({ childData,parentData, onBookSelect,parallelData, navigation,
                                     navigation.navigate('View')
                                 }} key={key} underlayColor="#ffffff00" style={[styles.resultContainer, { paddingRight: 50 }]}>
                                     <Text style={styles.resultText}>{item.groupName.replace('_','"')}</Text>
-                                    <OctIcons name={'book'} size={22} color={'#9AD3CE'}></OctIcons>
+                                    <Entypo name={'book'} size={22} color={'#9AD3CE'}/>
                                 </TouchableOpacity>
                             )))}
 

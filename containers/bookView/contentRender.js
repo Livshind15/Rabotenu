@@ -3,7 +3,7 @@ import * as React from 'react';
 import { StyleSheet, Text, View, Platform, TouchableOpacity } from 'react-native';
 
 import { parse } from 'node-html-parser';
-import { removeNotNeedContent } from './bookViewClass';
+import { removeNotNeedContent } from './bookView.utils';
 import { indexesOf,insertSubString } from '../../utils/helpers';
 
 const contentMap = [{
@@ -147,7 +147,7 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
             {contentValue.index && contentValue.index.length >= 3 ? <Text style={[styles.index, styles.fullWidth]}>{contentValue.index}</Text> : <></>}
             <View key={Math.random()} style={{ flexDirection: "row-reverse" }}>
                 {contentValue.index && contentValue.index.length < 3 ? <Text style={[styles.index]}>{contentValue.index}</Text> : <></>}
-                <Text style={{ width: "100%", userSelect: 'text', direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }} >
+                <Text style={[{ width: "100%", direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' },Platform.OS === 'web'? {userSelect: 'text'}:{}]} >
                     {parse(content).childNodes.map((node) => contentReduce(node, options, styles, refClick))}
                 </Text>
             </View>

@@ -1,14 +1,13 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import OctIcons from "react-native-vector-icons/Octicons";
-import Icon from "react-native-vector-icons/Entypo";
+import { StyleSheet, View } from 'react-native';
 import Accordian from '../accordian/accordian';
 import { CheckBox } from '@ui-kitten/components';
 import { flatten, isEmpty } from 'lodash';
 import { Spinner } from '@ui-kitten/components';
-import BookListTree from '../bookListTree/bookListTree';
 import BookListTreeCheckBox from '../bookListTree/bookListTreeCheckBox';
 import { SearchContext } from '../../contexts/searchContext';
+import { addCheckForBookHeaders } from '../../containers/resources/resources.utils';
+
 
 const changeGroupsChecks = (group, state) => {
     const books = (group.books || []).map(book => {
@@ -54,15 +53,7 @@ export const changeCheckById = (bookHeaders, check,uuid) => {
         return { ...bookHeader, tree: changeCheckById(bookHeader.tree || [], check,uuid) }
     })
 }
-export const addCheckForBookHeaders = (bookHeaders, check,newUuid) => {
-    return bookHeaders.map(bookHeader => {
-        if(newUuid){
-            return { ...bookHeader, tree: addCheckForBookHeaders(bookHeader.tree || [], check,newUuid), isCheck: check,uuid:Math.random() }
 
-        }
-        return { ...bookHeader, tree: addCheckForBookHeaders(bookHeader.tree || [], check,newUuid), isCheck: check }
-    })
-}
 const checkForUnCheckResource = (group) => {
     if (!group.books.every(book => !book.isCheck) && group.books.some(book => !book.isCheck)) {
         return true;
@@ -127,7 +118,7 @@ const ResourceTree =    ({ getBookInfo, navigation, updateCache, onChange = () =
                 {group.subGroups.length ? <ResourceTree updateCache={updateCache}  getBookInfo={getBookInfo} onChange={() => onChange(flatten(getAllBooksInGroup(groupsState)), groupsState)} navigation={navigation} groups={group.subGroups} deep={deep + 1} /> : <></>}
                 {group.books.length ? ((group.books) || []).map((book, key) => {
                     const [isLoading, setLoading] = React.useState(false);
-                    const [expanded, setExpanded] = React.useState(false);
+                    const [expanded] = React.useState(false);
                     const { cache } = React.useContext(SearchContext);
                     const info = cache[book.bookId]
                     const onBookFilterChange = React.useCallback(async (change) => {
@@ -173,7 +164,7 @@ const ResourceTree =    ({ getBookInfo, navigation, updateCache, onChange = () =
                             </View>} endToggle={true} header={book.bookName}>
                         {!isEmpty(info) && !isEmpty(info.tree) ? <BookListTreeCheckBox onUnCheck={() => {
 
-                        }} onSelect={(select) => {
+                        }} onSelect={() => {
 
 
                         }} deep={deep + 5} results={info.tree} onUnCheck={() => {

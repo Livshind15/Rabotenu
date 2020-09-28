@@ -4,13 +4,14 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Background from '../../component/background/background';
 import ClickButton from '../../component/clickButton/clickButton';
-import { ScrollView, FlatList } from 'react-native-gesture-handler';
-import IconEvilIcons from "react-native-vector-icons/EvilIcons";
+import {  FlatList } from 'react-native-gesture-handler';
+import { EvilIcons } from '@expo/vector-icons'; 
+
 import Input from '../../component/input/input';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import ErrorModel from '../../component/modalError/modalError';
-import { getAllBooksFromGroups } from './resources';
+import { getAllBooksFromGroups } from './resources.utils';
 import { flattenHeaders } from '../../component/resourcesTree/resourceTree';
 import { itemToTitle } from './searchResource';
 
@@ -46,7 +47,7 @@ const GroupEdit = ({ navigation, route }) => {
                     <TouchableOpacity onPress={() => {
                         setEdit(true)
                     }} underlayColor="#ffffff00">
-                        <IconEvilIcons color={'#595959'} name={'pencil'} size={40}></IconEvilIcons>
+                        <EvilIcons color={'#595959'} name={'pencil'} size={40}></EvilIcons>
                     </TouchableOpacity>
 
                 </View>}

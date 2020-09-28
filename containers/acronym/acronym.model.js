@@ -1,7 +1,8 @@
 import * as React from 'react';
 
 import { StyleSheet, View, TouchableOpacity, Platform, Text } from 'react-native';
-import Icon from "react-native-vector-icons/AntDesign";
+import { AntDesign } from '@expo/vector-icons';
+
 import Modal from 'modal-enhanced-react-native-web';
 import ClickButton from '../../component/clickButton/clickButton';
 import { Radio } from '@ui-kitten/components';
@@ -19,7 +20,7 @@ const ModelContent = ({ options, setVisible,onOptionsSelected,selectedOptions })
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity underlayColor="#ffffff00" onPress={() => setVisible(false)}>
-                    <Icon color={'#696969'} name={'close'} size={20} />
+                    <AntDesign color={'#696969'} name={'close'} size={20} />
                 </TouchableOpacity>
             </View>
             <View style={styles.options}>

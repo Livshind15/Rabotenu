@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { View,StatusBar } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Tabs from '../../component/tabs/tabs';
@@ -11,13 +11,18 @@ import Explore from '../explore/explore';
 import Search from '../search/search';
 import Acronym from '../acronym/acronym';
 import { RabotenuContext } from '../../contexts/applicationContext';
-import { SearchProvider } from '../../contexts/searchContext';
+import {SafeAreaView,useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 
 
 export default function MainNavigator({ route }) {
-
+    React.useEffect(()=>{
+        StatusBar.setBarStyle('light-content', true);
+        return () => {
+            StatusBar.setBarStyle('dark-content', true);
+        }
+    },[])
     return (
 
         <Tab.Navigator initialRouteName={route.params.screen} tabBar={props => <BottomTabBar {...props} />}>
@@ -29,6 +34,7 @@ export default function MainNavigator({ route }) {
 }
 
 const BottomTabBar = ({ navigation, state }) => {
+
     const { setTitle } = React.useContext(RabotenuContext)
     const getTitle = (screenName) => {
         return {
@@ -39,7 +45,7 @@ const BottomTabBar = ({ navigation, state }) => {
     }
 
     return (
-        <View style={{ height: 60 }}>
+        <View style={{ height: 60}}>
             <Tabs selectedIndex={state.index} onSelect={index => {
                 setTitle(getTitle(state.routeNames[index]))
                 navigation.navigate(state.routeNames[index])
