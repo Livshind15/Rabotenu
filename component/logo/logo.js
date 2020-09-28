@@ -5,8 +5,8 @@ import logo from './logo.png';
 export default function Logo({ options, onPress }) {
     const styles = StyleSheet.create({
         logo: {
-            width: 40,
-            height: 40,
+            width: 35,
+            height: 35,
             ...options
         },
     });

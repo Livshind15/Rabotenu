@@ -10,6 +10,8 @@
 
     "packagerOpts": {
       "config": "metro.config.js",
+      "assetExts": ["ttf"],
+
       "sourceExts": ["svg"]
     },
     "splash": {

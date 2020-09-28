@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as eva from '@eva-design/eva';
 import 'react-native-gesture-handler';
 import { StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
-import { useFonts } from '@use-expo/font';
+import * as Font from 'expo-font';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ApplicationProvider } from '@ui-kitten/components';
@@ -31,7 +31,7 @@ export const getGroups = async () => {
 
 
 function App() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded] = Font.useFonts({
     'OpenSansHebrew': require('./assets/fonts/OpenSansHebrew-Regular.ttf'),
     'OpenSansHebrewBold': require('./assets/fonts/OpenSansHebrew-Bold.ttf'),
 

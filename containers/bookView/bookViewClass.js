@@ -354,7 +354,7 @@ class BookViewClass extends React.Component {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
             }} highlightIndex={this.state.highlightIndex} item={item} punctuation={this.props.punctuation} styles={this.styles} index={index} itemIndex={index} textSize={this.props.textSize} grammar={this.props.grammar} exegesis={this.props.exegesis}></Item>
-        )
+       )
     }
 
     render() {
@@ -371,6 +371,7 @@ class BookViewClass extends React.Component {
                             this.setState({ index: this.state.index + 1 }, () => this.fetchMore());
                         }
                     }}
+
                     keyExtractor={(date, index) => String(index)}
                     style={this.styles.view}
                     refreshing={this.state.loading}
@@ -417,7 +418,7 @@ class Item extends React.Component {
         }
         for (const header of headers) {
             if (item.type === header) {
-                return <Text style={[styles.parsa, { fontSize: 24 + (textSize * 50), color: item.style.color, textAlign: item.style.textAlign || "right" }]}>{item.value}</Text>
+                return <Text style={[styles.parsa,{fontSize: 24 + (textSize * 50 ), color:item.style.color||"#455253",textAlign: item.style.textAlign || "right"}]}>{item.value}</Text>
             }
         }
         if (item.type === 'content') {
@@ -448,14 +449,15 @@ const getStyles = (textSize) => {
         },
         nextPage: {
             paddingTop: 5,
+            
             alignSelf: 'center',
             height: 20,
             justifyContent: 'center'
         },
         view: {
             width: '100%',
-            padding: 25,
-            textAlign: 'justify'
+            paddingLeft:5,
+            paddingRight:5
         },
         spinnerContainer: {
             height: 100,
@@ -486,6 +488,7 @@ const getStyles = (textSize) => {
         },
         pasokContainer: {
             flexWrap: 'wrap',
+            width:"100%",
             alignItems: 'flex-end',
             justifyContent: 'flex-start',
         },
