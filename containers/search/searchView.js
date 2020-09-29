@@ -23,12 +23,12 @@ import { RabotenuContext } from '../../contexts/applicationContext';
 
 const getSearchContent = async ({ booksIds, searchInput, type, tableInput, headersFilters }) => {
     const { data } = await axios.post(`${config.serverUrl}/book/search/`, {
-        "content": searchInput,
-        "type": !isEmpty(tableInput) ? type || 'exact' : 'exact',
         size: 50,
-        table: tableInput,
         headers: headersFilters,
-        "booksIds": booksIds
+        "booksIds": booksIds,
+        "content": type === "table" ? "" : searchInput,
+        "type": !isEmpty(tableInput) ? type || 'exact' : 'exact',
+        "table": type === "table" ? tableInput : [],
     });
     return Promise.all(data.map(async verse => {
 

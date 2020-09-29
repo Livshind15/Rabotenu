@@ -59,18 +59,18 @@ const contentMap = [{
 },
 ]
 const tags = {
-    text: { render: (node, options, styles) => <Text style={styles.text}>{removeNotNeedContent(node.rawText, options.punctuation, options.grammar)}</Text> },
-    parsha: { render: (node, options, styles) => !options.exegesis ? <Text style={styles.parsha}>{node.childNodes[0].rawText}</Text> : <></> },
-    bold: { render: (node, options, styles) => <Text style={styles.bold}>{node.childNodes[0].rawText}</Text> },
-    small: { render: (node, options, styles) => <Text style={styles.small}>{node.childNodes[0].rawText}</Text> },
-    grey: { render: (node, options, styles) => <Text style={styles.grey}>{node.childNodes[0].rawText}</Text> },
-    em: { render: (node, options, styles) => <Text style={styles.highlight}>{node.childNodes[0].rawText}</Text> },
-    hide: { render: (node, options, styles) => <></> },
+    text: { render: (node, options, styles, refClick,index) => <Text key={index} style={styles.text}>{removeNotNeedContent(node.rawText, options.punctuation, options.grammar)}</Text> },
+    parsha: { render: (node, options, styles, refClick,index) => !options.exegesis ? <Text  key={index}  style={styles.parsha}>{node.childNodes[0].rawText}</Text> : <></> },
+    bold: { render: (node, options, styles, refClick,index) => <Text  key={index}  style={styles.bold}>{node.childNodes[0].rawText}</Text> },
+    small: { render: (node, options, styles, refClick,index) => <Text  key={index}  style={styles.small}>{node.childNodes[0].rawText}</Text> },
+    grey: { render: (node, options, styles, refClick,index) => <Text  key={index}  style={styles.grey}>{node.childNodes[0].rawText}</Text> },
+    em: { render: (node, options, styles, refClick,index) => <Text  key={index}  style={styles.highlight}>{node.childNodes[0].rawText}</Text> },
+    hide: { render: (node, options, styles, refClick,index) => <></> },
     ref: {
         render: (node, options, styles, refClick) => {
             const char = RegExp(/תו="([^"]+)"/).exec(node.rawAttrs)[1];
             const id = RegExp(/Id="([^"]+)"/).exec(node.rawAttrs) ? RegExp(/Id="([^"]+)"/).exec(node.rawAttrs)[1] : null;
-            return !options.exegesis ? <TouchableOpacity onPress={() => refClick(id, char)} >
+            return !options.exegesis ? <TouchableOpacity  key={index}  onPress={() => refClick(id, char)} >
                 <Text style={styles.ref}>{`${char} `}</Text>
             </TouchableOpacity> : <></>
         }
@@ -164,7 +164,7 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
                 {contentValue.index && contentValue.index.length < 3 ? <View style={[styles.indexWrapper,Platform.OS === 'web' || 'os' ?{alignItems: 'flex-start'}:{}]}><Text style={[styles.index]}>{contentValue.index}</Text></View> : <></>}
               
                  <Text selectable style={[{ width: "90%",textAlignVertical:"center",writingDirection:'rtl', direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }, Platform.OS === 'web' ? { userSelect: 'text' } : {}]} >
-                    {parse(content).childNodes.map((node) => contentReduce(node, options, styles, refClick))}
+                    {parse(content).childNodes.map((node,index) => contentReduce(node, options, styles, refClick,index))}
                 </Text> 
             </View>
         </>

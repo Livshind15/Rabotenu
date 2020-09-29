@@ -34,17 +34,21 @@ const SearchResultView = ({ navigation, route }) => {
             return acc;
         }, {})
     }, [cache])
-    const searchResult = (props) => <SearchResult {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-        setSearchHistory([{ searchInput: input, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
+    const searchResult = (props)=> <SearchResult {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input,type) => {
+        
+        const result = await onSearch(input, type, tableInput, notSearchBooks, notSearchGroups, getAllBookFilter()).then(res =>{
 
-        const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups, getAllBookFilter());
-        setBookResult(result);
+            setSearchHistory([{ searchInput: input, type, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
+            setBookResult(res);
+            return res;
+        });
+        return result;
 
     }} result={bookResult} />
     const searchTree = (props) => <SearchTree {...props} onInput={setSearchInput} input={searchInput} onSearch={async (input) => {
-        setSearchHistory([{ searchInput: input, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
-
+        
         const result = await onSearch(input, searchType, tableInput, notSearchBooks, notSearchGroups, getAllBookFilter());
+        setSearchHistory([{ searchInput: input, searchType, tableInput, notSearchBooks, notSearchGroups }, ...searchHistory])
         setBookResult(result);
 
     }} result={bookResult} />

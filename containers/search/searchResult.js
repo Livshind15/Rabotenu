@@ -17,15 +17,21 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
     const [isLoading, setLoading] = React.useState(false);
     const { setSearchType, searchType, setTableInput } = React.useContext(SearchContext);
     const [showSearchType, setShowSearchType] = React.useState(false);
+    const [isDelay, setDelay] = React.useState(false)
+    setTimeout(() => {
+        setDelay(true)
+      }, 1000);
     React.useEffect(() => {
-        if (!isLoading && isEmpty(result)) {
-            setShowSearchType(true)
+        if (isDelay&& !isLoading && isEmpty(result)) {
+            setShowSearchType(true);
         }
-    }, [result, isLoading])
+    }, [result, isLoading,isDelay]);
+
 
     return (
         <Background>
             <SearchTypeModel currSelect={typeToIndex.findIndex(item => item === searchType) || 0} onOptionChange={async (index) => {
+                console.log(index);
                 setSearchType(typeToIndex[index] || 'exact');
                 setTableInput([[]])
                 if (index === 4) {
@@ -34,9 +40,12 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                 }
                 onInput(searchInput)
                 setLoading(true)
-                setShowSearchType(false)
-                await onSearch(searchInput)
-                setLoading(false)
+                console.log(typeToIndex[index] || 'exact');
+                await onSearch(searchInput,typeToIndex[index] || 'exact').then((res)=>{
+                    setShowSearchType(false)
+                    setLoading(false)
+                })
+              
 
             }} setVisible={setShowSearchType} options={optionsSearch} visible={showSearchType}></SearchTypeModel>
             <View style={styles.page}>
@@ -46,7 +55,7 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                             setSearchType('exact')
                             onInput(searchInput)
                             setLoading(true)
-                            await onSearch(searchInput)
+                            await onSearch(searchInput,searchType   )
                             setLoading(false)
                         }} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
                     </View>
