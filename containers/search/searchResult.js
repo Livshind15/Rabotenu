@@ -64,7 +64,13 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                             if (searchType === "table") {
                                 navigation.push("TableSearch")
                             }
-                        }} isLoading={isLoading} value={searchInput} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+                        }} isLoading={isLoading} onSubmit={async ()=>{
+                            setSearchType('exact')
+                            onInput(searchInput)
+                            setLoading(true)
+                            await onSearch(searchInput,searchType   )
+                            setLoading(false)
+                        }} value={searchInput} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
                     </View>
                 </View>
                 <View style={styles.resultCountWrapper}>
