@@ -15,25 +15,26 @@ import { isEmpty } from 'lodash';
 const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
     const [searchInput, setInput] = React.useState(input);
     const [isLoading, setLoading] = React.useState(false);
-    const { setSearchType, searchType } = React.useContext(SearchContext);
+    const { setSearchType, searchType, setTableInput } = React.useContext(SearchContext);
     const [showSearchType, setShowSearchType] = React.useState(false);
     React.useEffect(() => {
-        if (isEmpty(result)) {
+        if (!isLoading && isEmpty(result)) {
             setShowSearchType(true)
-
         }
-    }, [result])
+    }, [result, isLoading])
 
     return (
         <Background>
             <SearchTypeModel currSelect={typeToIndex.findIndex(item => item === searchType) || 0} onOptionChange={async (index) => {
                 setSearchType(typeToIndex[index] || 'exact');
+                setTableInput([[]])
                 if (index === 4) {
                     navigation.push('TableSearch');
                     setShowSearchType(false)
                 }
                 onInput(searchInput)
                 setLoading(true)
+                setShowSearchType(false)
                 await onSearch(searchInput)
                 setLoading(false)
 
@@ -50,7 +51,11 @@ const SearchResult = ({ navigation, result, input, onSearch, onInput }) => {
                         }} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
                     </View>
                     <View style={styles.inputWrapper}>
-                        <Input isLoading={isLoading} value={searchInput} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+                        <Input onFocus={() => {
+                            if (searchType === "table") {
+                                navigation.push("TableSearch")
+                            }
+                        }} isLoading={isLoading} value={searchInput} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
                     </View>
                 </View>
                 <View style={styles.resultCountWrapper}>

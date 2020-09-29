@@ -38,7 +38,7 @@ const attachResultToGroups = (groups, bookResult) => {
         }, 0)
         if (group.subGroups.length) {
             const result = attachResultToGroups(group.subGroups, bookResult);
-            if(!!result.count){
+            if (!!result.count) {
                 group.subGroups = result.groups;
                 group.doc_count += result.count
             }
@@ -53,7 +53,7 @@ const SearchTree = ({ navigation, input, onSearch, onInput, result }) => {
     const [isLoading, setLoading] = React.useState(false);
     const { data, error, isPending } = useAsync({ promiseFn: getGroups, bookResult: result })
     const [showErrorModel, setShowErrorModel] = React.useState(false);
-    const { setSearchType} = React.useContext(SearchContext);
+    const { setSearchType, searchType } = React.useContext(SearchContext);
 
     React.useEffect(() => {
         if (error) {
@@ -61,7 +61,6 @@ const SearchTree = ({ navigation, input, onSearch, onInput, result }) => {
         }
     }, [error]);
     const onSubmit = async () => {
-        setSearchType("exact")
         onInput(searchInput)
         setLoading(true)
         await onSearch(searchInput)
@@ -76,7 +75,11 @@ const SearchTree = ({ navigation, input, onSearch, onInput, result }) => {
                         <ClickButton onPress={onSubmit} outline={true} optionsButton={{ paddingVertical: 8 }} optionsText={{ fontSize: 16 }}>חיפוש</ClickButton>
                     </View>
                     <View style={styles.inputWrapper}>
-                        <Input onSubmit={onSubmit} value={searchInput} isLoading={isLoading} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
+                        <Input onFocus={() => {
+                            if (searchType === "table") {
+                                navigation.push("TableSearch")
+                            }
+                        }} onSubmit={onSubmit} value={searchInput} isLoading={isLoading} onChange={setInput} options={{ fontSize: 16, paddingHorizontal: 20, height: 40 }} />
                     </View>
                 </View>
                 <View style={styles.resultCountWrapper}>
@@ -219,4 +222,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default optimizeHeavyScreen(SearchTree,PlaceHolder);
+export default optimizeHeavyScreen(SearchTree, PlaceHolder);

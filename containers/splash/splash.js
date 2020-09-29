@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { StyleSheet, StatusBar, Image, View } from 'react-native';
+import { StyleSheet, StatusBar, Image, View ,Platform} from 'react-native';
 import { Spinner } from '@ui-kitten/components';
 import Background from '../../component/background/background';
 import image from './splash.logo.png';
+import {Helmet} from "react-helmet";
 
 export default function Splash() {
     React.useEffect(() => {
@@ -13,6 +14,10 @@ export default function Splash() {
     }, [])
     return (
         <Background>
+          {Platform.OS === 'web'?   <Helmet>
+                
+                <title>רבותינו</title>
+            </Helmet>:<></>}
             <View style={styles.container}>
                 <View style={styles.imageContainer}>
                     <Image

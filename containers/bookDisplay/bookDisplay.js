@@ -90,7 +90,7 @@ const BookDisplay = ({ onSave, navigation, setting,title,godOption ,onSaveCopy }
     )
 }
 
-const Option = ({ children, checked, onChange, customStyle = { option: {} } }) => (
+export const Option = ({ children, checked, onChange, customStyle = { option: {} } }) => (
     <TouchableOpacity
         style={[styles.option, customStyle.option]}
         underlayColor="#ffffff00"

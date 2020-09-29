@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as eva from '@eva-design/eva';
 import 'react-native-gesture-handler';
-import { StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, StatusBar,Platform } from 'react-native';
 import * as Font from 'expo-font';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -14,6 +14,7 @@ import Logo from './component/logo/logo';
 import MainNavigator from './containers/mainNavigator/mainNavigator';
 import { RabotenuProvider, RabotenuContext } from './contexts/applicationContext';
 import { MaterialIcons } from '@expo/vector-icons';
+import {Helmet} from "react-helmet";
 
 import { SearchContext, SearchProvider } from './contexts/searchContext';
 import config from "./config/config";
@@ -31,11 +32,15 @@ export const getGroups = async () => {
 
 
 function App() {
-  const [fontsLoaded] = Font.useFonts({
+  const [fontsLoaded] = Font.useFonts({...{
+    'Inter-Black': require('./assets/fonts/Inter-Black.otf'),
+
+
+
+  },...(Platform.OS === 'os'?{}:{
     'OpenSansHebrew': require('./assets/fonts/OpenSansHebrew-Regular.ttf'),
     'OpenSansHebrewBold': require('./assets/fonts/OpenSansHebrew-Bold.ttf'),
-
-  });
+  })});
   const [isDelay, setDelay] = React.useState(false)
   const { setResources, setData, allResourceToggle } = React.useContext(SearchContext);
   const { data, error, isPending } = useAsync({ promiseFn: getGroups })
@@ -62,8 +67,12 @@ function App() {
   return (
     <SafeAreaProvider >
       <ApplicationProvider {...eva} theme={{ ...eva.light, ...myTheme }}>
-        <NavigationContainer>
+        <NavigationContainer >
           {/* <SafeAreaView style={{flex:1,backgroundColor:'#00AABE'}}> */}
+          {Platform.OS === 'web'?   <Helmet>
+                
+                <title>רבותינו</title>
+            </Helmet>:<></>}
           {isInitialized ? <Routes /> : <Splash />}
 
           {/* </SafeAreaView> */}
@@ -72,6 +81,8 @@ function App() {
     </SafeAreaProvider>
   );
 }
+
+
 export default () =>
   <SearchProvider>
     <RabotenuProvider>

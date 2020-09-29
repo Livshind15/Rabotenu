@@ -30,7 +30,7 @@ const getAcronym = async (content,searchType) => {
   }).then(res => res.data);
 
 }
-const searchTypes = ['exeat','close','exeat']
+const searchTypes = ['exeat','close']
 
 const AcronymMain = ({ navigation }) => {
   const [showModal, setShowModal] = React.useState(false);

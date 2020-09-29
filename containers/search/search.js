@@ -25,16 +25,15 @@ import { typeToIndex, optionsSearch } from './search.common';
 
 
 const Stack = createStackNavigator();
-const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
 
 
 export const getBooksByContent = async (content, searchType, tableInput, books, groups, filtersHeaders) => {
   const { data } = await axios.post(`${config.serverUrl}/book/search/books/`, {
-    "content": content,
+    "content": searchType === "table" ? "" : content,
     "type": !isEmpty(tableInput) ? searchType || 'exact' : 'exact',
-    "table": tableInput,
+    "table": searchType === "table" ? tableInput : [],
     "books": books,
-    headers:filtersHeaders,
+    headers: filtersHeaders,
 
     "groups": groups
   });
@@ -45,28 +44,29 @@ export const getBooksByContent = async (content, searchType, tableInput, books, 
 
 export default function Search({ navigation }) {
   const { setTableInput, setSearchHistory, cache, resources, setSearchInput, setNotSearchGroups, setNotSearchBooks, setBookResult, searchHistory, notSearchBooks, notSearchGroups, setSearchType } = React.useContext(SearchContext);
-  const [tableInit] = React.useState([[{ value: "" }]])
+  const [tableInit] = React.useState([[{ value: "", type: "exact" }]])
   const bookIds = resources.map(resource => resource.bookId);
   const getAllBookFilter = React.useCallback(() => {
-    return Object.keys(cache||{}).reduce((acc, curr) => {
-        if (!bookIds.includes(cache[curr].id)) {
-            const headers = flattenHeaders(cache[curr].tree, {})
-            headers.map(header => {
-              const newHeader = header;
-              delete newHeader.id;
-              return newHeader
-            })
-            acc = { ...acc, [cache[curr].id]:headers };
-        }
-        return acc;
+    return Object.keys(cache || {}).reduce((acc, curr) => {
+      if (!bookIds.includes(cache[curr].id)) {
+        const headers = flattenHeaders(cache[curr].tree, {})
+        headers.map(header => {
+          const newHeader = header;
+          delete newHeader.id;
+          return newHeader
+        })
+        acc = { ...acc, [cache[curr].id]: headers };
+      }
+      return acc;
     }, {})
-}, [cache])
-  const tableSearch = (props) => <TableSearch tableInit={tableInit} {...props} onSave={async (table, navigation) => {
+  }, [cache])
+  const tableSearch = (props) => <TableSearch tableInit={tableInit} {...props} onSave={async (table, type, navigation) => {
+    console.log((type));
     const tablesInput = table.map(or => {
       return or.map(must => {
         return {
           "content": must.value,
-          "type": 'exact'
+          "type": !isEmpty(type) ? type : must.type
         }
       })
     })
@@ -100,7 +100,6 @@ export default function Search({ navigation }) {
       <Stack.Screen name="Result" options={{ headerShown: false, title: 'רבותינו' }} component={bookNavigator} />
       <Stack.Screen name="TableSearch" options={{ headerShown: false, title: 'רבותינו' }} component={tableSearch} />
       <Stack.Screen name="SearchHistory" options={{ headerShown: false, title: 'רבותינו' }} component={historyPage} />
-
     </Stack.Navigator>
   );
 }
@@ -111,22 +110,22 @@ const SearchMain = ({ navigation }) => {
   const [isLoading, setLoading] = React.useState(false);
   const [showOptionsSearch, setShowOptionsSearch] = React.useState(false);
   const [showSearchType, setShowSearchType] = React.useState(false);
-  const { searchInput, resources, cache, setSearchInput, setBookResult, notSearchGroups, notSearchBooks, setSearchType, searchType, tableInput, setSearchHistory, searchHistory } = React.useContext(SearchContext);
+  const { searchInput, resources, cache, setSearchInput, setBookResult, notSearchGroups, notSearchBooks, setTableInput, setSearchType, searchType, tableInput, setSearchHistory, searchHistory } = React.useContext(SearchContext);
   const bookIds = resources.map(resource => resource.bookId);
   const getAllBookFilter = React.useCallback(() => {
-    return Object.keys(cache||{}).reduce((acc, curr) => {
-        if (!bookIds.includes(cache[curr].id)) {
-            const headers = flattenHeaders(cache[curr].tree, {})
-            headers.map(header => {
-              const newHeader = header;
-              delete newHeader.id;
-              return newHeader
-            })
-            acc = { ...acc, [cache[curr].id]:headers };
-        }
-        return acc;
+    return Object.keys(cache || {}).reduce((acc, curr) => {
+      if (!bookIds.includes(cache[curr].id)) {
+        const headers = flattenHeaders(cache[curr].tree, {})
+        headers.map(header => {
+          const newHeader = header;
+          delete newHeader.id;
+          return newHeader
+        })
+        acc = { ...acc, [cache[curr].id]: headers };
+      }
+      return acc;
     }, {})
-}, [cache])
+  }, [cache])
   const onSubmit = async () => {
     if (!isLoading) {
       setLoading(true);
@@ -143,6 +142,7 @@ const SearchMain = ({ navigation }) => {
       <SearchOptionsModel onResources={() => navigation.push('Resources')} openSearchType={() => setShowSearchType(true)} visible={showOptionsSearch} setVisible={setShowOptionsSearch} ></SearchOptionsModel>
       <SearchTypeModel currSelect={typeToIndex.findIndex(item => item === searchType) || 0} onOptionChange={(index) => {
         setSearchType(typeToIndex[index] || 'exact');
+        setTableInput([[]])
         if (index === 4) {
           navigation.push('TableSearch');
           setShowSearchType(false)
@@ -156,7 +156,11 @@ const SearchMain = ({ navigation }) => {
             <Text style={styles.text}>הקלד את המילה החיפוש שתרצה לאתר</Text>
           </View>
           <View style={styles.input}>
-            <Input onSubmit={onSubmit} isLoading={isLoading} value={searchInput} onChange={setSearchInput} placeholder={'חפש'} />
+            <Input onFocus={() => {
+              if (searchType === "table") {
+                navigation.push("TableSearch")
+              }
+            }} onSubmit={onSubmit} isLoading={isLoading} value={searchInput} onChange={setSearchInput} placeholder={'חפש'} />
           </View>
           <View style={styles.buttonWrapper}>
             <ClickButton onPress={onSubmit} outline={true} >חיפוש</ClickButton>

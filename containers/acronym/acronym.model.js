@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: 'flex-end',
         paddingHorizontal: 15,
-        flex: 0.25
+        flex: 0.3
     },
     options: {
         paddingVertical: 8,
@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
     },
     buttonWrapper: {
         width: 95,
-        flex: 0.4
+        flex: 0.6
     },
     container: {
         alignItems: 'center',
         borderRadius: 20,
-        height: 230,
+        height: 180,
         width: 380,
         backgroundColor: '#F9F9F9'
     },

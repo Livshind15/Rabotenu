@@ -1,16 +1,17 @@
 {
-  "name": "Rabotenu",
+  "name": "רבותינו",
   "displayName": "רבותינו",
   "expo": {
-    "name": "Rabotenu",
-    "slug": "rabotenu",
+    "name": "רבותינו",
+    "slug": "Rabotenu",
     "version": "1.0.0",
     "platforms": ["ios", "android", "web"],
     "assetBundlePatterns": ["**/*"],
-
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
     "packagerOpts": {
       "config": "metro.config.js",
-      "assetExts": ["ttf"],
 
       "sourceExts": ["svg"]
     },
@@ -19,10 +20,21 @@
       "resizeMode": "cover",
       "backgroundColor": "#FFFFFF"
     },
+
+    "web": {
+      "name": "רבותינו | עולם חדש של דיוק",
+      "shortName": "רבותינו",
+      "favicon": "./assets/icon.png",
+
+      "backgroundColor": "#f00",
+      "lang": "he"
+    },
     "ios": {
       "splash": {
         "image": "./assets/background.png",
-        "resizeMode": "cover"
+        "resizeMode": "cover",
+        "supportsTablet": true
+
       },
       "icon": "./assets/icon.png",
 

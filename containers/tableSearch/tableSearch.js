@@ -1,67 +1,83 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, KeyboardAvoidingViewComponent } from 'react-native';
+
 import Background from '../../component/background/background';
 import { ScrollView } from 'react-native-gesture-handler';
 import ClickButton from '../../component/clickButton/clickButton';
-import Input from '../../component/input/input';
-import { Entypo } from '@expo/vector-icons'; 
+import { Entypo } from '@expo/vector-icons';
+import Accordian from '../../component/accordian/accordian';
+import { InputWithDropdown } from '../../component/input/input';
+import { searchTypes, typeToIndex } from '../search/search.common';
+import { Option } from '../bookDisplay/bookDisplay';
+
+
 
 
 
 const TableSearch = ({ onSave, navigation, tableInit }) => {
-    const [tables, setTable] = React.useState(tableInit)
+    const [tables, setTable] = React.useState(tableInit);
+    const [defaultType, setDefaultType] = React.useState("");
     const [isLoading, setLoading] = React.useState(false);
 
     return (
         <Background>
             <View style={styles.page}>
-                <View style={styles.tableView}>
-                    <ScrollView style={styles.tableViewScroll}>
-                        {
-                            <>
-                                {tables.map((table, index) => (
-                                    <>
-                                        <Table isLoading={isLoading} tables={tables} table={table} onRemove={() => {
-                                            const newTables = tables.filter((val, tableIndex) => {
-                                                return index != tableIndex
-                                            });
-                                            setTable([...newTables])
+                <ScrollView style={styles.tableView}>
+                    <Accordian header={'מרכיבי השאילתא'}>
+                        <ScrollView style={styles.tableViewScroll}>
+                            {
+                                <>
+                                    {tables.map((table, index) => (
+                                        <View key={index}>
+                                            <Table isLoading={isLoading} key={index} tables={tables} table={table} onRemove={() => {
+                                                const newTables = tables.filter((val, tableIndex) => {
+                                                    return index != tableIndex
+                                                });
+                                                setTable([...newTables])
 
-                                        }} setTable={(table) => {
-                                            const newTable = tables;
-                                            newTable[index] = table;
-                                            setTable([...newTable])
-                                        }}></Table>
+                                            }} setTable={(table) => {
+                                                const newTable = tables;
+                                                newTable[index] = table;
+                                                setTable([...newTable])
+                                            }}></Table>
 
-                                        {index != tables.length - 1 && <Text style={styles.andText}>או</Text>}
-                                    </>
-                                ))}
-                                {tables.length < 5 && <View style={styles.plusButtonWrapper}>
-                                    <TouchableOpacity
-                                        style={[styles.plusButton]}
-                                        onPress={(() => {
-                                            setTable([...tables, [{ value: "" }]])
-                                        })}
-                                        underlayColor="#ffffff00"
-                                    >
-                                        <Entypo name={'plus'} size={20} color={'#ffffff'}/>
-                                    </TouchableOpacity>
-                                </View>}
-                            </>
-                        }
-                    </ScrollView>
-                </View>
+                                            {index != tables.length - 1 && <Text style={styles.andText}>או</Text>}
+                                        </View>
+                                    ))}
+                                    {tables.length < 5 && <View style={styles.plusButtonWrapper}>
+                                        <TouchableOpacity
+                                            style={[styles.plusButton]}
+                                            onPress={(() => {
+                                                setTable([...tables, [{ value: "", type: "exact" }]])
+                                            })}
+                                            underlayColor="#ffffff00"
+                                        >
+                                            <Entypo name={'plus'} size={20} color={'#ffffff'} />
+                                        </TouchableOpacity>
+                                    </View>}
+                                </>
+                            }
+                        </ScrollView>
+                    </Accordian>
+                    <Accordian header={'החל על כל הרכיבים'}>
+                        <Default options={searchTypes} onOptionSelect={(index) => {
+                            setDefaultType(typeToIndex[index])
+                        }} />
+                    </Accordian>
+
+
+                </ScrollView>
                 <View style={styles.bottom}>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
                             style={styles.button}
                             onPress={async () => {
-                              if(!isLoading){
-                                setLoading(true)
-                                await onSave(tables, navigation);
-                                setLoading(false)
-                              }
-                               
+                                if (!isLoading) {
+                                    setLoading(true)
+                                    await onSave(tables,defaultType, navigation);
+                                    setLoading(false)
+                                }
+
                             }}
                             underlayColor="#ffffff00" >
                             <Text style={styles.buttonText} >חפש</Text>
@@ -72,8 +88,22 @@ const TableSearch = ({ onSave, navigation, tableInit }) => {
         </Background>
     )
 }
+const Default = ({ options, onOptionSelect }) => {
+    const [selectOption, setSelectOption] = React.useState(-1)
 
-const Table = ({ table, tables, setTable,isLoading, onRemove }) => {
+    return <>
+        {options.map((type, key) => <Option key={key} checked={key === selectOption} onChange={(checked) => {
+            if (checked) {
+                onOptionSelect(key)
+                setSelectOption(key);
+            }
+            else {
+                setSelectOption(-1)
+            }
+        }}>{type}</Option>)}
+    </>
+}
+const Table = ({ table, tables, setTable, isLoading, onRemove }) => {
     return (
         <View style={styles.table}>
             <View style={styles.inputsWrapper}>
@@ -81,11 +111,21 @@ const Table = ({ table, tables, setTable,isLoading, onRemove }) => {
                     table.map((input, index) => (
                         <>
                             <View style={styles.input}>
-                                <Input isLoading={isLoading} value={input.value} onChange={(text) => {
-                                    const newInput = table;
-                                    newInput[index].value = text;
-                                    setTable([...newInput]);
-                                }} placeholder={'חפש'} />
+                                <InputWithDropdown
+                                    isLoading={isLoading}
+                                    dropDown={{
+                                        initOption: 0, options: searchTypes, onOptionSelect: (optionIndex) => {
+                                            const newInput = table;
+                                            newInput[index].type = typeToIndex[optionIndex];
+                                            setTable([...newInput]);
+                                        }
+                                    }}
+                                    value={input.value} onChange={(text) => {
+                                        const newInput = table;
+                                        newInput[index].value = text;
+                                        setTable([...newInput]);
+                                    }} placeholder={'חפש'} />
+
                             </View>
                             {index != table.length - 1 && <Text style={styles.andText}>וגם</Text>}
                         </>
@@ -96,7 +136,7 @@ const Table = ({ table, tables, setTable,isLoading, onRemove }) => {
             <View style={styles.buttonsWrapper}>
                 <View style={styles.buttonWrapper}>
                     <ClickButton onPress={() => {
-                        setTable([...table, { value: "" }])
+                        setTable([...table, { value: "", type: 'exact' }])
                     }} optionsButton={{ paddingHorizontal: 5 }} outline={true} disable={table.length === 5} optionsText={{ fontSize: 16 }}>הוסף שורה</ClickButton>
                 </View>
                 <View style={styles.buttonWrapper}>
@@ -137,7 +177,7 @@ const styles = StyleSheet.create({
         marginLeft: 8
     },
     input: {
-        width: '80%',
+        width: '90%',
         height: 60,
         display: 'flex',
         justifyContent: 'center',

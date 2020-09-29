@@ -5,6 +5,7 @@ import { StyleSheet, Text, View, Platform, TouchableOpacity } from 'react-native
 import { parse } from 'node-html-parser';
 import { removeNotNeedContent } from './bookView.utils';
 import { indexesOf, insertSubString } from '../../utils/helpers';
+import { groupBy, isEmpty } from 'lodash';
 
 const contentMap = [{
     originTag: "<\s*פרשה[^>]*>",
@@ -135,27 +136,34 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
             fontSize: 16 + options.textSize * 40
         }
     });
-    const highlightPosition = highlight.reduce((position, currHighlight) => {
-        const currPosition = indexesOf(content, currHighlight);
-        position = [...position, ...currPosition.map(position => {
-            return {
-                position,
-                highlight: currHighlight
-            }
-        })]
-        return position;
-    }, []).sort((a, b) => b.position - a.position)
-    content = highlightPosition.reduce((highlightContent, highlight) => {
-        return insertSubString(highlightContent, highlight.position, `<em>${highlight.highlight}</em>`, highlight.highlight.length - 1)
-    }, content)
+    if(!isEmpty(highlight)){
+        const highlightPosition = highlight.reduce((position, currHighlight) => {
+            const currPosition = indexesOf(content, currHighlight);
+            position = [...position, ...currPosition.map(position => {
+                return {
+                    position,
+                    highlight: currHighlight
+                }
+            })]
+            return position;
+        }, []).sort((a, b) => b.position - a.position)
+        const positions =groupBy(highlightPosition,"position");
+        const highlightPositionUniq = Object.keys(positions).flatMap((position)=>{
+            return positions[position].sort(function(a, b) {return b.length - a.length})[0];
+        }).reverse()
+        content = highlightPositionUniq.reduce((highlightContent, highlight) => {
+            return insertSubString(highlightContent, highlight.position,highlight.highlight)
+        }, content)
+    }
+   
     return (
         <>
             {contentValue.index && contentValue.index.length >= 3 ? <Text style={[styles.index, styles.fullWidth]}>{contentValue.index}</Text> : <></>}
-            <View key={Math.random()} style={[{ flexDirection: 'row-reverse', width: '100%', direction: 'rtl' },Platform.OS === 'web' ?{flexDirection: 'row'}:{}]}>
+            <View key={Math.random()} style={[{ flexDirection: 'row-reverse', width: '100%', direction: 'rtl' },Platform.OS === 'web' || 'os' ?{flexDirection: 'row'}:{}]}>
                
-                {contentValue.index && contentValue.index.length < 3 ? <View style={[styles.indexWrapper,Platform.OS === 'web' ?{alignItems: 'flex-start'}:{}]}><Text style={[styles.index]}>{contentValue.index}</Text></View> : <></>}
+                {contentValue.index && contentValue.index.length < 3 ? <View style={[styles.indexWrapper,Platform.OS === 'web' || 'os' ?{alignItems: 'flex-start'}:{}]}><Text style={[styles.index]}>{contentValue.index}</Text></View> : <></>}
               
-                 <Text selectable style={[{ width: "90%", direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }, Platform.OS === 'web' ? { userSelect: 'text' } : {}]} >
+                 <Text selectable style={[{ width: "90%",textAlignVertical:"center",writingDirection:'rtl', direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }, Platform.OS === 'web' ? { userSelect: 'text' } : {}]} >
                     {parse(content).childNodes.map((node) => contentReduce(node, options, styles, refClick))}
                 </Text> 
             </View>

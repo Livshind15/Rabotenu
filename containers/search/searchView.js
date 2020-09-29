@@ -87,7 +87,7 @@ const SearchView = ({ navigation, route }) => {
                                 <TouchableOpacity onPress={() => {
                                     navigation.push('Result', { selectedIndex: item.index,highlight:item.highlight, ...getHeaders(item), selectedBooks: [{ bookId: item.bookId }] })
                                 }} style={styles.contentContainer}>
-                                    <Content highlight={item.highlight} contentValue={content} refClick={() => { } } options={{textSize:textSize,punctuation,exegesis,grammar}}></Content>
+                                    <Content key={index} highlight={item.highlight} contentValue={content} refClick={() => { } } options={{textSize:textSize,punctuation,exegesis,grammar}}></Content>
                                 </TouchableOpacity>
                             </Accordian>
                         }

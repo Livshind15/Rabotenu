@@ -6,5 +6,7 @@ export const optionsSearch = [
     { title: 'חיפוש טבלאי', description: "פתח את החיפוש הטבלאי" },
   
   ]
+  export const  searchTypes = ["חיפוש מדוייק", "חיפוש קל", "חפש תוצאות קרובות", "חפש תוצאות דומות"]
+
   
   export const typeToIndex = ['exact', 'closeWords', 'wordForms',"likeSearch", 'table'];

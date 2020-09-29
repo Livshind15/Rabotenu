@@ -1,9 +1,9 @@
 {
-  "background_color": "#FFFFFF",
+  "background_color": "#f00",
   "display": "standalone",
-  "lang": "en",
-  "name": "Rabotenu",
-  "short_name": "Rabotenu",
+  "lang": "he",
+  "name": "רבותינו | עולם חדש של דיוק",
+  "short_name": "רבותינו",
   "start_url": "/?utm_source=web_app_manifest",
   "related_applications": [
     {

@@ -27,7 +27,7 @@ const ModelContent = ({ setVisible, options, onOptionChange, currSelect }) => {
             </View>
             <ScrollView style={styles.options}>
                 {options.map((option, key) => (
-                    <TouchableOpacity underlayColor="#ffffff00" onPress={() => {
+                    <TouchableOpacity key={key} underlayColor="#ffffff00" onPress={() => {
                         setSelectedOptions(key)
                         onOptionChange(key)
                     }}>

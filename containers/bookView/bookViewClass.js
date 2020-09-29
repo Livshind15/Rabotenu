@@ -2,7 +2,7 @@ import * as React from 'react';
 import Background from '../../component/background/background';
 import { View, FlatList, StyleSheet, Platform, Text, TouchableOpacity, TextInput } from 'react-native';
 import axios from "axios";
-import { AntDesign } from '@expo/vector-icons'; 
+import { AntDesign } from '@expo/vector-icons';
 
 import config from "../../config/config";
 import { delay } from '../../utils/helpers';
@@ -32,7 +32,7 @@ class BookViewClass extends React.Component {
             bookId: this.props.bookId,
             bookInfo: {},
         }
-        
+
         this.styles = getStyles(this.props.textSize);
         this.headersFilter = { header1: "", header2: "", header3: "", header4: "", header5: "", header6: "", header7: "" }
         this.currHeader = {};
@@ -40,15 +40,15 @@ class BookViewClass extends React.Component {
         this.headers = ['', '', '', '', '', '', '', '']
     }
 
-    componentWillUnmount(){
-        this.props.setShowBack({ enable: false, navigation:null})
+    componentWillUnmount() {
+        this.props.setShowBack({ enable: false, navigation: null })
 
     }
 
     async componentDidMount() {
-       
-        this.props.setShowBack({ enable: true, navigation:this.props.navigation })
-  
+
+        this.props.setShowBack({ enable: true, navigation: this.props.navigation })
+
         delay(1000).then(() => {
             this.props.setMount(true)
         })
@@ -96,7 +96,7 @@ class BookViewClass extends React.Component {
 
 
     bookToElements(bookContent) {
-        const elements = uniqBy(bookContent,'index').reduce((elements, content, index) => {
+        const elements = uniqBy(bookContent, 'index').reduce((elements, content, index) => {
             if (!this.bookName.includes(content.bookName)) {
                 this.bookName = [...this.bookName, content.bookName]
                 elements.push({ id: elements.length + 1, type: "bookName", value: content.bookName, original: content })
@@ -194,7 +194,7 @@ class BookViewClass extends React.Component {
     }
 
     async getRefIndex(bookId, header, character, id) {
-        console.log({bookId, header, character, id});
+        console.log({ bookId, header, character, id });
         let url = `${config.serverUrl}/mapping/groups/refs/${bookId}?character=${character.replace('.', '')}`;
         headers.forEach(headersType => {
             if (header[headersType]) {
@@ -262,7 +262,7 @@ class BookViewClass extends React.Component {
                 header6: original.header6,
                 header7: original.header7,
             }, [headers[headers.findIndex(header => inLineHeader[0] === header) + 1]]: char
-        },char, id)
+        }, char, id)
         if (!isEmpty(ref)) {
             this.props.onBookSelect(ref.bookId, ref.index);
 
@@ -354,7 +354,7 @@ class BookViewClass extends React.Component {
                 this.props.onTextSelected(this.state.data[pressIndex]);
                 this.setState({ highlightIndex: pressIndex })
             }} highlightIndex={this.state.highlightIndex} item={item} punctuation={this.props.punctuation} styles={this.styles} index={index} itemIndex={index} textSize={this.props.textSize} grammar={this.props.grammar} exegesis={this.props.exegesis}></Item>
-       )
+        )
     }
 
     render() {
@@ -418,18 +418,18 @@ class Item extends React.Component {
         }
         for (const header of headers) {
             if (item.type === header) {
-                return <Text style={[styles.parsa,{fontSize: 24 + (textSize * 50 ), color:item.style.color||"#455253",textAlign: item.style.textAlign || "right"}]}>{item.value}</Text>
+                return <Text style={[styles.parsa, { fontSize: 24 + (textSize * 50), color: item.style.color || "#455253", textAlign: item.style.textAlign || "right" }]}>{item.value}</Text>
             }
         }
         if (item.type === 'content') {
             return (
-                <TouchableOpacity disabled={highlightIndex === index} onLongPress={async () => {
+                <TouchableOpacity onLongPress={async () => {
                     await indexLongPress(index);
                     if (highlightIndex === index) {
                         this.props.showCopyModal();
                     }
-                }} selectable onPress={() => indexPress(index)} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
-                    <Content highlight={this.props.highlight} options={{textSize:textSize,punctuation,exegesis,grammar}} refClick={(id,char)=>{onRefClick(itemIndex,id,char)}} contentValue={item}></Content>
+                }} selectable onPress={() => { if (highlightIndex != index) { indexPress(index) } }} key={Math.random()} style={[styles.pasokContainer, highlightIndex === index ? styles.pasokContainerHighlight : {}]}>
+                    <Content highlight={this.props.highlight} options={{ textSize: textSize, punctuation, exegesis, grammar }} refClick={(id, char) => { onRefClick(itemIndex, id, char) }} contentValue={item}></Content>
                 </TouchableOpacity>
             )
 
@@ -449,15 +449,15 @@ const getStyles = (textSize) => {
         },
         nextPage: {
             paddingTop: 5,
-            
+
             alignSelf: 'center',
             height: 20,
             justifyContent: 'center'
         },
         view: {
             width: '100%',
-            paddingLeft:5,
-            paddingRight:5
+            paddingLeft: 5,
+            paddingRight: 5
         },
         spinnerContainer: {
             height: 100,
@@ -488,7 +488,7 @@ const getStyles = (textSize) => {
         },
         pasokContainer: {
             flexWrap: 'wrap',
-            width:"100%",
+            width: "100%",
             alignItems: 'flex-end',
             justifyContent: 'flex-start',
         },
