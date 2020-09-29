@@ -67,16 +67,16 @@ function App() {
   return (
     <SafeAreaProvider >
       <ApplicationProvider {...eva} theme={{ ...eva.light, ...myTheme }}>
-        <NavigationContainer >
+     
           {/* <SafeAreaView style={{flex:1,backgroundColor:'#00AABE'}}> */}
           {Platform.OS === 'web'?   <Helmet>
                 
                 <title>רבותינו</title>
             </Helmet>:<></>}
-          {isInitialized ? <Routes /> : <Splash />}
+          {isInitialized ?   <NavigationContainer > <Routes />    </NavigationContainer>: <Splash />}
 
           {/* </SafeAreaView> */}
-        </NavigationContainer>
+     
       </ApplicationProvider>
     </SafeAreaProvider>
   );
@@ -97,7 +97,7 @@ const Routes = (props) => {
 
   return (
     <View style={{ paddingBottom: insets.bottom, flex: 1, width: '100%' }}>
-      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE', }}>
+      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE',title: 'רבותינו'  }}>
         <Stack.Screen name="Home" options={{ headerShown: false, title: 'רבותינו' }} component={Home} />
         <Stack.Screen name="Main" options={(props) => {
           return {
