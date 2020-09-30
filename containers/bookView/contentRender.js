@@ -67,7 +67,7 @@ const tags = {
     em: { render: (node, options, styles, refClick,index) => <Text  key={index}  style={styles.highlight}>{node.childNodes[0].rawText}</Text> },
     hide: { render: (node, options, styles, refClick,index) => <></> },
     ref: {
-        render: (node, options, styles, refClick) => {
+        render: (node, options, styles, refClick,index) => {
             const char = RegExp(/תו="([^"]+)"/).exec(node.rawAttrs)[1];
             const id = RegExp(/Id="([^"]+)"/).exec(node.rawAttrs) ? RegExp(/Id="([^"]+)"/).exec(node.rawAttrs)[1] : null;
             return !options.exegesis ? <TouchableOpacity  key={index}  onPress={() => refClick(id, char)} >
