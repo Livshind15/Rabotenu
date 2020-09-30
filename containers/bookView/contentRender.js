@@ -142,15 +142,23 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
             position = [...position, ...currPosition.map(position => {
                 return {
                     position,
-                    highlight: currHighlight
+                    highlight: currHighlight,
+                    endPosition:position + currHighlight.length
                 }
             })]
             return position;
-        }, []).sort((a, b) => b.position - a.position)
+        }, []).sort((a, b) => b.position - a.position);
         const positions =groupBy(highlightPosition,"position");
-        const highlightPositionUniq = Object.keys(positions).flatMap((position)=>{
-            return positions[position].sort(function(a, b) {return b.length - a.length})[0];
+        let highlightPositionUniq = Object.keys(positions).flatMap((position)=>{
+            return positions[position].sort(function(a, b) {return b.highlight.length - a.highlight.length})[0];
         }).reverse()
+
+        const endPositions =groupBy(highlightPositionUniq,"endPosition");
+        highlightPositionUniq = Object.keys(endPositions).flatMap((position)=>{
+            return endPositions[position].sort(function(a, b) {return b.highlight.length - a.highlight.length})[0];
+        }).reverse()
+
+        console.log({highlightPositionUniq});
         content = highlightPositionUniq.reduce((highlightContent, highlight) => {
             return insertSubString(highlightContent, highlight.position,highlight.highlight)
         }, content)
