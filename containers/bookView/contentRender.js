@@ -58,27 +58,92 @@ const contentMap = [{
     tag: '</ref>',
 },
 ]
+
+const textToHighlightTags = (content, highlight) => {
+    const highlightPosition = highlight.reduce((position, currHighlight) => {
+        const currPosition = indexesOf(content, currHighlight);
+        if (!isEmpty(currPosition)) {
+            position = [...position, ...currPosition.map(position => {
+                return {
+                    position,
+                    highlight: currHighlight,
+                    endPosition: position + currHighlight.length
+                }
+            })]
+        }
+        return position;
+    }, []).sort((a, b) => b.position - a.position);
+    const positions = groupBy(highlightPosition, "position");
+    let highlightPositionUniq = Object.keys(positions).flatMap((position) => {
+        return positions[position].sort(function (a, b) { return b.highlight.length - a.highlight.length })[0];
+    }).reverse()
+    const endPositions = groupBy(highlightPositionUniq, "endPosition");
+    highlightPositionUniq = Object.keys(endPositions).flatMap((position) => {
+        return endPositions[position].sort(function (a, b) { return b.highlight.length - a.highlight.length })[0];
+    }).reverse();
+    content = highlightPositionUniq.reduce((highlightContent, highlight) => {
+        return insertSubString(highlightContent, highlight.position, highlight.highlight)
+    }, content)
+    if (!isEmpty(highlightPositionUniq)) {
+        return parse(content).childNodes
+    }
+    return []
+
+}
+
+
 const tags = {
-    text: { render: (node, options, styles, refClick,index) => <Text key={index} style={styles.text}>{removeNotNeedContent(node.rawText, options.punctuation, options.grammar)}</Text> },
-    parsha: { render: (node, options, styles, refClick,index) => !options.exegesis ? <Text  key={index}  style={styles.parsha}>{node.childNodes[0].rawText}</Text> : <></> },
-    bold: { render: (node, options, styles, refClick,index) => <Text  key={index}  style={styles.bold}>{node.childNodes[0].rawText}</Text> },
-    small: { render: (node, options, styles, refClick,index) => <Text  key={index}  style={styles.small}>{node.childNodes[0].rawText}</Text> },
-    grey: { render: (node, options, styles, refClick,index) => <Text  key={index}  style={styles.grey}>{node.childNodes[0].rawText}</Text> },
-    em: { render: (node, options, styles, refClick,index) => <Text  key={index}  style={styles.highlight}>{node.childNodes[0].rawText}</Text> },
-    hide: { render: (node, options, styles, refClick,index) => <></> },
+    text: {
+        render: (node, options, styles, refClick, index, highlight) => {
+            let content = removeNotNeedContent(node.rawText, options.punctuation, options.grammar);
+            const highlightText = textToHighlightTags(content, highlight);
+            if (isEmpty(highlightText)) {
+                return <Text key={index} style={styles.text}>{content}</Text>
+            }
+            return highlightText.map((node, index) => contentReduce(node, options, styles, refClick, index, highlight))
+        }
+    },
+    parsha: { render: (node, options, styles, refClick, index, highlight) => !options.exegesis ? <Text key={index} style={styles.parsha}>{node.childNodes[0].rawText}</Text> : <></> },
+    bold: {
+        render: (node, options, styles, refClick, index, highlight) => {
+            let content = node.childNodes[0].rawText;
+            const highlightText = textToHighlightTags(content, highlight);
+            if (isEmpty(highlightText)) {
+                return <Text key={index} style={styles.bold}>{content}</Text>
+            }
+            return highlightText.map((node, index) => contentReduce(node, options, {
+                ...styles, text: styles.bold
+            }, refClick, index, highlight))
+        }
+    },
+    small: {
+        render: (node, options, styles, refClick, index, highlight) => {
+            let content = node.childNodes[0].rawText;
+            const highlightText = textToHighlightTags(content, highlight);
+            if (isEmpty(highlightText)) {
+                return <Text key={index} style={styles.small}>{content}</Text>
+            }
+            return highlightText.map((node, index) => contentReduce(node, options, {
+                ...styles, text: styles.small
+            }, refClick, index, highlight))
+        },
+    },
+    grey: { render: (node, options, styles, refClick, index, highlight) => <Text key={index} style={styles.grey}>{node.childNodes[0].rawText}</Text> },
+    em: { render: (node, options, styles, refClick, index, highlight) => <Text key={index} style={styles.highlight}>{node.childNodes[0].rawText}</Text> },
+    hide: { render: (node, options, styles, refClick, index, highlight) => <></> },
     ref: {
-        render: (node, options, styles, refClick,index) => {
+        render: (node, options, styles, refClick, index, highlight) => {
             const char = RegExp(/תו="([^"]+)"/).exec(node.rawAttrs)[1];
             const id = RegExp(/Id="([^"]+)"/).exec(node.rawAttrs) ? RegExp(/Id="([^"]+)"/).exec(node.rawAttrs)[1] : null;
-            return !options.exegesis ? <TouchableOpacity  key={index}  onPress={() => refClick(id, char)} >
+            return !options.exegesis ? <TouchableOpacity key={index} onPress={() => refClick(id, char)} >
                 <Text style={styles.ref}>{`${char} `}</Text>
             </TouchableOpacity> : <></>
         }
     },
 }
 
-const contentReduce = (node, options, styles, refClick) => {
-    return tags[node._tag_name || 'text'].render(node, options, styles, refClick)
+const contentReduce = (node, options, styles, refClick, index, highlight = []) => {
+    return tags[node._tag_name || 'text'].render(node, options, styles, refClick, index, highlight)
 }
 
 const Content = ({ contentValue, highlight = [], refClick, options }) => {
@@ -99,12 +164,12 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
             fontSize: 19 + options.textSize * 40,
 
         },
-        indexWrapper:{
+        indexWrapper: {
             width: 35,
-            alignItems:'flex-end',
-            justifyContent:'center',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
 
-       
+
         },
         parsha: {
             color: '#11AFC2',
@@ -136,44 +201,17 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
             fontSize: 16 + options.textSize * 40
         }
     });
-    if(!isEmpty(highlight)){
-        const highlightPosition = highlight.reduce((position, currHighlight) => {
-            const currPosition = indexesOf(content, currHighlight);
-            position = [...position, ...currPosition.map(position => {
-                return {
-                    position,
-                    highlight: currHighlight,
-                    endPosition:position + currHighlight.length
-                }
-            })]
-            return position;
-        }, []).sort((a, b) => b.position - a.position);
-        const positions =groupBy(highlightPosition,"position");
-        let highlightPositionUniq = Object.keys(positions).flatMap((position)=>{
-            return positions[position].sort(function(a, b) {return b.highlight.length - a.highlight.length})[0];
-        }).reverse()
 
-        const endPositions =groupBy(highlightPositionUniq,"endPosition");
-        highlightPositionUniq = Object.keys(endPositions).flatMap((position)=>{
-            return endPositions[position].sort(function(a, b) {return b.highlight.length - a.highlight.length})[0];
-        }).reverse()
-
-        console.log({highlightPositionUniq});
-        content = highlightPositionUniq.reduce((highlightContent, highlight) => {
-            return insertSubString(highlightContent, highlight.position,highlight.highlight)
-        }, content)
-    }
-   
     return (
         <>
             {contentValue.index && contentValue.index.length >= 3 ? <Text style={[styles.index, styles.fullWidth]}>{contentValue.index}</Text> : <></>}
-            <View key={Math.random()} style={[{ flexDirection: 'row-reverse', width: '100%', direction: 'rtl' },Platform.OS === 'web' || 'os' ?{flexDirection: 'row'}:{}]}>
-               
-                {contentValue.index && contentValue.index.length < 3 ? <View style={[styles.indexWrapper,Platform.OS === 'web' || 'os' ?{alignItems: 'flex-start'}:{}]}><Text style={[styles.index]}>{contentValue.index}</Text></View> : <></>}
-              
-                 <Text selectable style={[{ width: "90%",textAlignVertical:"center",writingDirection:'rtl', direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }, Platform.OS === 'web' ? { userSelect: 'text' } : {}]} >
-                    {parse(content).childNodes.map((node,index) => contentReduce(node, options, styles, refClick,index))}
-                </Text> 
+            <View key={Math.random()} style={[{ flexDirection: 'row-reverse', width: '100%', direction: 'rtl' }, Platform.OS === 'web' || 'os' ? { flexDirection: 'row' } : {}]}>
+
+                {contentValue.index && contentValue.index.length < 3 ? <View style={[styles.indexWrapper, Platform.OS === 'web' || 'os' ? { alignItems: 'flex-start' } : {}]}><Text style={[styles.index]}>{contentValue.index}</Text></View> : <></>}
+
+                <Text selectable style={[{ width: "90%", textAlignVertical: "center", writingDirection: 'rtl', direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }, Platform.OS === 'web' ? { userSelect: 'text' } : {}]} >
+                    {parse(content).childNodes.map((node, index) => contentReduce(node, options, styles, refClick, index, highlight))}
+                </Text>
             </View>
         </>
     )

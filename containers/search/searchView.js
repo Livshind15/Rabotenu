@@ -43,8 +43,15 @@ const SearchView = ({ navigation, route }) => {
         grammar,
         exegesis,
         punctuation,
+        setShowBack,
          } = React.useContext(RabotenuContext);
     const { searchInput, searchType, tableInput, resources, cache } = React.useContext(SearchContext);
+    React.useEffect(() => {
+        setShowBack({ enable: true, navigation })
+        return () => {
+            setShowBack({ enable: false, navigation: null })
+        }
+    }, []);
     const bookIds = resources.map(resource => resource.bookId);
     const getAllBookFilter = React.useCallback(() => {
         return Object.keys(cache || {}).reduce((acc, curr) => {
