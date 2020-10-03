@@ -22,7 +22,7 @@ import { RabotenuContext } from '../../contexts/applicationContext';
 
 
 const getSearchContent = async ({ booksIds, searchInput, type, tableInput, headersFilters }) => {
-    const { data } = await axios.post(`${config.serverUrl}/book/search/`, {
+    const { data } = await axios.post(`${config.firebase}/books/search/`, {
         size: 50,
         headers: headersFilters,
         "booksIds": booksIds,

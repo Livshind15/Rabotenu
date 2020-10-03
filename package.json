@@ -5,7 +5,9 @@
     "ios": "react-native run-ios",
     "web": "expo start --web",
     "build": "expo build:web",
-    "start": "react-native start"
+    "start": "react-native start",
+    "predeploy": "expo build:web",
+    "deploy-hosting": "npm run predeploy && firebase deploy --only hosting"
   },
   "dependencies": {
     "@eva-design/eva": "^2.0.0",

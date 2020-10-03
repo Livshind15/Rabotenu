@@ -30,6 +30,7 @@ class BookViewClass extends React.Component {
             highlightIndex: null,
             showCopyModal: false,
             bookId: this.props.bookId,
+            headersIndex:1,
             bookInfo: {},
         }
 
@@ -152,7 +153,7 @@ class BookViewClass extends React.Component {
     }
 
     async getBookContent([bookId, index, scroll]) {
-        const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}?lteIndex=${index + scroll}&gteIndex=${index}`);
+        const { data } = await axios.get(`${config.firebase}/books/content/${bookId}?lteIndex=${index + scroll}&gteIndex=${index}`);
         return data || [];
     }
 
@@ -169,18 +170,18 @@ class BookViewClass extends React.Component {
                 }
             }
         })
-        const { data } = await axios.get(`${config.serverUrl}/book/content/${bookId}` + params);
+        const { data } = await axios.get(`${config.firebase}/books/content/${bookId}` + params);
         return data || [];
     }
 
     async getBookInfo([bookId]) {
-        const { data } = await axios.get(`${config.serverUrl}/mapping/books/book/${bookId}`);
+        const { data } = await axios.get(`${config.firebase}/schema/book/${bookId}`);
         return data || [];
     }
 
 
     async getContentIndex(bookId, header) {
-        let url = `${config.serverUrl}/book/content/${bookId}?size=1`;
+        let url = `${config.firebase}/books/content/${bookId}?size=1`;
         headers.forEach(headersType => {
             if (header && header[headersType]) {
                 url += `&${headersType}=${header[headersType]}`
@@ -195,7 +196,7 @@ class BookViewClass extends React.Component {
 
     async getRefIndex(bookId, header, character, id) {
         console.log({ bookId, header, character, id });
-        let url = `${config.serverUrl}/mapping/groups/refs/${bookId}?character=${character.replace('.', '')}`;
+        let url = `${config.firebase}/schema/relations/refs/${bookId}?character=${character.replace('.', '')}`;
         headers.forEach(headersType => {
             if (header[headersType]) {
                 url += `&${headersType}=${header[headersType]}`
@@ -206,7 +207,7 @@ class BookViewClass extends React.Component {
         }
         const { data } = await axios.get(url);
         if (isEmpty(data)) {
-
+            return {};
         }
         return data[0]
     }
@@ -219,7 +220,7 @@ class BookViewClass extends React.Component {
             })
         }
     }
-    async fetchPage() {
+    async fetchPage(currHeader={}) {
         if (!(this.headersFilter && Object.keys(this.headersFilter).some(header => !isEmpty(this.headersFilter[header])))) {
 
             const content = await this.getBookContent([this.state.bookId, this.state.index, 0])
@@ -235,7 +236,8 @@ class BookViewClass extends React.Component {
                 }, {})
             }
         }
-        this.getBookContentByHeaders([this.state.bookId, { ...this.headersFilter, ...this.currHeader }]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
+        console.log({a:this.currHeader,b:currHeader});
+        this.getBookContentByHeaders([this.state.bookId, { ...this.headersFilter, ...this.currHeader,...currHeader }]).then(content => this.bookToElements(content, this.props.grammar, this.props.punctuation)).then(content => {
             this.setState({ data: [] })
             this.bookName = [];
             this.headers = ['', '', '', '', '', '', '', '']
@@ -270,13 +272,14 @@ class BookViewClass extends React.Component {
     }
 
     async onPrev() {
-        const { data } = await axios.post(`${config.serverUrl}/book/parts/${this.props.bookId}`, {
+        const { data } = await axios.post(`${config.firebase}/books/parts/${this.props.bookId}`, {
             "type": this.props.pageBy,
             "parentParts": this.headersFilter,
         });
         const headerIndex = data.findIndex(header => header === this.currHeader[this.props.pageBy])
-        if (data[headerIndex - 1]) {
-            this.currHeader = { [this.props.pageBy]: data[headerIndex - 1] }
+        if (data[headerIndex  - this.state.headersIndex]) {
+            this.currHeader = { [this.props.pageBy]: data[headerIndex - this.state.headersIndex] }
+            this.setState({ loading: true ,headersIndex:this.state.headersIndex-1} );
             this.setState({ loading: true, index: this.props.index }, () => this.fetchPage());
             return true;
 
@@ -308,7 +311,7 @@ class BookViewClass extends React.Component {
         }
     }
     async getParts() {
-        const { data } = await axios.post(`${config.serverUrl}/book/parts/${this.props.bookId}`, {
+        const { data } = await axios.post(`${config.firebase}/books/parts/${this.props.bookId}`, {
             "type": this.props.pageBy,
             "parentParts": this.headersFilter,
         });
@@ -317,9 +320,11 @@ class BookViewClass extends React.Component {
     async onNext() {
         const data = await this.getParts();
         const headerIndex = data.findIndex(header => header === this.currHeader[this.props.pageBy])
-        if (data[headerIndex + 1]) {
-            this.currHeader = { [this.props.pageBy]: data[headerIndex + 1] }
-            this.setState({ loading: true }, () => this.fetchPage());
+        if (data[headerIndex + this.state.headersIndex]) {
+            this.currHeader = { [this.props.pageBy]: data[headerIndex + this.state.headersIndex] }
+            this.setState({ loading: true ,headersIndex:this.state.headersIndex+1} );
+            await this.fetchPage(  this.currHeader)
+
             return true;
 
         }

@@ -19,7 +19,7 @@ import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 
 const getGroups = async ({ bookResult }) => {
-    const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
+    const { data } = await axios.get(`${config.firebase}/schema`);
     return attachResultToGroups(data, _.keyBy(bookResult, 'bookId')).groups || [];
 }
 

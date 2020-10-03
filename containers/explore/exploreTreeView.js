@@ -13,12 +13,12 @@ import ErrorModel from '../../component/modalError/modalError';
 
 export const getBookTree = async (booksIds) => {
     const data = await Promise.all(booksIds.map(bookId => {
-        return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
+        return axios.get(`${config.firebase}/books/tree/${bookId}`).then(res => res.data);
     }))
     return data || [];
 }
 export const getGroups = async () => {
-    const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
+    const { data } = await axios.get(`${config.firebase}/schema`);
     return JSON.parse(JSON.stringify(data)) || []
 }
 

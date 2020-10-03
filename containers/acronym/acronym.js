@@ -23,7 +23,7 @@ export default function Acronym() {
 
 const getAcronym = async (content,searchType) => {
 
-  return axios.post(`${config.serverUrl}/acronyms`, {
+  return axios.post(`${config.firebase}/acronyms`, {
     content: content,
     type: searchType,
     size: 50

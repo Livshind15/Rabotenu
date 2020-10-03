@@ -28,7 +28,7 @@ const Stack = createStackNavigator();
 
 
 export const getBooksByContent = async (content, searchType, tableInput, books, groups, filtersHeaders) => {
-  const { data } = await axios.post(`${config.serverUrl}/book/search/books/`, {
+  const { data } = await axios.post(`${config.firebase}/books/searchBooks/`, {
     "content": searchType === "table" ? "" : content,
     "type": !isEmpty(tableInput) ? searchType || 'exact' : 'exact',
     "table": searchType === "table" ? tableInput : [],

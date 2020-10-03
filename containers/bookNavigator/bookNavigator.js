@@ -23,13 +23,13 @@ const headers = ["header1", "header2", "header3", "header4", "header5", "header6
 
 const getBookTree = async ([booksIds]) => {
     const data = await Promise.all(booksIds.map(bookId => {
-        return axios.get(`${config.serverUrl}/book/tree/${bookId}`).then(res => res.data);
+        return axios.get(`${config.firebase}/books/tree/${bookId}`).then(res => res.data);
     }))
     return data || [];
 }
 
 const getSubBooks = async ([bookId, header]) => {
-    let url = `${config.serverUrl}/mapping/groups/childBooks/${bookId}`;
+    let url = `${config.firebase}/schema/relations/childrens/${bookId}`;
     let params = '';
     headers.forEach(headersType => {
         if (header &&header[headersType]) {
@@ -47,7 +47,7 @@ const getSubBooks = async ([bookId, header]) => {
 }
 
 const getParallelBooks = async ([bookId, header]) => {
-    let url = `${config.serverUrl}/mapping/groups/parallelBooks/${bookId}`;
+    let url = `${config.firebase}/schema/relations/parallel/${bookId}`;
     let params = '';
 
     headers.forEach(headersType => {
@@ -67,7 +67,7 @@ const getParallelBooks = async ([bookId, header]) => {
 
 
 const getParentBooks = async ([bookId, header]) => {
-    let url = `${config.serverUrl}/mapping/groups/parentBook/${bookId}`;
+    let url = `${config.firebase}/schema/relations/parent/${bookId}`;
     let params = '';
     headers.forEach(headersType => {
         if (header && header[headersType]) {

@@ -26,7 +26,7 @@ import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-cont
 
 const Stack = createStackNavigator();
 export const getGroups = async () => {
-  const { data } = await axios.get(`${config.serverUrl}/mapping/groups/`);
+  const { data } = await axios.get(`${config.firebase}/schema`);
   return data || [];
 }
 

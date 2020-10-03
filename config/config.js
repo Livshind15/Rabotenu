@@ -1,3 +1,3 @@
 export default {
-    serverUrl: 'https://rabotenu.herokuapp.com'
+    firebase:"https://us-central1-rabotenu-e548b.cloudfunctions.net/api"
 }
