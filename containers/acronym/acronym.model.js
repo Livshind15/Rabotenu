@@ -12,7 +12,7 @@ import optionsList from './acronym.model.options';
 
 export default function AcronymModal({ visible, setVisible,onOptionsSelected,selectedOptions }) {
     return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent onOptionsSelected={onOptionsSelected} selectedOptions={selectedOptions} setVisible={setVisible} options={optionsList} /></Modal> :
-        <MobileModal onOptionsSelected={onOptionsSelected} selectedOptions={selectedOptions} onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent setVisible={setVisible} options={optionsList} /></MobileModal>
+        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent  onOptionsSelected={onOptionsSelected} setVisible={setVisible} selectedOptions={selectedOptions}  options={optionsList} /></MobileModal>
 }
 
 const ModelContent = ({ options, setVisible,onOptionsSelected,selectedOptions }) => {

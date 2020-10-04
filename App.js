@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as eva from '@eva-design/eva';
 import 'react-native-gesture-handler';
-import { StyleSheet, TouchableOpacity, View, StatusBar,Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, StatusBar, Platform } from 'react-native';
 import * as Font from 'expo-font';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -14,7 +14,7 @@ import Logo from './component/logo/logo';
 import MainNavigator from './containers/mainNavigator/mainNavigator';
 import { RabotenuProvider, RabotenuContext } from './contexts/applicationContext';
 import { MaterialIcons } from '@expo/vector-icons';
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet";
 
 import { SearchContext, SearchProvider } from './contexts/searchContext';
 import config from "./config/config";
@@ -32,15 +32,17 @@ export const getGroups = async () => {
 
 
 function App() {
-  const [fontsLoaded] = Font.useFonts({...{
-    'Inter-Black': require('./assets/fonts/Inter-Black.otf'),
+  const [fontsLoaded] = Font.useFonts({
+    ...{
+      'Inter-Black': require('./assets/fonts/Inter-Black.otf'),
 
 
 
-  },...(Platform.OS === 'os'?{}:{
-    'OpenSansHebrew': require('./assets/fonts/OpenSansHebrew-Regular.ttf'),
-    'OpenSansHebrewBold': require('./assets/fonts/OpenSansHebrew-Bold.ttf'),
-  })});
+    }, ...(Platform.OS === 'ios' ? {} : {
+      'OpenSansHebrew': require('./assets/fonts/OpenSansHebrew-Regular.ttf'),
+      'OpenSansHebrewBold': require('./assets/fonts/OpenSansHebrew-Bold.ttf'),
+    })
+  });
   const [isDelay, setDelay] = React.useState(false)
   const { setResources, setData, allResourceToggle } = React.useContext(SearchContext);
   const { data, error, isPending } = useAsync({ promiseFn: getGroups })
@@ -67,16 +69,13 @@ function App() {
   return (
     <SafeAreaProvider >
       <ApplicationProvider {...eva} theme={{ ...eva.light, ...myTheme }}>
-     
-          {/* <SafeAreaView style={{flex:1,backgroundColor:'#00AABE'}}> */}
-          {Platform.OS === 'web'?   <Helmet>
-                
-                <title>רבותינו</title>
-            </Helmet>:<></>}
-          {isInitialized ?   <NavigationContainer > <Routes />    </NavigationContainer>: <Splash />}
 
-          {/* </SafeAreaView> */}
-     
+        {/* <SafeAreaView style={{flex:1,backgroundColor:'#00AABE'}}> */}
+
+        {isInitialized ? <NavigationContainer ><Routes /></NavigationContainer> : <Splash />}
+
+        {/* </SafeAreaView> */}
+
       </ApplicationProvider>
     </SafeAreaProvider>
   );
@@ -97,7 +96,7 @@ const Routes = (props) => {
 
   return (
     <View style={{ paddingBottom: insets.bottom, flex: 1, width: '100%' }}>
-      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE',title: 'רבותינו'  }}>
+      <Stack.Navigator initialRouteName="Home" screenOptions={{ headerTintColor: '#00AABE', title: 'רבותינו' }}>
         <Stack.Screen name="Home" options={{ headerShown: false, title: 'רבותינו' }} component={Home} />
         <Stack.Screen name="Main" options={(props) => {
           return {

@@ -23,7 +23,7 @@ import { RabotenuContext } from '../../contexts/applicationContext';
 
 const getSearchContent = async ({ booksIds, searchInput, type, tableInput, headersFilters }) => {
     const { data } = await axios.post(`${config.firebase}/books/search/`, {
-        size: 50,
+        size: 100,
         headers: headersFilters,
         "booksIds": booksIds,
         "content": type === "table" ? "" : searchInput,
@@ -83,7 +83,8 @@ const SearchView = ({ navigation, route }) => {
                     <FlatList
                         keyExtractor={item => item.id}
                         style={styles.view} data={data} renderItem={({ item, index }) => {
-                            const header = `${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}`;
+                            const  headers = getHeadersArray(item);
+                            const header = `${item.groupName.replace('_', '"')}, ${item.bookName.replace('_', '"')}, ${headers.join(', ')}`;
                             const content = {
                                 original: item,
                                 id: 0,
@@ -107,6 +108,16 @@ const SearchView = ({ navigation, route }) => {
     )
 }
 
+
+const getHeadersArray = (currHeaders) => {
+    const filteredHeaders = headers.reduce((headersFilter, header) => {
+        if (currHeaders[header]) {
+            headersFilter.push(currHeaders[header])
+        }
+        return headersFilter;
+    }, [])
+    return filteredHeaders;
+}
 
 const getHeaders = (currHeaders) => {
     const filteredHeaders = headers.reduce((headersFilter, header) => {

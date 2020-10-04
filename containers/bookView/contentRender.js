@@ -81,15 +81,34 @@ const textToHighlightTags = (content, highlight) => {
     highlightPositionUniq = Object.keys(endPositions).flatMap((position) => {
         return endPositions[position].sort(function (a, b) { return b.highlight.length - a.highlight.length })[0];
     }).reverse();
+
+
+    
     content = highlightPositionUniq.reduce((highlightContent, highlight) => {
         return insertSubString(highlightContent, highlight.position, highlight.highlight)
     }, content)
+    console.log(highlightPositionUniq);
     if (!isEmpty(highlightPositionUniq)) {
         return parse(content).childNodes
     }
     return []
 
 }
+const innerTags = {
+    "text": {
+        render: (node, options, styles, refClick, index, highlight) => {
+            let content = removeNotNeedContent(node.rawText, options.punctuation, options.grammar);
+            return <Text key={index} style={styles.text}>{content}</Text>
+        }
+    },
+    em: { render: (node, options, styles, refClick, index, highlight) => <Text key={index} style={styles.highlight}>{node.childNodes[0].rawText}</Text> },
+
+}
+const innerContentReduce = (node, options, styles, refClick, index, highlight = []) => {
+    return innerTags[node._tag_name || 'text'].render(node, options, styles, refClick, index, highlight)
+}
+
+
 
 
 const tags = {
@@ -100,7 +119,7 @@ const tags = {
             if (isEmpty(highlightText)) {
                 return <Text key={index} style={styles.text}>{content}</Text>
             }
-            return highlightText.map((node, index) => contentReduce(node, options, styles, refClick, index, highlight))
+            return highlightText.map((node, index) => innerContentReduce(node, options, styles, refClick, index, highlight))
         }
     },
     parsha: { render: (node, options, styles, refClick, index, highlight) => !options.exegesis ? <Text key={index} style={styles.parsha}>{node.childNodes[0].rawText}</Text> : <></> },
@@ -109,10 +128,10 @@ const tags = {
             let content = node.childNodes[0].rawText;
             const highlightText = textToHighlightTags(content, highlight);
             if (isEmpty(highlightText)) {
-                return <Text key={index} style={styles.bold}>{content}</Text>
+            return <Text key={index} style={styles.bold}>{content}</Text>
             }
-            return highlightText.map((node, index) => contentReduce(node, options, {
-                ...styles, text: styles.bold
+            return highlightText.map((node, index) => innerContentReduce(node, options, {
+                 text: styles.bold ,highlight:[styles.bold,styles.highlightText]
             }, refClick, index, highlight))
         }
     },
@@ -121,11 +140,11 @@ const tags = {
             let content = node.childNodes[0].rawText;
             const highlightText = textToHighlightTags(content, highlight);
             if (isEmpty(highlightText)) {
-                return <Text key={index} style={styles.small}>{content}</Text>
+            return <Text key={index} style={styles.small}>{content}</Text>
             }
-            return highlightText.map((node, index) => contentReduce(node, options, {
-                ...styles, text: styles.small
-            }, refClick, index, highlight))
+            return highlightText.map((node, index) => innerContentReduce(node, options, {
+                text: styles.small ,highlight:[styles.small,styles.highlightText]
+           }, refClick, index, highlight))
         },
     },
     grey: { render: (node, options, styles, refClick, index, highlight) => <Text key={index} style={styles.grey}>{node.childNodes[0].rawText}</Text> },
@@ -166,7 +185,6 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
         },
         indexWrapper: {
             width: 35,
-            alignItems: 'flex-end',
             justifyContent: 'center',
 
 
@@ -179,6 +197,9 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
         text: {
             color: '#455253',
             fontSize: 19 + options.textSize * 40,
+        },
+        highlightText:{
+            backgroundColor: 'yellow',
         },
         highlight: {
             color: '#455253',
@@ -201,13 +222,12 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
             fontSize: 16 + options.textSize * 40
         }
     });
-
     return (
         <>
             {contentValue.index && contentValue.index.length >= 3 ? <Text style={[styles.index, styles.fullWidth]}>{contentValue.index}</Text> : <></>}
-            <View key={Math.random()} style={[{ flexDirection: 'row-reverse', width: '100%', direction: 'rtl' }, Platform.OS === 'web' || 'os' ? { flexDirection: 'row' } : {}]}>
+            <View key={Math.random()} style={[{ flexDirection: Platform.OS === "android" ? 'row-reverse' : "row", width: '100%', direction: 'rtl' }]}>
 
-                {contentValue.index && contentValue.index.length < 3 ? <View style={[styles.indexWrapper, Platform.OS === 'web' || 'os' ? { alignItems: 'flex-start' } : {}]}><Text style={[styles.index]}>{contentValue.index}</Text></View> : <></>}
+                {contentValue.index && contentValue.index.length < 3 ? <View style={[styles.indexWrapper, { alignItems: Platform.OS === "android" ? 'flex-end' : 'flex-start' }]}><Text style={[styles.index]}>{contentValue.index}</Text></View> : <></>}
 
                 <Text selectable style={[{ width: "90%", textAlignVertical: "center", writingDirection: 'rtl', direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }, Platform.OS === 'web' ? { userSelect: 'text' } : {}]} >
                     {parse(content).childNodes.map((node, index) => contentReduce(node, options, styles, refClick, index, highlight))}
