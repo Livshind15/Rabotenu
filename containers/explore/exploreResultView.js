@@ -9,7 +9,7 @@ import { getBooksByByQuery, getBookTree } from './explore.utils'
 import { optimizeHeavyScreen } from 'react-navigation-heavy-screen';
 import PlaceHolder from '../../component/placeHolder/placeHolder';
 import { debounce, isEmpty } from 'lodash';
-import { Entypo } from '@expo/vector-icons'; 
+import { Entypo } from '@expo/vector-icons';
 
 import { FlatList } from 'react-native-gesture-handler';
 const headers = ["header1", "header2", "header3", "header4", "header5", "header6", "header7"]
@@ -83,7 +83,8 @@ function ExploreResultView({ route, navigation, replaceInput, addInput }) {
 
   const selectedBooks = () => exploreResult.filter(result => result.isCheck);
 
-  const onSearch = debounce(async (text) => {
+  const onSearch = async (text) => {
+
     const newInput = replaceInput.reduce((input, currReplace) => {
       input = input.replace(currReplace.srcInput, currReplace.desInput)
       return input;
@@ -94,6 +95,9 @@ function ExploreResultView({ route, navigation, replaceInput, addInput }) {
       }
       return addInput;
     }, [])
+
+
+
     setLoading(true)
     const result = await getBooksByByQuery([newInput, ...addInputs]).then(res => {
       if (res.length !== 1) {
@@ -103,20 +107,22 @@ function ExploreResultView({ route, navigation, replaceInput, addInput }) {
       return res
     })
     if (result.length === 1) {
-      const treeRes  = await getBookTree([result[0].bookId]).then(res=>{
+      const treeRes = await getBookTree([result[0].bookId]).then(res => {
         setLoading(false)
         return res
       });
       const tree = treeRes[0].tree;
       const queryTree = removeEmptyHeaders(filterTree(tree, result[0].headers));
       setResult(flattenHeaders(queryTree, {}).map(res => { return { filters: res, ...result[0] } }))
+      setLoading(false)
+
 
     }
     else {
       setResult(result)
     }
 
-  }, 1000)
+  }
 
   return (
     <Background>
