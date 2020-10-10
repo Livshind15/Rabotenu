@@ -1,0 +1,27 @@
+[debug] [2020-10-10T13:57:23.079Z] ----------------------------------------------------------------------
+[debug] [2020-10-10T13:57:23.081Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Danie\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
+[debug] [2020-10-10T13:57:23.082Z] CLI Version:   8.11.2
+[debug] [2020-10-10T13:57:23.082Z] Platform:      win32
+[debug] [2020-10-10T13:57:23.082Z] Node Version:  v14.13.0
+[debug] [2020-10-10T13:57:23.092Z] Time:          Sat Oct 10 2020 16:57:23 GMT+0300 (Israel Daylight Time)
+[debug] [2020-10-10T13:57:23.092Z] ----------------------------------------------------------------------
+[debug] [2020-10-10T13:57:23.092Z] 
+[debug] [2020-10-10T13:57:23.112Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-10-10T13:57:23.114Z] > authorizing via signed-in user
+[debug] [2020-10-10T13:57:23.114Z] [iam] checking project rabotenu-e548b for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2020-10-10T13:57:23.117Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2020-10-10T13:57:23.117Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2020-10-10T13:57:23.552Z] <<< HTTP RESPONSE 200 {"pragma":"no-cache","date":"Sat, 10 Oct 2020 13:57:23 GMT","expires":"Mon, 01 Jan 1990 00:00:00 GMT","cache-control":"no-cache, no-store, max-age=0, must-revalidate","content-type":"application/json; charset=utf-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","server":"scaffolding on HTTPServer2","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-Q050=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-10-10T13:57:23.565Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/rabotenu-e548b:testIamPermissions  
+ {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2020-10-10T13:57:24.455Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sat, 10 Oct 2020 13:57:24 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=626","alt-svc":"h3-Q050=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-10-10T13:57:24.456Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/rabotenu-e548b  
+ 
+[debug] [2020-10-10T13:57:24.866Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sat, 10 Oct 2020 13:57:24 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-Q050=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Deploying to 'rabotenu-e548b'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2020-10-10T13:57:24.873Z] >>> HTTP REQUEST POST https://firebasehosting.googleapis.com/v1beta1/sites/rabotenu-e548b/versions  
+ {"config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"}}
