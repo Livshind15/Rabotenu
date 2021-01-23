@@ -83,7 +83,7 @@ const textToHighlightTags = (content, highlight) => {
     }).reverse();
 
 
-    
+
     content = highlightPositionUniq.reduce((highlightContent, highlight) => {
         return insertSubString(highlightContent, highlight.position, highlight.highlight)
     }, content)
@@ -128,10 +128,10 @@ const tags = {
             let content = node.childNodes[0].rawText;
             const highlightText = textToHighlightTags(content, highlight);
             if (isEmpty(highlightText)) {
-            return <Text key={index} style={styles.bold}>{content}</Text>
+                return <Text key={index} style={styles.bold}>{content}</Text>
             }
             return highlightText.map((node, index) => innerContentReduce(node, options, {
-                 text: styles.bold ,highlight:[styles.bold,styles.highlightText]
+                text: styles.bold, highlight: [styles.bold, styles.highlightText]
             }, refClick, index, highlight))
         }
     },
@@ -140,11 +140,11 @@ const tags = {
             let content = node.childNodes[0].rawText;
             const highlightText = textToHighlightTags(content, highlight);
             if (isEmpty(highlightText)) {
-            return <Text key={index} style={styles.small}>{content}</Text>
+                return <Text key={index} style={styles.small}>{content}</Text>
             }
             return highlightText.map((node, index) => innerContentReduce(node, options, {
-                text: styles.small ,highlight:[styles.small,styles.highlightText]
-           }, refClick, index, highlight))
+                text: styles.small, highlight: [styles.small, styles.highlightText]
+            }, refClick, index, highlight))
         },
     },
     grey: { render: (node, options, styles, refClick, index, highlight) => <Text key={index} style={styles.grey}>{node.childNodes[0].rawText}</Text> },
@@ -186,8 +186,6 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
         indexWrapper: {
             width: 35,
             justifyContent: 'center',
-
-
         },
         parsha: {
             color: '#11AFC2',
@@ -198,7 +196,7 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
             color: '#455253',
             fontSize: 19 + options.textSize * 40,
         },
-        highlightText:{
+        highlightText: {
             backgroundColor: 'yellow',
         },
         highlight: {
