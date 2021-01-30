@@ -140,7 +140,16 @@ const SearchMain = ({ navigation }) => {
   return (
     <Background>
       <SearchOptionsModel onResources={() => navigation.push('Resources')} openSearchType={() => setShowSearchType(true)} visible={showOptionsSearch} setVisible={setShowOptionsSearch} ></SearchOptionsModel>
-      <SearchTypeModel currSelect={typeToIndex.findIndex(item => item === searchType) || 0} onOptionChange={(index) => {
+      <SearchTypeModel onOptionSelect={(index) => {
+        setSearchType(typeToIndex[index] || 'exact');
+        setTableInput([[]])
+        if (index === 4) {
+          navigation.push('TableSearch');
+          setShowSearchType(false)
+        }
+        // console.log("sfsf");
+        setShowSearchType(false);
+      }} currSelect={typeToIndex.findIndex(item => item === searchType) || 0} onOptionChange={(index) => {
         setSearchType(typeToIndex[index] || 'exact');
         setTableInput([[]])
         if (index === 4) {

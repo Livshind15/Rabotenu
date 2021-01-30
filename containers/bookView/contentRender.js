@@ -14,6 +14,20 @@ const contentMap = [{
     originTag: "<\s*/\s*פרשה>",
     tag: '</parsha>',
 },
+// {
+//     originTag: "<\s*הגה[^>]*>",
+//     tag: '<grey>',
+// }, {
+//     originTag: "<\s*/\s*הגה>",
+//     tag: '</grey>',
+// },
+{
+    originTag: "<\s*מקורות[^>]*>",
+    tag: '<small>',
+}, {
+    originTag: "<\s*/\s*מקורות>",
+    tag: '</small>',
+},
 {
     originTag: "<\s*דה[^>]*>",
     tag: '<bold>',
@@ -223,11 +237,11 @@ const Content = ({ contentValue, highlight = [], refClick, options }) => {
     return (
         <>
             {contentValue.index && contentValue.index.length >= 3 ? <Text style={[styles.index, styles.fullWidth]}>{contentValue.index}</Text> : <></>}
-            <View key={Math.random()} style={[{ flexDirection: Platform.OS === "android" ? 'row-reverse' : "row", width: '100%', direction: 'rtl' }]}>
+            <View key={Math.random()} style={[{ flexDirection: Platform.OS === "android" ? 'row-reverse' : "row", width: '90%', direction: 'rtl' }]}>
 
                 {contentValue.index && contentValue.index.length < 3 ? <View style={[styles.indexWrapper, { alignItems: Platform.OS === "android" ? 'flex-end' : 'flex-start' }]}><Text style={[styles.index]}>{contentValue.index}</Text></View> : <></>}
 
-                <Text selectable style={[{ width: "90%", textAlignVertical: "center", writingDirection: 'rtl', direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }, Platform.OS === 'web' ? { userSelect: 'text' } : {}]} >
+                <Text selectable style={[{ width: "95%", display: "inline", writingDirection: 'rtl', direction: 'rtl', textAlign: Platform.OS === 'android' ? 'right' : 'justify' }, Platform.OS === 'web' ? { userSelect: 'text' } : {}]} >
                     {parse(content).childNodes.map((node, index) => contentReduce(node, options, styles, refClick, index, highlight))}
                 </Text>
             </View>

@@ -11,12 +11,12 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 
 
-export default function SearchTypeModel({ visible, setVisible, options, onOptionChange,currSelect }) {
-    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent currSelect={currSelect} onOptionChange={onOptionChange} options={options} setVisible={setVisible} /></Modal> :
-        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent currSelect={currSelect} options={options} setVisible={setVisible} onOptionChange={onOptionChange} /></MobileModal>
+export default function SearchTypeModel({ visible, setVisible, options, onOptionChange, onOptionSelect, currSelect }) {
+    return Platform.OS === 'web' ? <Modal style={styles.card} onBackdropPress={() => setVisible(false)} isVisible={visible}><ModelContent onOptionSelect={onOptionSelect} currSelect={currSelect} onOptionChange={onOptionChange} options={options} setVisible={setVisible} /></Modal> :
+        <MobileModal onBackdropPress={() => setVisible(false)} style={styles.card} isVisible={visible}><ModelContent onOptionSelect={onOptionSelect} currSelect={currSelect} options={options} setVisible={setVisible} onOptionChange={onOptionChange} /></MobileModal>
 }
 
-const ModelContent = ({ setVisible, options, onOptionChange, currSelect }) => {
+const ModelContent = ({ setVisible, options, onOptionChange, currSelect, onOptionSelect }) => {
     const [selectedOptions, setSelectedOptions] = React.useState(currSelect);
     return (
         <View style={styles.container}>
@@ -28,15 +28,14 @@ const ModelContent = ({ setVisible, options, onOptionChange, currSelect }) => {
             <ScrollView style={styles.options}>
                 {options.map((option, key) => (
                     <TouchableOpacity key={key} underlayColor="#ffffff00" onPress={() => {
-                        setSelectedOptions(key)
-                        onOptionChange(key)
+                        // setSelectedOptions(key)
+                        onOptionSelect(key)
                     }}>
                         <View style={styles.option}>
                             <Radio onChange={() => {
                                 setSelectedOptions(key)
                                 onOptionChange(key)
                             }} checked={selectedOptions === key} />
-
                             <View style={styles.textWrapper}>
                                 <Text style={styles.optionTextTitle}>{option.title}</Text>
                                 <Text style={styles.optionText}>{option.description}</Text>
